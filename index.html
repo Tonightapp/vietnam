@@ -3051,7 +3051,7 @@ function setHero(i){
 setInterval(()=>{setHero(heroIdx+1);},5000);
 
 function filteredEvents(){
-  const today=new Date('2026-03-25');today.setHours(0,0,0,0);
+  const today=new Date();today.setHours(0,0,0,0);
   return EVENTS.filter(e=>{
     if(filterCity && e.city!==filterCity) return false;
     if(filterArea && e.area!==filterArea) return false;
@@ -5839,6 +5839,23 @@ function _initApp(){
   _idle(()=>{ try{ seedInitialNotifs(); renderPromoStrip(); updateBadge(); }catch(_){} });
   _idle(()=>{ try{ startLiveCounters(); }catch(_){} });
   _idle(()=>{ try{ startGeofencing(); }catch(_){} });
+
+  // ── LIVE EVENTS: fetch approved venue-submitted events in background ──
+  // Runs silently — hardcoded events always display immediately above
+  if(COMMUNITY_WEBHOOK && COMMUNITY_WEBHOOK.indexOf('script.google.com')>-1){
+    fetch(COMMUNITY_WEBHOOK+'?action=events',{method:'GET'})
+      .then(function(r){return r.json();})
+      .then(function(data){
+        if(!data||!data.events||!data.events.length) return;
+        const existingIds=new Set(EVENTS.map(function(e){return e.id;}));
+        let added=0;
+        data.events.forEach(function(ev){
+          if(!existingIds.has(ev.id)){EVENTS.push(ev);added++;}
+        });
+        if(added>0) renderAll();
+      })
+      .catch(function(){}); // fail silently — hardcoded events always show
+  }
 }
 // Guard: run immediately if DOM is ready, else wait
 if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',_initApp,{once:true});

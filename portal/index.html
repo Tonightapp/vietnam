@@ -735,7 +735,7 @@ import { getAuth, signInWithEmailAndPassword,
          onAuthStateChanged, signOut }             from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { getFirestore, collection, doc,
          query, orderBy, where, limit,
-         onSnapshot, updateDoc, getCountFromServer,
+         onSnapshot, getDoc, updateDoc, getCountFromServer,
          serverTimestamp }                         from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 // ── 🔧 PASTE YOUR FIREBASE CONFIG HERE ───────────────────
@@ -1108,18 +1108,41 @@ function eventApprovalRow(e) {
 
 window.setEF = function(f) { eventFilter = f; renderEventsTable(); };
 
-// ── APPROVE EVENT → Cloud Function fires automatically → sends emails ─────────
+// ── APPROVE EVENT → updates Firestore + blasts emails via Google Apps Script ──
+const GAS_WEBHOOK = 'https://script.google.com/macros/s/AKfycbxXnD70iyAYSC351__KEV1MnGHr3hp1-KonWtEoQN30_HsjqX7wIRQdsbW-UcUjt8z9_g/exec';
+
 window.approveEvent = async function(eventId, title, venueName) {
-  if (!confirm(`Approve "${title}" by ${venueName}?\n\nThis will:\n✅ Publish the event on Tonight Vietnam\n📧 Email ALL users in that city automatically`)) return;
+  if (!confirm(`Approve "${title}" by ${venueName}?\n\nThis will:\n✅ Publish the event on Tonight Vietnam\n📧 Email ALL users in that city`)) return;
   try {
+    // 1. Update Firestore → event goes live on landing.html
+    const evSnap = await getDoc(doc(db,'events',eventId));
+    const evData = evSnap.exists() ? evSnap.data() : {};
     await updateDoc(doc(db,'events',eventId), {
       status:     'approved',
       approvedAt: serverTimestamp(),
       approvedBy: auth.currentUser?.email || 'staff',
-      // Cloud Function watches this status change and fires emails
     });
-    toast(`✅ "${title}" approved — email notifications sending now`);
-  } catch(e) { toast(`Error: ${e.message}`); }
+
+    // 2. Blast emails to community via Google Apps Script
+    const payload = {
+      source:       'approve-event',
+      eventTitle:   evData.title   || title,
+      city:         evData.city    || '',
+      venue:        evData.venue   || evData.venueName || venueName,
+      date:         evData.date    || '',
+      doorsOpen:    evData.time    || '',
+      genre:        evData.genre   || '',
+      description:  evData.desc    || '',
+      specialOffer: evData.specialOffer || '',
+    };
+    fetch(GAS_WEBHOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).catch(() => {}); // fire-and-forget
+
+    toast(`✅ "${title}" is LIVE — emailing city community now`);
+  } catch(e) { toast(`Error: ${e.message}`,'err'); }
 };
 
 window.rejectEvent = async function(eventId, title) {

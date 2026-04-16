@@ -22,6 +22,10 @@ function doPost(e) {
         saveProEvent(data);
         sendProAlert(data);
         break;
+      case 'approve-event':
+        approveEventRow(data);
+        sendEventBlast(data);
+        break;
       case 'pro-signup':
         saveProSignup(data);
         sendProSignupAlert(data);
@@ -40,7 +44,11 @@ function doPost(e) {
   }
 }
 
-function doGet() {
+function doGet(e) {
+  var params = (e && e.parameter) ? e.parameter : {};
+  if (params.action === 'events') {
+    return getApprovedEventsJSON();
+  }
   return jsonOk({ status: 'ok', service: 'Tonight Webhook', time: new Date().toISOString() });
 }
 
@@ -312,6 +320,266 @@ function testEmail() {
   } catch(e) {
     Logger.log('FAILED — ' + e.toString());
   }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// APPROVED EVENTS API  (GET ?action=events)
+// Returns approved venue-submitted events as JSON for the app
+// ═══════════════════════════════════════════════════════════════
+function getApprovedEventsJSON() {
+  var events = getApprovedEventsData();
+  return ContentService.createTextOutput(JSON.stringify({ status: 'ok', events: events }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function getApprovedEventsData() {
+  var ss  = SpreadsheetApp.openById(SHEET_ID);
+  var tab = ss.getSheetByName(PRO_TAB);
+  if (!tab) return [];
+  var rows = tab.getDataRange().getValues();
+  if (rows.length < 2) return [];
+  // PRO_HEADERS: [0]Timestamp [1]Status [2]Business Name [3]Venue Type [4]City [5]Address
+  //              [6]Event Title [7]Date [8]Doors Open [9]Genre [10]Capacity [11]Description
+  //              [12]Special Offer [13]Contact Name [14]Phone [15]Email [16]Instagram [17]Website [18]Submitted At
+  var GENRE_GRADS = {
+    'Techno':'grad-purple','House':'grad-teal','EDM':'grad-blue','Trance':'grad-cyan',
+    'Hip-Hop':'grad-red','R&B':'grad-rose','Jazz':'grad-gold','Rock':'grad-indigo',
+    'Pop':'grad-pink','Other':'grad-orange'
+  };
+  var events = [];
+  var nextId = 1000;
+  for (var i = 1; i < rows.length; i++) {
+    var row    = rows[i];
+    var status = row[1];
+    if (status !== 'Approved') continue;
+    var genre   = row[9]  || 'House';
+    var dateVal = row[7];
+    var dateStr = '';
+    if (dateVal instanceof Date) dateStr = Utilities.formatDate(dateVal, 'Asia/Ho_Chi_Minh', 'yyyy-MM-dd');
+    else dateStr = String(dateVal).substring(0, 10);
+    events.push({
+      id:        nextId++,
+      title:     row[6]  || 'Untitled Event',
+      artist:    row[13] || 'Various Artists',
+      genre:     genre,
+      city:      row[4]  || '',
+      area:      '',
+      venue:     row[2]  || '',
+      lat:       0,
+      lng:       0,
+      date:      dateStr,
+      price:     0,
+      img:       '',
+      emoji:     '\uD83C\uDFB5',
+      grad:      GENRE_GRADS[genre] || 'grad-purple',
+      desc:      row[11] || '',
+      featured:  false,
+      soldOut:   false,
+      attendees: parseInt(row[10]) || 0,
+      isNew:     true,
+      source:    'venue'
+    });
+  }
+  return events;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// APPROVE EVENT  (POST source:'approve-event')
+// Admin approves an event — updates sheet + blasts emails to city
+// Call from admin panel or Google Sheets script
+// ═══════════════════════════════════════════════════════════════
+function approveEventRow(data) {
+  var ss  = SpreadsheetApp.openById(SHEET_ID);
+  var tab = ss.getSheetByName(PRO_TAB);
+  if (!tab) return;
+  var rows = tab.getDataRange().getValues();
+  // Match by event title + city (or row index if provided)
+  for (var i = 1; i < rows.length; i++) {
+    var row = rows[i];
+    if (row[1] === 'Approved') continue; // already approved
+    var titleMatch = data.eventTitle && row[6] === data.eventTitle;
+    var cityMatch  = data.city      && row[4] === data.city;
+    var rowMatch   = data.rowIndex  && (i + 1) === parseInt(data.rowIndex);
+    if (rowMatch || (titleMatch && cityMatch)) {
+      tab.getRange(i + 1, 2).setValue('Approved');
+      tab.getRange(i + 1, 2).setBackground('#00d084').setFontColor('#000');
+      break;
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// EMAIL BLAST — fires when event is approved
+// Sends beautiful flyer to all community members in that city
+// ═══════════════════════════════════════════════════════════════
+function sendEventBlast(data) {
+  var ss  = SpreadsheetApp.openById(SHEET_ID);
+  var tab = ss.getSheetByName(TAB_NAME); // 'Tonight Community'
+  if (!tab) return 0;
+  var rows    = tab.getDataRange().getValues();
+  var city    = (data.city || '').toLowerCase().trim();
+  var sent    = 0;
+  var seen    = {};
+  for (var i = 1; i < rows.length; i++) {
+    var row         = rows[i];
+    var memberCity  = (row[4] || '').toLowerCase().trim();
+    var email       = (row[3] || '').trim();
+    var name        = row[1] || 'Friend';
+    if (!email || seen[email]) continue;
+    // Send to matching city or all if city not specified
+    if (!city || memberCity === city || memberCity === '') {
+      try { sendEventFlyer(email, name, data); sent++; seen[email] = true; } catch(ex) {}
+    }
+  }
+  return sent;
+}
+
+function sendEventFlyer(toEmail, toName, ev) {
+  var firstName = toName.split(' ')[0] || 'Friend';
+  var subject   = '\uD83C\uDFB5 New Event Alert \u2014 ' + (ev.eventTitle || 'Tonight') + ' in ' + (ev.city || 'your city');
+  var dateRow   = ev.date  ? '<tr><td style="font-size:12px;color:rgba(255,255,255,0.45);padding-right:8px;padding-bottom:5px">\uD83D\uDCC5</td><td style="font-size:13px;color:rgba(255,255,255,0.8);padding-bottom:5px">' + ev.date + '</td></tr>' : '';
+  var venueRow  = ev.venue ? '<tr><td style="font-size:12px;color:rgba(255,255,255,0.45);padding-right:8px;padding-bottom:5px">\uD83D\uDCCD</td><td style="font-size:13px;color:rgba(255,255,255,0.8);padding-bottom:5px">' + ev.venue + (ev.city?', '+ev.city:'') + '</td></tr>' : '';
+  var genreRow  = ev.genre ? '<tr><td style="font-size:12px;color:rgba(255,255,255,0.45);padding-right:8px;padding-bottom:5px">\uD83C\uDFB6</td><td style="font-size:13px;color:rgba(255,255,255,0.8);padding-bottom:5px">' + ev.genre + '</td></tr>' : '';
+  var doorsRow  = ev.doorsOpen ? '<tr><td style="font-size:12px;color:rgba(255,255,255,0.45);padding-right:8px;padding-bottom:5px">\uD83D\uDD50</td><td style="font-size:13px;color:rgba(255,255,255,0.8);padding-bottom:5px">Doors open ' + ev.doorsOpen + '</td></tr>' : '';
+  var descBlock = ev.description ? '<tr><td style="padding:0 32px 20px"><div style="font-size:14px;color:rgba(255,255,255,0.6);line-height:1.65;border-left:3px solid rgba(245,200,66,0.4);padding-left:14px">' + ev.description + '</div></td></tr>' : '';
+  var offerBlock = ev.specialOffer ? '<tr><td style="padding:0 32px 24px"><div style="background:rgba(245,200,66,0.1);border:1px solid rgba(245,200,66,0.25);border-radius:8px;padding:12px 16px;font-size:13px;color:#f5c842">\u2728 Special Offer: ' + ev.specialOffer + '</div></td></tr>' : '';
+  var html = emailHeader() +
+    '<tr><td style="padding:28px 32px 16px">' +
+      '<div style="font-size:22px;font-weight:700;color:#fff;margin-bottom:8px">' + (ev.eventTitle||'New Event') + ' is LIVE \uD83C\uDF89</div>' +
+      '<div style="font-size:14px;color:rgba(255,255,255,0.55);line-height:1.6">Hey ' + firstName + '! A new event just dropped in your city. Be among the first to know.</div>' +
+    '</td></tr>' +
+    '<tr><td style="padding:0 32px 20px">' +
+      '<table width="100%" cellpadding="0" cellspacing="0" style="background:rgba(0,208,132,0.07);border:1px solid rgba(0,208,132,0.2);border-radius:10px;padding:16px">' +
+        '<tr><td style="padding-bottom:12px"><table cellpadding="0" cellspacing="0">' +
+          dateRow + venueRow + genreRow + doorsRow +
+        '</table></td></tr>' +
+      '</table>' +
+    '</td></tr>' +
+    descBlock +
+    offerBlock +
+    '<tr><td style="padding:0 32px 32px;text-align:center">' +
+      '<a href="' + APP_URL + '" style="display:inline-block;background:#f5c842;color:#000;font-weight:700;font-size:14px;padding:14px 36px;border-radius:100px;text-decoration:none;letter-spacing:0.5px">Open Tonight App \u2192</a>' +
+    '</td></tr>' +
+    emailFooter('You are receiving this because you joined the Tonight community.<br/>Reply STOP to unsubscribe.');
+  MailApp.sendEmail({ to: toEmail, subject: subject, htmlBody: html, name: APP_NAME });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// DAILY REMINDERS — installed as a time-based trigger
+// Sends "tomorrow" reminders for approved events
+// Call installDailyTrigger() once manually from the editor
+// ═══════════════════════════════════════════════════════════════
+function sendDailyReminders() {
+  var ss     = SpreadsheetApp.openById(SHEET_ID);
+  var evTab  = ss.getSheetByName(PRO_TAB);
+  if (!evTab) return;
+  var rows = evTab.getDataRange().getValues();
+  var tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  var tmrStr = Utilities.formatDate(tomorrow, 'Asia/Ho_Chi_Minh', 'yyyy-MM-dd');
+  for (var i = 1; i < rows.length; i++) {
+    var row    = rows[i];
+    var status = row[1];
+    if (status !== 'Approved') continue;
+    var dateVal = row[7];
+    var dateStr = '';
+    if (dateVal instanceof Date) dateStr = Utilities.formatDate(dateVal, 'Asia/Ho_Chi_Minh', 'yyyy-MM-dd');
+    else dateStr = String(dateVal).substring(0, 10);
+    if (dateStr !== tmrStr) continue;
+    var remCol = row[19]; // column T — 'Reminder Sent'
+    if (remCol === 'sent') continue;
+    var evData = {
+      eventTitle:   row[6],
+      city:         row[4],
+      venue:        row[2],
+      date:         dateStr,
+      doorsOpen:    row[8],
+      genre:        row[9],
+      description:  row[11],
+      specialOffer: row[12]
+    };
+    sendCityReminder(evData);
+    evTab.getRange(i + 1, 20).setValue('sent'); // mark column T
+  }
+}
+
+function sendCityReminder(ev) {
+  var ss  = SpreadsheetApp.openById(SHEET_ID);
+  var tab = ss.getSheetByName(TAB_NAME);
+  if (!tab) return;
+  var rows   = tab.getDataRange().getValues();
+  var city   = (ev.city || '').toLowerCase().trim();
+  var seen   = {};
+  for (var i = 1; i < rows.length; i++) {
+    var row        = rows[i];
+    var memberCity = (row[4] || '').toLowerCase().trim();
+    var email      = (row[3] || '').trim();
+    var name       = row[1] || 'Friend';
+    if (!email || seen[email]) continue;
+    if (!city || memberCity === city || memberCity === '') {
+      try { sendReminderEmail(email, name, ev); seen[email] = true; } catch(ex) {}
+    }
+  }
+}
+
+function sendReminderEmail(toEmail, toName, ev) {
+  var firstName = toName.split(' ')[0] || 'Friend';
+  var subject   = '\u23F0 Tomorrow! ' + (ev.eventTitle||'Event') + ' \u2014 ' + (ev.venue||ev.city||'');
+  var dateRow   = ev.date      ? '<tr><td style="font-size:12px;color:rgba(255,255,255,0.45);padding-right:8px;padding-bottom:5px">\uD83D\uDCC5</td><td style="font-size:13px;color:rgba(255,255,255,0.8);padding-bottom:5px">Tomorrow, ' + ev.date + '</td></tr>' : '';
+  var venueRow  = ev.venue     ? '<tr><td style="font-size:12px;color:rgba(255,255,255,0.45);padding-right:8px;padding-bottom:5px">\uD83D\uDCCD</td><td style="font-size:13px;color:rgba(255,255,255,0.8);padding-bottom:5px">' + ev.venue + (ev.city?', '+ev.city:'') + '</td></tr>' : '';
+  var doorsRow  = ev.doorsOpen ? '<tr><td style="font-size:12px;color:rgba(255,255,255,0.45);padding-right:8px;padding-bottom:5px">\uD83D\uDD50</td><td style="font-size:13px;color:rgba(255,255,255,0.8);padding-bottom:5px">Doors open ' + ev.doorsOpen + '</td></tr>' : '';
+  var html = emailHeader() +
+    '<tr><td style="padding:28px 32px 16px">' +
+      '<div style="display:inline-block;background:rgba(255,59,92,0.15);border:1px solid rgba(255,59,92,0.35);border-radius:20px;padding:4px 14px;font-size:11px;font-weight:700;letter-spacing:1.5px;color:#ff3b5c;text-transform:uppercase;margin-bottom:14px">Tomorrow \u23F0</div>' +
+      '<div style="font-size:22px;font-weight:700;color:#fff;margin-bottom:8px">' + (ev.eventTitle||'Event') + '</div>' +
+      '<div style="font-size:14px;color:rgba(255,255,255,0.55);line-height:1.6">Hey ' + firstName + '! Just a reminder — this event is tomorrow. Don\'t miss out!</div>' +
+    '</td></tr>' +
+    '<tr><td style="padding:0 32px 20px">' +
+      '<table width="100%" cellpadding="0" cellspacing="0" style="background:rgba(255,59,92,0.07);border:1px solid rgba(255,59,92,0.2);border-radius:10px;padding:16px">' +
+        '<tr><td><table cellpadding="0" cellspacing="0">' +
+          dateRow + venueRow + doorsRow +
+        '</table></td></tr>' +
+      '</table>' +
+    '</td></tr>' +
+    '<tr><td style="padding:0 32px 32px;text-align:center">' +
+      '<a href="' + APP_URL + '" style="display:inline-block;background:#ff3b5c;color:#fff;font-weight:700;font-size:14px;padding:14px 36px;border-radius:100px;text-decoration:none;letter-spacing:0.5px">View Event \u2192</a>' +
+    '</td></tr>' +
+    emailFooter('Reminder sent by Tonight Vietnam. Reply STOP to unsubscribe.');
+  MailApp.sendEmail({ to: toEmail, subject: subject, htmlBody: html, name: APP_NAME });
+}
+
+// ── ONE-TIME SETUP: run once manually from the Apps Script editor ──
+// Creates a daily trigger at 10 AM Vietnam time (03:00 UTC) for reminders
+function installDailyTrigger() {
+  // Remove existing triggers first to avoid duplicates
+  ScriptApp.getProjectTriggers().forEach(function(t) {
+    if (t.getHandlerFunction() === 'sendDailyReminders') ScriptApp.deleteTrigger(t);
+  });
+  ScriptApp.newTrigger('sendDailyReminders')
+    .timeBased()
+    .atHour(10)
+    .everyDays(1)
+    .inTimezone('Asia/Ho_Chi_Minh')
+    .create();
+  Logger.log('Daily reminder trigger installed — fires every day at 10:00 AM Vietnam time');
+}
+
+// ── Test the approval + blast flow (run manually) ──
+function testApproveAndBlast() {
+  var testData = {
+    source:      'approve-event',
+    eventTitle:  'TEST EVENT — delete me',
+    city:        'Ho Chi Minh City',
+    venue:       'Test Venue',
+    date:        '2026-04-20',
+    doorsOpen:   '22:00',
+    genre:       'Techno',
+    description: 'Test description',
+    rowIndex:    null
+  };
+  Logger.log('Blasting to community…');
+  var count = sendEventBlast(testData);
+  Logger.log('Sent to ' + count + ' members');
 }
 
 // ── Helper ────────────────────────────────────────────────────
