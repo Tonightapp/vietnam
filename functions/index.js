@@ -18,7 +18,8 @@
  *   firebase deploy --only functions
  */
 
-const { onDocumentUpdated }          = require('firebase-functions/v2/firestore');
+const { onDocumentUpdated,
+        onDocumentCreated }          = require('firebase-functions/v2/firestore');
 const { onSchedule }                 = require('firebase-functions/v2/scheduler');
 const { defineSecret }               = require('firebase-functions/params');
 const { initializeApp }              = require('firebase-admin/app');
@@ -41,20 +42,26 @@ function makeTransporter(user, pass) {
   });
 }
 
-// ── Helper: get users to notify for a city ────────────────────────────────────
+// ── Helper: get community subscribers for a city ──────────────────────────────
+// Reads community_signups (app sign-ups) — city match or no city set
 async function getUsersForCity(city) {
-  // Get users who are in the same city OR have no city set (global)
-  const snap = await db.collection('users')
+  const snap = await db.collection('community_signups')
     .where('city', 'in', [city, '', null])
     .limit(500)
     .get();
-  return snap.docs.map(d => d.data()).filter(u => u.email);
+  return snap.docs.map(d => {
+    const u = d.data();
+    return { email: u.email, fullName: u.fullName || u.name || '', city: u.city || '' };
+  }).filter(u => u.email);
 }
 
-// ── Helper: also grab ALL users if city list doesn't match (safety net) ───────
+// ── Helper: get ALL community subscribers (fallback) ──────────────────────────
 async function getAllUsers() {
-  const snap = await db.collection('users').limit(500).get();
-  return snap.docs.map(d => d.data()).filter(u => u.email);
+  const snap = await db.collection('community_signups').limit(500).get();
+  return snap.docs.map(d => {
+    const u = d.data();
+    return { email: u.email, fullName: u.fullName || u.name || '', city: u.city || '' };
+  }).filter(u => u.email);
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -350,3 +357,148 @@ function escHtml(str) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
 }
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FUNCTION 3: onGuestlistCreate
+// Fires when a guestlist doc is created → sends QR ticket email to guest
+// ══════════════════════════════════════════════════════════════════════════════
+exports.onGuestlistCreate = onDocumentCreated(
+  {
+    document: 'guestlist/{id}',
+    secrets:  [EMAIL_USER, EMAIL_PASS, EMAIL_FROM],
+    region:   'asia-southeast1',
+  },
+  async (event) => {
+    const tk = event.data.data();
+    if (!tk.buyerEmail) return;
+
+    const transporter = makeTransporter(EMAIL_USER.value(), EMAIL_PASS.value());
+    const fromLabel   = EMAIL_FROM.value() || `Tonight Vietnam <${EMAIL_USER.value()}>`;
+    const ref         = tk.ref || 'TN-XXXX-XXXX';
+    const qrUrl       = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&color=000000&bgcolor=ffffff&data=${encodeURIComponent('TONIGHT:' + ref)}`;
+    const firstName   = (tk.buyerName || 'Guest').split(' ')[0];
+
+    const dateFormatted = tk.date
+      ? new Date(tk.date).toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' })
+      : '';
+
+    const html = `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"/></head>
+<body style="margin:0;padding:0;background:#080810;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#080810;padding:32px 16px">
+<tr><td align="center">
+<table width="520" cellpadding="0" cellspacing="0" style="max-width:520px;background:#13131f;border:1px solid rgba(0,208,132,0.25);border-radius:20px;overflow:hidden">
+  <tr><td style="background:linear-gradient(135deg,rgba(0,208,132,0.15),rgba(0,208,132,0.05));padding:32px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.07)">
+    <div style="font-size:28px;font-weight:900;letter-spacing:4px;color:#f5c842">TONIGHT</div>
+    <div style="font-size:11px;letter-spacing:3px;color:rgba(255,255,255,0.4);margin-top:4px">VIETNAM · GUESTLIST TICKET</div>
+  </td></tr>
+  <tr><td style="padding:28px 32px 0">
+    <div style="font-size:20px;font-weight:700;color:#fff;margin-bottom:8px">You're on the list, ${escHtml(firstName)}! 🎉</div>
+    <div style="font-size:14px;color:rgba(255,255,255,0.55);line-height:1.6">Show the QR code at the door — staff will scan it to check you in instantly.</div>
+  </td></tr>
+  <tr><td style="padding:20px 32px">
+    <div style="background:rgba(0,208,132,0.07);border:1px solid rgba(0,208,132,0.2);border-radius:10px;padding:16px">
+      <div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:10px">${escHtml(tk.eventTitle || 'Your Event')}</div>
+      ${dateFormatted ? `<div style="font-size:13px;color:rgba(255,255,255,0.7);margin-bottom:4px">📅 ${escHtml(dateFormatted)}</div>` : ''}
+      ${tk.venue ? `<div style="font-size:13px;color:rgba(255,255,255,0.7);margin-bottom:4px">📍 ${escHtml(tk.venue)}${tk.city ? ', ' + escHtml(tk.city) : ''}</div>` : ''}
+      <div style="font-size:13px;color:rgba(255,255,255,0.7)">🎟 ${escHtml(tk.ticketType || 'Guestlist')} × ${tk.qty || 1}</div>
+    </div>
+  </td></tr>
+  <tr><td style="padding:0 32px 24px;text-align:center">
+    <div style="background:#fff;border-radius:12px;padding:20px;display:inline-block">
+      <img src="${qrUrl}" width="200" height="200" alt="QR Code" style="display:block;border-radius:4px"/>
+      <div style="margin-top:8px;font-size:10px;font-weight:700;letter-spacing:1.5px;color:#333;font-family:monospace">${escHtml(ref)}</div>
+    </div>
+    <div style="font-size:12px;color:rgba(255,255,255,0.35);margin-top:10px">Show this QR at venue entry · Staff scans to check you in</div>
+  </td></tr>
+  <tr><td style="background:rgba(255,255,255,0.03);border-top:1px solid rgba(255,255,255,0.06);padding:18px 32px;text-align:center">
+    <div style="font-size:11px;color:rgba(255,255,255,0.25)">Free guestlist · Entry subject to venue confirmation<br/>
+    <a href="https://tonightvietnam.com" style="color:rgba(255,255,255,0.35)">tonightvietnam.com</a></div>
+  </td></tr>
+</table>
+</td></tr></table>
+</body></html>`;
+
+    await transporter.sendMail({
+      from:    fromLabel,
+      to:      tk.buyerEmail,
+      subject: `🎫 Your Tonight Ticket — ${tk.eventTitle || 'Guestlist Confirmed'}`,
+      html,
+    });
+
+    // Mark email sent
+    await event.data.ref.update({ emailSent: true, emailSentAt: Timestamp.now() });
+    console.log(`[onGuestlistCreate] QR ticket sent to ${tk.buyerEmail} ref=${ref}`);
+  }
+);
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FUNCTION 4: onDealCreate
+// Fires when a deal is claimed → sends QR deal voucher email
+// ══════════════════════════════════════════════════════════════════════════════
+exports.onDealCreate = onDocumentCreated(
+  {
+    document: 'deals/{id}',
+    secrets:  [EMAIL_USER, EMAIL_PASS, EMAIL_FROM],
+    region:   'asia-southeast1',
+  },
+  async (event) => {
+    const dl = event.data.data();
+    if (!dl.guestEmail) return;
+
+    const transporter = makeTransporter(EMAIL_USER.value(), EMAIL_PASS.value());
+    const fromLabel   = EMAIL_FROM.value() || `Tonight Vietnam <${EMAIL_USER.value()}>`;
+    const code        = dl.code || '';
+    const qrData      = dl.qrData || ('TONIGHT-DEAL:' + code);
+    const qrUrl       = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&color=000000&bgcolor=ffffff&data=${encodeURIComponent(qrData)}`;
+    const firstName   = (dl.guestName || 'Guest').split(' ')[0];
+    const window_     = (dl.startTime && dl.endTime) ? `${dl.startTime}–${dl.endTime}` : 'tonight';
+
+    const html = `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"/></head>
+<body style="margin:0;padding:0;background:#080810;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#080810;padding:32px 16px">
+<tr><td align="center">
+<table width="520" cellpadding="0" cellspacing="0" style="max-width:520px;background:#13131f;border:1px solid rgba(245,200,66,0.25);border-radius:20px;overflow:hidden">
+  <tr><td style="background:linear-gradient(135deg,rgba(245,200,66,0.15),rgba(245,200,66,0.05));padding:32px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.07)">
+    <div style="font-size:28px;font-weight:900;letter-spacing:4px;color:#f5c842">TONIGHT</div>
+    <div style="font-size:11px;letter-spacing:3px;color:rgba(255,255,255,0.4);margin-top:4px">VIETNAM · DEAL VOUCHER</div>
+  </td></tr>
+  <tr><td style="padding:28px 32px 0">
+    <div style="font-size:20px;font-weight:700;color:#fff;margin-bottom:8px">Your deal is confirmed, ${escHtml(firstName)}! 🎉</div>
+    <div style="font-size:14px;color:rgba(255,255,255,0.55);line-height:1.6">Show the QR code at the venue to unlock your offer instantly.</div>
+  </td></tr>
+  <tr><td style="padding:20px 32px">
+    <div style="background:rgba(245,200,66,0.07);border:1px solid rgba(245,200,66,0.2);border-radius:10px;padding:16px">
+      <span style="background:#f5c842;color:#000;font-size:12px;font-weight:900;letter-spacing:1px;padding:3px 10px;border-radius:20px">${escHtml(dl.discount || 'DEAL')}</span>
+      <div style="font-size:16px;font-weight:700;color:#fff;margin:10px 0 8px">${escHtml(dl.dealTitle || 'Special Offer')}</div>
+      ${dl.venueName ? `<div style="font-size:13px;color:rgba(255,255,255,0.7);margin-bottom:4px">📍 ${escHtml(dl.venueName)}${dl.city ? ', ' + escHtml(dl.city) : ''}</div>` : ''}
+      <div style="font-size:13px;color:rgba(255,255,255,0.7)">🕐 Valid ${escHtml(window_)}</div>
+    </div>
+  </td></tr>
+  <tr><td style="padding:0 32px 24px;text-align:center">
+    <div style="background:#fff;border-radius:12px;padding:20px;display:inline-block">
+      <img src="${qrUrl}" width="200" height="200" alt="QR Code" style="display:block;border-radius:4px"/>
+      <div style="margin-top:8px;font-size:10px;font-weight:700;letter-spacing:1.5px;color:#333;font-family:monospace">${escHtml(code)}</div>
+    </div>
+    <div style="font-size:12px;color:rgba(255,255,255,0.35);margin-top:10px">Show this QR at the venue · Staff scans to unlock your deal</div>
+  </td></tr>
+  <tr><td style="background:rgba(255,255,255,0.03);border-top:1px solid rgba(255,255,255,0.06);padding:18px 32px;text-align:center">
+    <div style="font-size:11px;color:rgba(255,255,255,0.25)">Deal subject to venue availability<br/>
+    <a href="https://tonightvietnam.com" style="color:rgba(255,255,255,0.35)">tonightvietnam.com</a></div>
+  </td></tr>
+</table>
+</td></tr></table>
+</body></html>`;
+
+    await transporter.sendMail({
+      from:    fromLabel,
+      to:      dl.guestEmail,
+      subject: `🎫 Your Tonight Deal — ${dl.dealTitle || 'Deal Confirmed'} at ${dl.venueName || ''}`,
+      html,
+    });
+
+    await event.data.ref.update({ emailSent: true, emailSentAt: Timestamp.now() });
+    console.log(`[onDealCreate] Deal voucher sent to ${dl.guestEmail} code=${code}`);
+  }
+);

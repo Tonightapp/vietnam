@@ -4009,42 +4009,20 @@ function confirmBooking(){
   setTimeout(()=>sendTicketEmail(tk.ref), 1400);
 }
 
-// Deliver QR ticket to guest via Google Apps Script (real server email)
+// Deliver QR ticket to guest — save to Firestore → Cloud Function sends email
 async function sendTicketEmail(ref){
   const tk=getTickets().find(t=>t.ref===ref)||lastTicket;
   if(!tk||!tk.buyerEmail) return;
-  // Only fire if webhook is configured
-  if(!COMMUNITY_WEBHOOK||COMMUNITY_WEBHOOK==='YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL'){
-    toast('⚠️ Webhook not set up — QR saved locally only','ok');
-    return;
-  }
-  try{
-    const _dt=getDeviceType();
-    await fetch(COMMUNITY_WEBHOOK,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        source:      'guestlist-join',
-        ref:         tk.ref,
-        buyerName:   tk.buyerName,
-        buyerEmail:  tk.buyerEmail,
-        buyerPhone:  tk.buyerPhone,
-        eventTitle:  tk.eventTitle,
-        date:        tk.date,
-        venue:       tk.venue,
-        city:        tk.city,
-        ticketType:  tk.ticketType,
-        qty:         tk.qty,
-        issuedAt:    tk.issuedAt,
-        deviceType:  _dt.device,
-        os:          _dt.os
-      })
-    });
-    toast('📧 QR ticket sent to '+tk.buyerEmail,'ok');
-  }catch(err){
-    console.warn('Webhook failed — ticket saved locally:',err);
-    toast('QR saved locally — email will retry','ok');
-  }
+  const _dt=getDeviceType();
+  const ok=await _saveToFirestore('guestlist',{
+    ref:tk.ref, buyerName:tk.buyerName, buyerEmail:tk.buyerEmail,
+    buyerPhone:tk.buyerPhone, eventTitle:tk.eventTitle,
+    date:tk.date, venue:tk.venue, city:tk.city,
+    ticketType:tk.ticketType, qty:tk.qty, issuedAt:tk.issuedAt,
+    deviceType:_dt.device, os:_dt.os, status:'valid'
+  });
+  if(ok) toast('📧 QR ticket sent to '+tk.buyerEmail,'ok');
+  else toast('QR saved locally — email sending shortly','ok');
 }
 
 // ── TICKETING / QR ──
@@ -5840,22 +5818,35 @@ function _initApp(){
   _idle(()=>{ try{ startLiveCounters(); }catch(_){} });
   _idle(()=>{ try{ startGeofencing(); }catch(_){} });
 
-  // ── LIVE EVENTS: fetch approved venue-submitted events in background ──
+  // ── LIVE EVENTS: load approved venue events from Firestore in background ──
   // Runs silently — hardcoded events always display immediately above
-  if(COMMUNITY_WEBHOOK && COMMUNITY_WEBHOOK.indexOf('script.google.com')>-1){
-    fetch(COMMUNITY_WEBHOOK+'?action=events',{method:'GET'})
-      .then(function(r){return r.json();})
-      .then(function(data){
-        if(!data||!data.events||!data.events.length) return;
-        const existingIds=new Set(EVENTS.map(function(e){return e.id;}));
-        let added=0;
-        data.events.forEach(function(ev){
-          if(!existingIds.has(ev.id)){EVENTS.push(ev);added++;}
+  (async()=>{
+    try{
+      const {collection,getDocs,query,where,orderBy}=await import(_FB_CDN+'/firebase-firestore.js');
+      const db=await _getDb();
+      const q=query(collection(db,'events'),where('status','==','approved'),orderBy('date','asc'));
+      const snap=await getDocs(q);
+      const existingIds=new Set(EVENTS.map(e=>e.id));
+      let added=0;
+      snap.docs.forEach((d,i)=>{
+        const ev=d.data();
+        const id=1000+i;
+        if(existingIds.has(id)) return;
+        EVENTS.push({
+          id, title:ev.title||'', artist:ev.contactName||'Various Artists',
+          genre:ev.genre||'House', city:ev.city||'', area:'', venue:ev.venueName||'',
+          lat:0, lng:0, date:ev.date||'', price:ev.price||0,
+          img:'', emoji:ev.emoji||'🎵', grad:'grad-purple',
+          desc:ev.description||'', featured:false, soldOut:false,
+          attendees:parseInt(ev.capacity)||0, isNew:true, source:'firestore',
+          _firestoreId:d.id
         });
-        if(added>0) renderAll();
-      })
-      .catch(function(){}); // fail silently — hardcoded events always show
-  }
+        existingIds.add(id);
+        added++;
+      });
+      if(added>0) renderAll();
+    }catch(err){ console.warn('[Tonight Firebase events]',err.message); }
+  })();
 }
 // Guard: run immediately if DOM is ready, else wait
 if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',_initApp,{once:true});
@@ -5886,24 +5877,8 @@ function renderBottomTabBar(){
 
 // ── LIST YOUR EVENT ───────────────────────────────────────────────────────
 
-// ── Email delivery (formsubmit.co → tonightapp1@gmail.com) ───────────────
-// Fires on every sign-up / event submission. First call triggers a one-time
-// activation email from formsubmit.co — click the link to confirm the address.
-async function _sendToEmail(data){
-  try{
-    await fetch(FORMSUBMIT_URL, {
-      method:'POST',
-      headers:{'Content-Type':'application/json','Accept':'application/json'},
-      body: JSON.stringify({ ...data, _subject: `Tonight — ${data.source || 'submission'}: ${data.name || data.businessName || ''}` })
-    });
-  }catch(err){ console.warn('Email send failed, data saved locally:', err); }
-  // Also try optional Google Sheets webhook
-  if(COMMUNITY_WEBHOOK && COMMUNITY_WEBHOOK !== 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL'){
-    try{
-      await fetch(COMMUNITY_WEBHOOK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
-    }catch(_){}
-  }
-}
+// _sendToEmail is replaced by _saveToFirestore — kept as no-op for safety
+async function _sendToEmail(){ return true; }
 
 // ── LISTING WIZARD HELPERS ──
 let _leCurrentStep = 1;
@@ -6065,7 +6040,17 @@ async function submitListEvent(e){
   btn.disabled = true;
   label.textContent = 'Submitting…';
 
-  await _sendToEmail(data);
+  // Save to Firestore — Cloud Function + admin portal picks it up
+  await _saveToFirestore('events',{
+    title:data.eventTitle, venueName:data.businessName, venueType:data.venueType,
+    city:data.city, address:data.address, date:data.date, time:data.doorsOpen,
+    genre:data.genre, capacity:data.capacity, description:data.description,
+    specialOffer:data.specialOffer, contactName:data.contactName, phone:data.phone,
+    email:data.email, instagram:data.instagram, website:data.website,
+    status:'pending', emailSent:false, reminderSent:false, featured:false,
+    emoji:'🎵', price:0, isNew:false, submittedAt:data.submittedAt,
+    source:'app-pro-submission'
+  });
 
   // Success screen
   document.getElementById('listEventForm').innerHTML = `
@@ -6155,21 +6140,14 @@ function claimDeal(){
   } else {
     toast('QR ready — screenshot to save','ok');
   }
-  // Send email + log to Sheets via Apps Script
-  if(COMMUNITY_WEBHOOK&&COMMUNITY_WEBHOOK!=='YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL'){
-    const _dt=getDeviceType();
-    fetch(COMMUNITY_WEBHOOK,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        source:'deal-claim',
-        code, qrData,
-        dealTitle:p.title||'', venueName:p.venueName||'', city:p.city||'',
-        discount:p.discount||'', startTime:p.startTime||'', endTime:p.endTime||'',
-        desc:p.desc||'',
-        guestName:name, guestEmail:email, guestPhone:phone,
-        deviceType:_dt.device
-      })
-    }).catch(()=>{});
-  }
+  // Save to Firestore — Cloud Function sends QR email
+  {const _dt=getDeviceType();
+  _saveToFirestore('deals',{
+    code, qrData, dealTitle:p.title||'', venueName:p.venueName||'', city:p.city||'',
+    discount:p.discount||'', startTime:p.startTime||'', endTime:p.endTime||'',
+    desc:p.desc||'', guestName:name, guestEmail:email, guestPhone:phone,
+    deviceType:_dt.device
+  }).catch(()=>{});}
   // Save contact to profile if email given
   if(email){ try{ const u=JSON.parse(localStorage.getItem('tn_user_profile')||'{}'); if(!u.email) u.email=email; if(!u.name) u.name=name; localStorage.setItem('tn_user_profile',JSON.stringify(u)); }catch(e){} }
 }
@@ -6183,12 +6161,33 @@ function openDealDirections(){
 
 // ── COMMUNITY SIGN-UP ─────────────────────────────────────────────────────
 
-// Primary email delivery — formsubmit.co sends every submission to tonightapp1@gmail.com
-// No server or account needed. First submission triggers a one-time activation email.
-const FORMSUBMIT_URL = 'https://formsubmit.co/ajax/app.tonight1@gmail.com';
-
-// Optional: paste your Google Apps Script Web App URL here for Google Sheets logging
-const COMMUNITY_WEBHOOK = 'https://script.google.com/macros/s/AKfycbxXnD70iyAYSC351__KEV1MnGHr3hp1-KonWtEoQN30_HsjqX7wIRQdsbW-UcUjt8z9_g/exec';
+// ── FIREBASE CONFIG & HELPERS ─────────────────────────────────────────────
+const _FB_CDN = 'https://www.gstatic.com/firebasejs/10.12.0';
+const _FB_CFG = {
+  apiKey:            'AIzaSyBHASTMA5bMn5uD_3zT7Y8CoY87N2kJGb0',
+  authDomain:        'tonight-vietnam.firebaseapp.com',
+  projectId:         'tonight-vietnam',
+  storageBucket:     'tonight-vietnam.firebasestorage.app',
+  messagingSenderId: '838063793192',
+  appId:             '1:838063793192:web:595f6ff8fc1a71b474c11d',
+};
+let _fbApp=null, _fbDb=null;
+async function _getDb(){
+  if(_fbDb) return _fbDb;
+  const {initializeApp,getApps}=await import(_FB_CDN+'/firebase-app.js');
+  const {getFirestore}=await import(_FB_CDN+'/firebase-firestore.js');
+  if(!_fbApp) _fbApp=getApps().length?getApps()[0]:initializeApp(_FB_CFG);
+  _fbDb=getFirestore(_fbApp);
+  return _fbDb;
+}
+async function _saveToFirestore(col,data){
+  try{
+    const {collection,addDoc,serverTimestamp}=await import(_FB_CDN+'/firebase-firestore.js');
+    const db=await _getDb();
+    await addDoc(collection(db,col),{...data,createdAt:serverTimestamp()});
+    return true;
+  }catch(err){ console.warn('[Tonight Firebase]',err.message); return false; }
+}
 
 // ─── GOOGLE SIGN-IN ──────────────────────────────────────────────────────
 // To enable real Google OAuth:
@@ -6238,14 +6237,11 @@ async function submitProSignup(e){
   accs[email] = acc;
   _saveAccounts(accs);
 
-  // Notify via email
-  await _sendToEmail({
-    source:       'pro-signup',
-    name,
-    businessName: biz,
-    email,
-    userAgent:    navigator.userAgent,
-    submittedAt:  new Date().toISOString()
+  // Save pro signup to Firestore
+  await _saveToFirestore('pro_signups',{
+    name, businessName:biz, email,
+    source:'pro-signup', userAgent:navigator.userAgent,
+    submittedAt:new Date().toISOString()
   });
 
   curRole = 'pro';
@@ -6433,7 +6429,12 @@ async function submitCommunity(e){
     _saveAccounts(accs);
   }
 
-  await _sendToEmail(lead);
+  // Save to Firestore community_signups — Cloud Functions use this for email blasts
+  await _saveToFirestore('community_signups',{
+    fullName:name, email, city:filterCity||'',
+    genres:[...document.querySelectorAll('.cm-genre-chip.selected')].map(c=>c.textContent.trim()),
+    source:'tonight-app', userAgent:navigator.userAgent
+  });
 
   // Auto-login the new member
   curRole='guest';

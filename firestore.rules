@@ -61,21 +61,51 @@ service cloud.firestore {
 
       allow read: if true;
 
-      allow create: if isVenueOwner()
-                    && request.resource.data.publishedBy == request.auth.uid
-                    && request.resource.data.keys().hasAll([
-                         'venueId', 'venueName', 'title', 'description',
-                         'date', 'time', 'city', 'emoji',
-                         'isNew', 'featured', 'createdAt', 'publishedBy'
-                       ]);
+      // Authenticated venue owners (portal) OR unauthenticated app submissions
+      // Either way: status MUST be 'pending' on create — admin approves before going live
+      allow create: if request.resource.data.status == 'pending'
+                    && request.resource.data.keys().hasAll(['title','venueName','date','city','status'])
+                    && (isVenueOwner() || request.auth == null);
 
       allow update: if (isVenueOwner()
                         && resource.data.publishedBy == request.auth.uid
                         && request.resource.data.publishedBy == request.auth.uid)
                     || isStaff();
 
-      allow delete: if isVenueOwner() && resource.data.publishedBy == request.auth.uid
+      allow delete: if (isVenueOwner() && resource.data.publishedBy == request.auth.uid)
                     || isStaff();
+    }
+
+    // ── community_signups/{id} ─────────────────────────────────────────────────
+    // Open write: anyone can join the community email list (no auth required)
+    match /community_signups/{id} {
+      allow create: if request.resource.data.keys().hasAll(['fullName','email'])
+                    && request.resource.data.email is string
+                    && request.resource.data.email.size() <= 254;
+      allow read, update, delete: if isStaff();
+    }
+
+    // ── guestlist/{id} ────────────────────────────────────────────────────────
+    // Open write: anyone joining a guestlist (no auth required)
+    match /guestlist/{id} {
+      allow create: if request.resource.data.keys().hasAll(['ref','buyerEmail','eventTitle'])
+                    && request.resource.data.buyerEmail is string;
+      allow read, update, delete: if isStaff();
+    }
+
+    // ── deals/{id} ────────────────────────────────────────────────────────────
+    // Open write: anyone claiming a deal
+    match /deals/{id} {
+      allow create: if request.resource.data.keys().hasAll(['code','dealTitle']);
+      allow read, update, delete: if isStaff();
+    }
+
+    // ── pro_signups/{id} ──────────────────────────────────────────────────────
+    // Open write: business owners signing up
+    match /pro_signups/{id} {
+      allow create: if request.resource.data.keys().hasAll(['name','email'])
+                    && request.resource.data.email is string;
+      allow read, update, delete: if isStaff();
     }
 
     // ── inquiries/{id} ─────────────────────────────────────────────────────────
