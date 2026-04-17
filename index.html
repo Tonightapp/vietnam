@@ -3142,7 +3142,9 @@ function renderRows(){
   const base=filteredEvents();
   const newEvs=base.filter(e=>e.isNew);
   document.getElementById('newRow').innerHTML=newEvs.length ? newEvs.map(portCard).join('') : emptyRow('No new events yet');
-  const weekEvs=base.filter((_,i)=>i%2===0);
+  const _now=new Date();_now.setHours(0,0,0,0);
+  const _next7=new Date(_now);_next7.setDate(_now.getDate()+7);
+  const weekEvs=base.filter(e=>{const d=new Date(e.date);return d>=_now&&d<=_next7;});
   document.getElementById('weekRow').innerHTML=weekEvs.length ? weekEvs.map(wideCard).join('') : emptyRow('Nothing this week');
   const fests=base.filter(e=>e.genre==='EDM'||e.attendees>3000);
   document.getElementById('festRow').innerHTML=fests.length ? fests.map(wideCard).join('') : emptyRow('No festivals found');
@@ -5832,13 +5834,14 @@ function _initApp(){
         const ev=d.data();
         const id=1000+i;
         if(existingIds.has(id)) return;
+        const _gGrad={Techno:'grad-purple',House:'grad-teal','DJ Night':'grad-purple',Electronic:'grad-orange',EDM:'grad-orange','Live Music':'grad-blue',Jazz:'grad-cyan','Hip-Hop':'grad-orange','Themed Party':'grad-gold'};
         EVENTS.push({
-          id, title:ev.title||'', artist:ev.contactName||'Various Artists',
-          genre:ev.genre||'House', city:ev.city||'', area:'', venue:ev.venueName||'',
-          lat:0, lng:0, date:ev.date||'', price:ev.price||0,
-          img:'', emoji:ev.emoji||'🎵', grad:'grad-purple',
-          desc:ev.description||'', featured:false, soldOut:false,
-          attendees:parseInt(ev.capacity)||0, isNew:true, source:'firestore',
+          id, title:ev.title||'', artist:ev.venueName||ev.contactName||'Various Artists',
+          genre:ev.genre||'House', city:ev.city||'', area:ev.area||'', venue:ev.venueName||'',
+          lat:0, lng:0, date:ev.date||'', price:parseInt(ev.price)||0,
+          img:ev.img||ev.imageUrl||'', emoji:ev.emoji||'🎵', grad:_gGrad[ev.genre]||'grad-purple',
+          desc:ev.description||ev.desc||'', featured:ev.featured||false, soldOut:false,
+          attendees:parseInt(ev.capacity)||ev.attendees||0, isNew:ev.isNew!==false, source:'firestore',
           _firestoreId:d.id
         });
         existingIds.add(id);
@@ -6171,14 +6174,26 @@ const _FB_CFG = {
   messagingSenderId: '838063793192',
   appId:             '1:838063793192:web:595f6ff8fc1a71b474c11d',
 };
-let _fbApp=null, _fbDb=null;
+let _fbApp=null, _fbDb=null, _fbAuth=null;
+async function _getFbApp(){
+  if(_fbApp) return _fbApp;
+  const {initializeApp,getApps}=await import(_FB_CDN+'/firebase-app.js');
+  _fbApp=getApps().length?getApps()[0]:initializeApp(_FB_CFG);
+  return _fbApp;
+}
 async function _getDb(){
   if(_fbDb) return _fbDb;
-  const {initializeApp,getApps}=await import(_FB_CDN+'/firebase-app.js');
+  const app=await _getFbApp();
   const {getFirestore}=await import(_FB_CDN+'/firebase-firestore.js');
-  if(!_fbApp) _fbApp=getApps().length?getApps()[0]:initializeApp(_FB_CFG);
-  _fbDb=getFirestore(_fbApp);
+  _fbDb=getFirestore(app);
   return _fbDb;
+}
+async function _getAuth(){
+  if(_fbAuth) return _fbAuth;
+  const app=await _getFbApp();
+  const {getAuth}=await import(_FB_CDN+'/firebase-auth.js');
+  _fbAuth=getAuth(app);
+  return _fbAuth;
 }
 async function _saveToFirestore(col,data){
   try{
@@ -6227,27 +6242,44 @@ async function submitProSignup(e){
   const biz   = document.getElementById('psBiz').value.trim();
   const email = document.getElementById('psEmail').value.trim().toLowerCase();
   const pass  = document.getElementById('psPassword').value;
-  const accs  = _getAccounts();
-  if(accs[email]){ toast('Account already exists — log in instead','err'); return; }
 
   btn.disabled = true;
   btn.textContent = 'Creating account…';
 
-  const acc = {name, email, password:_hashPw(pass), businessName:biz, role:'pro', joinedAt:new Date().toISOString(), source:'pro'};
-  accs[email] = acc;
-  _saveAccounts(accs);
+  try {
+    // 1. Create Firebase Auth account (used to log into venue portal)
+    const {createUserWithEmailAndPassword} = await import(_FB_CDN+'/firebase-auth.js');
+    const auth = await _getAuth();
+    const cred = await createUserWithEmailAndPassword(auth, email, pass);
 
-  // Save pro signup to Firestore
-  await _saveToFirestore('pro_signups',{
-    name, businessName:biz, email,
-    source:'pro-signup', userAgent:navigator.userAgent,
-    submittedAt:new Date().toISOString()
-  });
+    // 2. Create venue_requests doc (status: pending — staff must approve)
+    await _saveToFirestore('venue_requests',{
+      email, contactName:name, venueName:biz,
+      userId: cred.user.uid,
+      status:'pending',
+      source:'main-app-signup',
+    });
 
-  curRole = 'pro';
-  finishLogin(name, 'Tonight', acc);
-  btn.textContent = '✓ Account created!';
-  setTimeout(()=>closeOverlay('proSignupOverlay'), 600);
+    // 3. Also save to local accounts so user is logged into main app
+    const accs = _getAccounts();
+    const acc = {name, email, password:_hashPw(pass), businessName:biz, role:'pro', joinedAt:new Date().toISOString(), source:'pro'};
+    accs[email] = acc;
+    _saveAccounts(accs);
+
+    curRole = 'pro';
+    finishLogin(name, 'Tonight', acc);
+    btn.textContent = '✓ Account created!';
+    toast('Application submitted! Staff will review and approve your venue within 24 hours.','ok');
+    setTimeout(()=>closeOverlay('proSignupOverlay'), 800);
+  } catch(err) {
+    if(err.code === 'auth/email-already-in-use'){
+      toast('Email already registered — log in instead','err');
+    } else {
+      toast(err.message || 'Could not create account','err');
+    }
+    btn.disabled = false;
+    btn.textContent = 'Create Account & Go to Dashboard →';
+  }
 }
 
 function openCommunity(){

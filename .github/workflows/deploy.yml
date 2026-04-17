@@ -1,0 +1,32 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # ── 1. GitHub Pages (serves index.html at www.tonightvietnam.com) ──────
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .
+          publish_branch: gh-pages
+          exclude_assets: '.github,functions,node_modules,supabase,.gitignore'
+
+      # ── 2. Firebase (portal hosting + functions + firestore rules) ──────────
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Install Cloud Functions dependencies
+        run: cd functions && npm install
+
+      - name: Deploy to Firebase
+        run: firebase deploy --only hosting,functions,firestore
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}

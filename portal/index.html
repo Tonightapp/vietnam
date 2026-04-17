@@ -837,7 +837,7 @@ function showErr(msg) {
 // ── REALTIME SUBSCRIPTIONS ────────────────────────────────
 function subscribeAll() {
   unsubs.push(
-    onSnapshot(query(collection(db,'users'), orderBy('createdAt','desc')), snap => {
+    onSnapshot(query(collection(db,'community_signups'), orderBy('createdAt','desc')), snap => {
       allMembers = snap.docs.map(d => ({id:d.id,...d.data()}));
       renderStats();
       renderNewSignups();

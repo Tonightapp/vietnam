@@ -424,23 +424,62 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
 
             <div class="form-row">
               <div>
-                <label class="f-label" for="ev-genre">Event Type *</label>
+                <label class="f-label" for="ev-genre">Genre / Event Type *</label>
                 <select class="f-input" id="ev-genre">
                   <option value="">Select type...</option>
-                  <option>Live Music</option>
-                  <option>DJ Night</option>
-                  <option>Themed Party</option>
-                  <option>Happy Hour</option>
-                  <option>Comedy Night</option>
-                  <option>Sports Event</option>
-                  <option>Brunch</option>
-                  <option>Special Event</option>
-                  <option>Other</option>
+                  <optgroup label="Music">
+                    <option>Techno</option>
+                    <option>House</option>
+                    <option>DJ Night</option>
+                    <option>Electronic</option>
+                    <option>EDM</option>
+                    <option>Hip-Hop</option>
+                    <option>Jazz</option>
+                    <option>Live Music</option>
+                  </optgroup>
+                  <optgroup label="Other Events">
+                    <option>Themed Party</option>
+                    <option>Happy Hour</option>
+                    <option>Comedy Night</option>
+                    <option>Sports Event</option>
+                    <option>Brunch</option>
+                    <option>Special Event</option>
+                    <option>Other</option>
+                  </optgroup>
                 </select>
               </div>
               <div>
                 <label class="f-label" for="ev-price">Entry Price (VND)</label>
                 <input class="f-input" type="number" id="ev-price" placeholder="0 = Free" min="0"/>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div>
+                <label class="f-label" for="ev-area">District / Area</label>
+                <select class="f-input" id="ev-area">
+                  <option value="">Select area...</option>
+                  <optgroup label="Hanoi">
+                    <option>Old Quarter</option>
+                    <option>Tay Ho</option>
+                    <option>Ba Dinh</option>
+                    <option>Dong Da</option>
+                    <option>Hoan Kiem</option>
+                  </optgroup>
+                  <optgroup label="Ho Chi Minh City">
+                    <option>District 1</option>
+                    <option>District 2 / Thu Duc</option>
+                    <option>District 3</option>
+                    <option>Binh Thanh</option>
+                  </optgroup>
+                  <optgroup label="Other">
+                    <option>Da Nang Centre</option>
+                    <option>Hoi An Old Town</option>
+                  </optgroup>
+                </select>
+              </div>
+              <div style="display:flex;align-items:flex-end;padding-bottom:2px">
+                <p style="font-size:11px;color:var(--text3);line-height:1.5">Setting the district lets your event appear in area-specific sections on the Tonight app (e.g. "Tonight in Old Quarter").</p>
               </div>
             </div>
 
@@ -721,6 +760,7 @@ window.submitEvent = async function() {
   const date   = document.getElementById('ev-date').value;
   const time   = document.getElementById('ev-time').value;
   const genre  = document.getElementById('ev-genre').value;
+  const area   = document.getElementById('ev-area').value;
   const desc   = document.getElementById('ev-desc').value.trim();
   if (!title || !date || !time || !genre || !desc) { toast('Please fill in all required fields'); return; }
   const btn = document.getElementById('ev-submit');
@@ -731,6 +771,7 @@ window.submitEvent = async function() {
       venueId:      currentUser.uid,
       venueName:    venueData.venueName || venueData.venue_name || '',
       city:         venueData.city || '',
+      area,
       title,
       date,
       time,
@@ -758,7 +799,7 @@ window.submitEvent = async function() {
 };
 
 window.clearForm = function() {
-  ['ev-title','ev-date','ev-time','ev-genre','ev-desc','ev-price'].forEach(id => { document.getElementById(id).value = ''; });
+  ['ev-title','ev-date','ev-time','ev-genre','ev-area','ev-desc','ev-price'].forEach(id => { document.getElementById(id).value = ''; });
   document.getElementById('ev-time').value = '21:00';
   document.getElementById('ev-featured').checked = false;
   document.querySelectorAll('.emoji-opt').forEach(o => o.classList.remove('selected'));
