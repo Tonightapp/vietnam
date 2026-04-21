@@ -55,6 +55,6 @@ jobs:
           echo "EMAIL_FROM=Tonight Vietnam <noreply@tonightvietnam.com>" >> functions/.env
 
       - name: Deploy Firebase Functions
-        run: firebase deploy --only functions --project tonight-vietnam
+        run: firebase deploy --only functions --project tonight-vietnam --force
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
