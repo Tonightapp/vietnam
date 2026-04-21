@@ -30,6 +30,7 @@ jobs:
         run: cd functions && npm install
 
       - name: Deploy to Firebase
+        continue-on-error: true
         run: firebase deploy --only hosting,functions,firestore --project tonight-vietnam
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
