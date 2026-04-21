@@ -29,8 +29,13 @@ jobs:
       - name: Install Cloud Functions dependencies
         run: cd functions && npm install
 
+      - name: Write functions env
+        run: |
+          echo "EMAIL_USER=${{ secrets.EMAIL_USER }}" > functions/.env
+          echo "EMAIL_PASS=${{ secrets.EMAIL_PASS }}" >> functions/.env
+          echo "EMAIL_FROM=Tonight Vietnam <noreply@tonightvietnam.com>" >> functions/.env
+
       - name: Deploy to Firebase
-        continue-on-error: true
         run: firebase deploy --only hosting,functions,firestore --project tonight-vietnam
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}

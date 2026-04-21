@@ -12,4 +12,5 @@ functions/node_modules/
 *.log
 .env
 .env.local
+functions/.env
 ios-app/

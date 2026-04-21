@@ -21,7 +21,6 @@
 const { onDocumentUpdated,
         onDocumentCreated }          = require('firebase-functions/v2/firestore');
 const { onSchedule }                 = require('firebase-functions/v2/scheduler');
-const { defineSecret }               = require('firebase-functions/params');
 const { initializeApp }              = require('firebase-admin/app');
 const { getFirestore, Timestamp }    = require('firebase-admin/firestore');
 const nodemailer                     = require('nodemailer');
@@ -29,10 +28,10 @@ const nodemailer                     = require('nodemailer');
 initializeApp();
 const db = getFirestore();
 
-// ── Secrets (set via: firebase functions:secrets:set EMAIL_USER etc.) ──────────
-const EMAIL_USER = defineSecret('EMAIL_USER');
-const EMAIL_PASS = defineSecret('EMAIL_PASS');
-const EMAIL_FROM = defineSecret('EMAIL_FROM');
+// ── Email config from environment variables ────────────────────────────────────
+const EMAIL_USER = { value: () => process.env.EMAIL_USER };
+const EMAIL_PASS = { value: () => process.env.EMAIL_PASS };
+const EMAIL_FROM = { value: () => process.env.EMAIL_FROM };
 
 // ── Helper: build transporter ──────────────────────────────────────────────────
 function makeTransporter(user, pass) {
@@ -72,7 +71,6 @@ async function getAllUsers() {
 exports.onEventApproved = onDocumentUpdated(
   {
     document: 'events/{eventId}',
-    secrets:  [EMAIL_USER, EMAIL_PASS, EMAIL_FROM],
     region:   'asia-southeast1',
   },
   async (event) => {
@@ -365,7 +363,6 @@ function escHtml(str) {
 exports.onGuestlistCreate = onDocumentCreated(
   {
     document: 'guestlist/{id}',
-    secrets:  [EMAIL_USER, EMAIL_PASS, EMAIL_FROM],
     region:   'asia-southeast1',
   },
   async (event) => {
@@ -439,7 +436,6 @@ exports.onGuestlistCreate = onDocumentCreated(
 exports.onDealCreate = onDocumentCreated(
   {
     document: 'deals/{id}',
-    secrets:  [EMAIL_USER, EMAIL_PASS, EMAIL_FROM],
     region:   'asia-southeast1',
   },
   async (event) => {
@@ -514,7 +510,6 @@ const { getAuth: getAdminAuth } = require('firebase-admin/auth');
 exports.onVenueApproved = onDocumentUpdated(
   {
     document: 'venue_requests/{reqId}',
-    secrets:  [EMAIL_USER, EMAIL_PASS, EMAIL_FROM],
     region:   'asia-southeast1',
   },
   async (event) => {
