@@ -545,7 +545,7 @@ window.signupSubmit = async function() {
   btn.disabled = true;
   btn.innerHTML = '<div class="spinner"></div> Joining...';
   try {
-    await addDoc(collection(db, 'users'), {
+    await addDoc(collection(db, 'community_signups'), {
       fullName:  name,
       email:     email.toLowerCase(),
       city:      city,

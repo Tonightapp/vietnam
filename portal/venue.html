@@ -223,7 +223,7 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
 
 /* ── MOBILE TABBAR ── */
 .mobile-tabbar{
-  display:none;position:fixed;bottom:0;left:0;right:0;
+  position:fixed;bottom:0;left:0;right:0;
   background:var(--surface);border-top:1px solid var(--border);
   padding:8px 0 max(8px,env(safe-area-inset-bottom));
   display:flex;z-index:50;
@@ -603,9 +603,9 @@ const FIREBASE_CONFIG = {
 };
 
 const CDN = 'https://www.gstatic.com/firebasejs/10.12.0';
-import { initializeApp }                              from `${CDN}/firebase-app.js`;
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from `${CDN}/firebase-auth.js`;
-import { getFirestore, collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, onSnapshot, orderBy, serverTimestamp } from `${CDN}/firebase-firestore.js`;
+const { initializeApp }                              = await import(`${CDN}/firebase-app.js`);
+const { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } = await import(`${CDN}/firebase-auth.js`);
+const { getFirestore, collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, onSnapshot, orderBy, serverTimestamp } = await import(`${CDN}/firebase-firestore.js`);
 
 const app  = initializeApp(FIREBASE_CONFIG);
 const auth = getAuth(app);

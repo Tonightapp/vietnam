@@ -502,3 +502,107 @@ exports.onDealCreate = onDocumentCreated(
     console.log(`[onDealCreate] Deal voucher sent to ${dl.guestEmail} code=${code}`);
   }
 );
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FUNCTION 5: onVenueApproved
+// Fires when a venue_request is updated to status='approved'.
+// Creates a Firebase Auth account for the venue owner and sends a
+// password-setup email so they can log in to the Venue Portal.
+// ══════════════════════════════════════════════════════════════════════════════
+const { getAuth: getAdminAuth } = require('firebase-admin/auth');
+
+exports.onVenueApproved = onDocumentUpdated(
+  {
+    document: 'venue_requests/{reqId}',
+    secrets:  [EMAIL_USER, EMAIL_PASS, EMAIL_FROM],
+    region:   'asia-southeast1',
+  },
+  async (event) => {
+    const before = event.data.before.data();
+    const after  = event.data.after.data();
+
+    // Only run when status flips to 'approved'
+    if (before.status === 'approved' || after.status !== 'approved') return;
+
+    const email     = after.email;
+    const venueName = after.venueName || after.venue_name || 'Your Venue';
+    const reqId     = event.params.reqId;
+
+    if (!email) {
+      console.warn('[onVenueApproved] No email on venue_request', reqId);
+      return;
+    }
+
+    console.log(`[onVenueApproved] Creating auth account for ${email}`);
+
+    const adminAuth  = getAdminAuth();
+    let   uid;
+
+    try {
+      // Create Firebase Auth account (or get existing)
+      try {
+        const user = await adminAuth.createUser({ email, emailVerified: false });
+        uid = user.uid;
+      } catch (e) {
+        if (e.code === 'auth/email-already-exists') {
+          const user = await adminAuth.getUserByEmail(email);
+          uid = user.uid;
+        } else {
+          throw e;
+        }
+      }
+
+      // Generate a password-reset link so the venue owner can set their password
+      const resetLink = await adminAuth.generatePasswordResetLink(email);
+
+      // Send the welcome + login setup email
+      const transporter = makeTransporter(EMAIL_USER.value(), EMAIL_PASS.value());
+      const fromLabel   = EMAIL_FROM.value() || `Tonight Vietnam <${EMAIL_USER.value()}>`;
+
+      await transporter.sendMail({
+        from:    fromLabel,
+        to:      email,
+        subject: `✅ ${venueName} is approved — set up your login`,
+        html: `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"/></head>
+<body style="margin:0;padding:0;background:#080810;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#080810;padding:32px 16px">
+<tr><td align="center">
+<table width="520" cellpadding="0" cellspacing="0" style="max-width:520px;background:#13131f;border:1px solid rgba(245,200,66,0.25);border-radius:20px;overflow:hidden">
+  <tr><td style="background:linear-gradient(135deg,rgba(245,200,66,0.15),rgba(245,200,66,0.05));padding:32px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.07)">
+    <div style="font-size:28px;font-weight:900;letter-spacing:4px;color:#f5c842">🌙 TONIGHT</div>
+    <div style="font-size:11px;letter-spacing:3px;color:rgba(255,255,255,0.4);margin-top:4px">VIETNAM · VENUE APPROVED</div>
+  </td></tr>
+  <tr><td style="padding:28px 32px">
+    <h2 style="color:#22c55e;font-size:22px;margin:0 0 12px">✅ You're approved!</h2>
+    <p style="color:#f1f5f9;font-size:15px;line-height:1.7;margin:0 0 20px">
+      <strong>${escHtml(venueName)}</strong> is now live on Tonight Vietnam.<br/>
+      Click the button below to set your password and access your Venue Portal.
+    </p>
+    <div style="text-align:center;margin:28px 0">
+      <a href="${resetLink}" style="display:inline-block;background:#f5c842;color:#000;font-size:15px;font-weight:700;padding:16px 40px;border-radius:12px;text-decoration:none">
+        Set Up Your Login →
+      </a>
+    </div>
+    <p style="color:#475569;font-size:13px;line-height:1.6;margin:0">
+      After setting your password, log in at:<br/>
+      <a href="https://tonightvietnam.com/venue.html" style="color:#f5c842">tonightvietnam.com/venue.html</a>
+    </p>
+  </td></tr>
+  <tr><td style="background:rgba(255,255,255,0.03);border-top:1px solid rgba(255,255,255,0.06);padding:16px 32px;text-align:center">
+    <div style="font-size:11px;color:rgba(255,255,255,0.25)">Tonight Vietnam · <a href="https://tonightvietnam.com" style="color:rgba(255,255,255,0.35)">tonightvietnam.com</a></div>
+  </td></tr>
+</table>
+</td></tr></table>
+</body></html>`,
+      });
+
+      // Store uid back on the venue_request for cross-referencing
+      await event.data.after.ref.update({ uid, authCreated: true });
+      console.log(`[onVenueApproved] Auth account created and email sent to ${email} uid=${uid}`);
+
+    } catch (err) {
+      console.error('[onVenueApproved] Error:', err.message);
+    }
+  }
+);

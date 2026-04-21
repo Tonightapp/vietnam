@@ -867,7 +867,7 @@ function renderStats() {
   document.getElementById('s-members').textContent   = allMembers.length;
   document.getElementById('s-week').textContent       = newThisWeek;
   document.getElementById('s-week-label').textContent = `+${newThisWeek} this week`;
-  document.getElementById('s-events').textContent     = allEvents.length;
+  document.getElementById('s-events').textContent     = allEvents.filter(e => e.status === 'approved').length;
   document.getElementById('s-pending').textContent    = pending;
 
   // Badge
