@@ -135,7 +135,6 @@ exports.sendReminders = onSchedule(
   {
     schedule:  'every day 03:00',   // 03:00 UTC = 10:00 AM Ho Chi Minh City
     timeZone:  'UTC',
-    secrets:   [EMAIL_USER, EMAIL_PASS, EMAIL_FROM],
     region:    'asia-southeast1',
   },
   async () => {
