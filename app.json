@@ -1,0 +1,63 @@
+{
+  "expo": {
+    "name": "Tonight",
+    "slug": "tonight-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "backgroundColor": "#0a0b14",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0a0b14"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.tonight.app",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Tonight uses your location to show events near you.",
+        "NSLocationAlwaysUsageDescription": "Tonight uses your location to show events near you.",
+        "NSUserNotificationsUsageDescription": "Tonight sends notifications about upcoming events and bookings."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#0a0b14"
+      },
+      "package": "com.tonight.app",
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE"
+      ]
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Tonight uses your location to show events near you."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#f5c842"
+        }
+      ],
+      "expo-asset"
+    ],
+    "scheme": "tonight",
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
