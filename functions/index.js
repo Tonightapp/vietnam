@@ -162,11 +162,22 @@ exports.sendReminders = onSchedule(
     const transporter = makeTransporter(EMAIL_USER.value(), EMAIL_PASS.value());
     const fromLabel   = EMAIL_FROM.value() || `Tonight Vietnam <${EMAIL_USER.value()}>`;
 
+    // Pre-fetch user lists per unique city to avoid one Firestore read per event
+    const uniqueCities = [...new Set(eventsSnap.docs.map(d => d.data().city || ''))];
+    const cityUserMap  = new Map();
+    for (const city of uniqueCities) {
+      cityUserMap.set(city, await getUsersForCity(city));
+    }
+    let allUsersCache = null;
+
     for (const eventDoc of eventsSnap.docs) {
       const ev = eventDoc.data();
 
-      let users = await getUsersForCity(ev.city);
-      if (users.length === 0) users = await getAllUsers();
+      let users = cityUserMap.get(ev.city || '') || [];
+      if (users.length === 0) {
+        if (!allUsersCache) allUsersCache = await getAllUsers();
+        users = allUsersCache;
+      }
 
       let sent = 0;
       const batchSize = 50;

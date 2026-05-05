@@ -1237,10 +1237,12 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
 .gw-card{width:100%;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;text-align:left;cursor:pointer;transition:.2s;display:block;margin-bottom:12px;font-family:inherit;}
 .gw-card:hover{border-color:rgba(0,208,132,.4);background:rgba(0,208,132,.06);}
 .gw-card-biz:hover{border-color:rgba(245,200,66,.4);background:rgba(245,200,66,.05);}
+.gw-card-portal:hover{border-color:rgba(139,92,246,.4);background:rgba(139,92,246,.06);}
 .gw-card-inner{display:flex;align-items:center;gap:14px;}
 .gw-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
 .gw-icon-green{background:rgba(0,208,132,.15);border:1px solid rgba(0,208,132,.25);}
 .gw-icon-gold{background:rgba(245,200,66,.12);border:1px solid rgba(245,200,66,.25);}
+.gw-icon-purple{background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.25);}
 .gw-card-title{font-weight:700;font-size:15px;color:#fff;margin-bottom:3px;}
 .gw-card-sub{font-size:12px;color:var(--text3);line-height:1.5;}
 .gw-arrow{margin-left:auto;color:var(--text3);font-size:20px;flex-shrink:0;line-height:1;}
@@ -2232,47 +2234,83 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
 
 <!-- ════ GATEWAY MODAL ════ -->
 <div class="overlay" id="gatewayOverlay">
-  <div class="modal" style="max-width:360px;padding:32px 24px calc(28px + env(safe-area-inset-bottom));position:relative;text-align:center">
-    <button class="mclose" onclick="closeOverlay('gatewayOverlay')" style="position:absolute;top:14px;right:14px">✕</button>
-    <div style="font-size:22px;font-family:'Bebas Neue',sans-serif;letter-spacing:3px;color:#fff;margin-bottom:4px">Tonight</div>
-    <div style="font-size:13px;color:var(--text3);margin-bottom:28px">Who are you?</div>
+  <div class="modal" style="max-width:380px;padding:0;overflow:hidden;position:relative">
+    <div style="padding:28px 24px 18px;text-align:center;border-bottom:1px solid var(--border)">
+      <button class="mclose" onclick="closeOverlay('gatewayOverlay')" style="position:absolute;top:14px;right:14px">✕</button>
+      <div style="font-size:11px;font-weight:800;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:8px">TONIGHT VIETNAM</div>
+      <h2 style="font-size:20px;font-weight:800;color:#fff;margin-bottom:4px">How would you like to join?</h2>
+      <p style="font-size:13px;color:var(--text3)">Select your account type to get started</p>
+    </div>
+    <div style="padding:20px 20px calc(20px + env(safe-area-inset-bottom))">
 
-    <!-- Community -->
-    <button onclick="closeOverlay('gatewayOverlay');openCommunity()" style="width:100%;padding:18px;border-radius:14px;border:1.5px solid rgba(0,208,132,.35);background:rgba(0,208,132,.07);cursor:pointer;margin-bottom:12px;transition:.2s;font-family:inherit" onmouseover="this.style.background='rgba(0,208,132,.14)'" onmouseout="this.style.background='rgba(0,208,132,.07)'">
-      <div style="font-size:26px;margin-bottom:6px">🎉</div>
-      <div style="font-size:16px;font-weight:800;color:#fff;margin-bottom:4px">Community</div>
-      <div style="font-size:12px;color:var(--text3);line-height:1.5">Discover events, guestlists &amp; tonight's best gigs</div>
-    </button>
+      <button class="gw-card" onclick="closeOverlay('gatewayOverlay');openCommunity()">
+        <div class="gw-card-inner">
+          <div class="gw-icon gw-icon-green">🎉</div>
+          <div><div class="gw-card-title">Community Member</div><div class="gw-card-sub">Discover events, guestlists &amp; what's on tonight</div></div>
+          <div class="gw-arrow">›</div>
+        </div>
+      </button>
 
-    <!-- Business -->
-    <button onclick="closeOverlay('gatewayOverlay');openProSignup()" style="width:100%;padding:18px;border-radius:14px;border:1.5px solid rgba(245,200,66,.35);background:rgba(245,200,66,.06);cursor:pointer;margin-bottom:12px;transition:.2s;font-family:inherit" onmouseover="this.style.background='rgba(245,200,66,.12)'" onmouseout="this.style.background='rgba(245,200,66,.06)'">
-      <div style="font-size:26px;margin-bottom:6px">🏢</div>
-      <div style="font-size:16px;font-weight:800;color:#fff;margin-bottom:4px">Business</div>
-      <div style="font-size:12px;color:var(--text3);line-height:1.5">List your venue, promote events &amp; manage your page</div>
-    </button>
+      <button class="gw-card gw-card-biz" onclick="closeOverlay('gatewayOverlay');openProSignup()">
+        <div class="gw-card-inner">
+          <div class="gw-icon gw-icon-gold">🏢</div>
+          <div><div class="gw-card-title">Venue / Promoter</div><div class="gw-card-sub">List your venue, post events &amp; manage guestlists</div></div>
+          <div class="gw-arrow">›</div>
+        </div>
+      </button>
 
-    <!-- Portal -->
-    <button onclick="window.location.href='portal/index.html'" style="width:100%;padding:18px;border-radius:14px;border:1.5px solid rgba(139,92,246,.35);background:rgba(139,92,246,.06);cursor:pointer;margin-bottom:24px;transition:.2s;font-family:inherit" onmouseover="this.style.background='rgba(139,92,246,.14)'" onmouseout="this.style.background='rgba(139,92,246,.06)'">
-      <div style="font-size:26px;margin-bottom:6px">🔐</div>
-      <div style="font-size:16px;font-weight:800;color:#fff;margin-bottom:4px">Portal</div>
-      <div style="font-size:12px;color:var(--text3);line-height:1.5">Staff &amp; venue owner login — manage events &amp; guestlists</div>
-    </button>
+      <button class="gw-card gw-card-portal" onclick="closeOverlay('gatewayOverlay');openOverlay('portalChoiceOverlay')" style="margin-bottom:0">
+        <div class="gw-card-inner">
+          <div class="gw-icon gw-icon-purple">🔐</div>
+          <div><div class="gw-card-title">Portal Access</div><div class="gw-card-sub">Staff &amp; approved venue owners — sign in to your dashboard</div></div>
+          <div class="gw-arrow">›</div>
+        </div>
+      </button>
 
-    <p style="font-size:12px;color:var(--text3)">Already have an account? <a href="#" onclick="closeOverlay('gatewayOverlay');openAuth('login');return false" style="color:#fff;font-weight:600">Log In →</a></p>
+      <p style="text-align:center;margin-top:16px;font-size:12px;color:var(--text3)">Already have an account? <a href="#" onclick="closeOverlay('gatewayOverlay');openAuth('login');return false" style="color:#fff;font-weight:600;text-decoration:none">Sign in →</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- ════ PORTAL CHOICE MODAL ════ -->
+<div class="overlay" id="portalChoiceOverlay">
+  <div class="modal" style="max-width:360px;padding:0;overflow:hidden;position:relative">
+    <div style="padding:24px 24px 16px;text-align:center;border-bottom:1px solid var(--border)">
+      <button class="mclose" onclick="closeOverlay('portalChoiceOverlay')" style="position:absolute;top:14px;right:14px">✕</button>
+      <div style="font-size:11px;font-weight:800;letter-spacing:3px;color:rgba(139,92,246,.9);text-transform:uppercase;margin-bottom:8px">PORTAL ACCESS</div>
+      <h2 style="font-size:18px;font-weight:800;color:#fff;margin-bottom:4px">Which portal?</h2>
+      <p style="font-size:12px;color:var(--text3)">Log in to your management dashboard</p>
+    </div>
+    <div style="padding:20px 20px calc(20px + env(safe-area-inset-bottom))">
+      <a href="portal/index.html" class="gw-card gw-card-biz" style="text-decoration:none">
+        <div class="gw-card-inner">
+          <div class="gw-icon gw-icon-gold">⚙️</div>
+          <div><div class="gw-card-title">Admin Portal</div><div class="gw-card-sub">Tonight staff — manage events, venues &amp; members</div></div>
+          <div class="gw-arrow">›</div>
+        </div>
+      </a>
+      <a href="portal/venue.html" class="gw-card gw-card-portal" style="text-decoration:none;margin-bottom:0">
+        <div class="gw-card-inner">
+          <div class="gw-icon gw-icon-purple">🏢</div>
+          <div><div class="gw-card-title">Venue Portal</div><div class="gw-card-sub">Approved venue owners — post events &amp; manage guestlists</div></div>
+          <div class="gw-arrow">›</div>
+        </div>
+      </a>
+    </div>
   </div>
 </div>
 
 <!-- ════ PRO SIGN-UP MODAL ════ -->
 <div class="overlay" id="proSignupOverlay">
   <div class="modal" style="max-width:420px;padding:0;overflow:hidden">
-    <div style="background:linear-gradient(135deg,rgba(0,208,132,.12),rgba(0,208,132,.04));border-bottom:1px solid rgba(0,208,132,.12);padding:24px 24px 20px;position:relative">
+    <div style="background:linear-gradient(135deg,rgba(245,200,66,.10),rgba(245,200,66,.03));border-bottom:1px solid rgba(245,200,66,.12);padding:24px 24px 20px;position:relative">
       <button class="mclose" onclick="closeOverlay('proSignupOverlay')" style="position:absolute;top:14px;right:14px">✕</button>
-      <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(0,208,132,.15);border:1px solid rgba(0,208,132,.25);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;color:#00d084;letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px">For Business</div>
+      <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(245,200,66,.12);border:1px solid rgba(245,200,66,.25);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px">Venue / Promoter</div>
       <h2 style="font-size:20px;font-weight:800;color:#fff;margin-bottom:6px">List your venue on Tonight</h2>
       <div style="display:flex;flex-direction:column;gap:5px;margin-top:12px">
-        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2)"><span style="color:#00d084;font-size:14px">✓</span> Free listing — visible to all Tonight users</div>
-        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2)"><span style="color:#00d084;font-size:14px">✓</span> Post events, deals &amp; guestlist offers</div>
-        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2)"><span style="color:#00d084;font-size:14px">✓</span> Track RSVPs and audience interest</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2)"><span style="color:var(--gold);font-size:14px">✓</span> Free listing — visible to all Tonight users</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2)"><span style="color:var(--gold);font-size:14px">✓</span> Post events, deals &amp; guestlist offers</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2)"><span style="color:var(--gold);font-size:14px">✓</span> Track RSVPs and audience interest</div>
       </div>
     </div>
     <div style="padding:20px 24px calc(24px + env(safe-area-inset-bottom))">
@@ -2308,25 +2346,6 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
       <div class="cm-counter" id="cmCounter"><span id="cmCount">847</span> members already in</div>
     </div>
     <form class="cm-form" id="communityForm" onsubmit="submitCommunity(event)" style="padding:0 24px 24px">
-      <!-- Social sign-in -->
-      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
-        <button type="button" class="cm-social-btn cm-social-google" onclick="socialSignIn('google')" style="width:100%;justify-content:center;padding:12px;font-size:14px;font-weight:600">
-          <svg width="18" height="18" viewBox="0 0 24 24" style="flex-shrink:0"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-          Continue with Google
-        </button>
-        <div style="display:flex;gap:10px">
-          <button type="button" class="cm-social-btn cm-social-ms" onclick="socialSignIn('microsoft')" style="flex:1;justify-content:center;padding:11px 8px;font-size:13px">
-            <svg width="16" height="16" viewBox="0 0 24 24" style="flex-shrink:0"><rect x="1" y="1" width="10" height="10" fill="#F25022"/><rect x="13" y="1" width="10" height="10" fill="#7FBA00"/><rect x="1" y="13" width="10" height="10" fill="#00A4EF"/><rect x="13" y="13" width="10" height="10" fill="#FFB900"/></svg>
-            Outlook
-          </button>
-          <button type="button" class="cm-social-btn cm-social-apple" onclick="socialSignIn('apple')" style="flex:1;justify-content:center;padding:11px 8px;font-size:13px">
-            <svg width="14" height="16" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
-            Apple
-          </button>
-        </div>
-      </div>
-      <div class="cm-divider"><span>or sign up with email</span></div>
-
       <div class="cm-field">
         <label>Full Name <span class="cm-req">*</span></label>
         <input type="text" id="cmName" placeholder="Your full name" required autocomplete="name"/>
@@ -5387,7 +5406,7 @@ function initSwipeDismiss(overlayId){
     startY=0;currentY=0;modal=null;
   });
 }
-['listEventOverlay','dealOverlay','gatewayOverlay','proSignupOverlay','communityOverlay','authOverlay','evtOverlay','tktOverlay','waitlistOverlay'].forEach(id=>{
+['listEventOverlay','dealOverlay','gatewayOverlay','portalChoiceOverlay','proSignupOverlay','communityOverlay','authOverlay','evtOverlay','tktOverlay','waitlistOverlay'].forEach(id=>{
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>initSwipeDismiss(id),{once:false});
   else initSwipeDismiss(id);
 });
