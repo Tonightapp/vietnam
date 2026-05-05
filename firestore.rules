@@ -18,7 +18,7 @@ service cloud.firestore {
     }
 
     function isStaff() {
-      return isAuthenticated() && getUserRole() == 'staff';
+      return isAuthenticated() && getUserRole() == 'admin';
     }
 
     function isVenueOwner() {
@@ -43,15 +43,12 @@ service cloud.firestore {
     // ── venue_requests/{id} ────────────────────────────────────────────────────
     match /venue_requests/{requestId} {
 
-      allow create: if request.resource.data.keys().hasAll([
-                         'email', 'fullName', 'venueName',
-                         'city', 'venueType', 'description', 'phone',
-                         'status', 'createdAt'
-                       ])
+      allow create: if request.resource.data.keys().hasAll(['email', 'venueName', 'status', 'createdAt'])
                     && request.resource.data.status == 'pending';
 
       allow read: if isStaff()
-                  || (isAuthenticated() && resource.data.userId == request.auth.uid);
+                  || (isAuthenticated() && (resource.data.userId == request.auth.uid
+                                            || resource.data.uid == request.auth.uid));
 
       allow update, delete: if isStaff();
     }

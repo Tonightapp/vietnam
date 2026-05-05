@@ -6468,6 +6468,30 @@ async function submitCommunity(e){
     _saveAccounts(accs);
   }
 
+  // Create real Firebase Auth account so the user has a system-wide identity
+  if(password && password.length >= 6){
+    try{
+      const {createUserWithEmailAndPassword,signInWithEmailAndPassword}=await import(_FB_CDN+'/firebase-auth.js');
+      const {setDoc,doc,serverTimestamp}=await import(_FB_CDN+'/firebase-firestore.js');
+      const fbAuth=await _getAuth();
+      const fbDb=await _getDb();
+      let fbUid=null;
+      try{
+        const cred=await createUserWithEmailAndPassword(fbAuth,email,password);
+        fbUid=cred.user.uid;
+      }catch(e){
+        if(e.code==='auth/email-already-in-use'){
+          try{ const c=await signInWithEmailAndPassword(fbAuth,email,password); fbUid=c.user.uid; }catch(_){}
+        }
+      }
+      if(fbUid){
+        await setDoc(doc(fbDb,'users',fbUid),{
+          uid:fbUid, email, fullName:name, role:'user', createdAt:serverTimestamp()
+        },{merge:true});
+      }
+    }catch(_){}  // Firebase errors never block the community sign-up flow
+  }
+
   // Save to Firestore community_signups — Cloud Functions use this for email blasts
   await _saveToFirestore('community_signups',{
     fullName:name, email, city:filterCity||'',

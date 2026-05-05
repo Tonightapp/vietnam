@@ -593,6 +593,17 @@ exports.onVenueApproved = onDocumentUpdated(
 
       // Store uid back on the venue_request for cross-referencing
       await event.data.after.ref.update({ uid, authCreated: true });
+
+      // Write/merge users/{uid} so the venue portal role-check works
+      await db.collection('users').doc(uid).set({
+        uid,
+        email,
+        fullName: after.fullName || after.contactName || after.venueName || '',
+        role: 'venue_owner',
+        venueId: reqId,
+        createdAt: Timestamp.now(),
+      }, { merge: true });
+
       console.log(`[onVenueApproved] Auth account created and email sent to ${email} uid=${uid}`);
 
     } catch (err) {

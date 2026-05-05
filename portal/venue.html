@@ -627,7 +627,7 @@ onAuthStateChanged(auth, async user => {
   currentUser = user;
   // Check role
   try {
-    const snap = await getDocs(query(collection(db,'venue_requests'), where('email','==',user.email), where('status','==','approved')));
+    const snap = await getDocs(query(collection(db,'venue_requests'), where('uid','==',user.uid), where('status','==','approved')));
     if (snap.empty) {
       // Check if pending
       document.getElementById('loading').classList.add('hide');
