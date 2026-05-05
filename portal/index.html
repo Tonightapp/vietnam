@@ -505,6 +505,11 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
         <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:#000"><path d="M12 2L4 6v6c0 5.25 3.4 10.15 8 11.35C16.6 22.15 20 17.25 20 12V6l-8-4z"/></svg>
         Sign In to Portal
       </button>
+      <div style="text-align:center;margin-top:14px">
+        <button onclick="doResetPassword()" style="background:none;border:none;color:var(--text3);font-size:12px;cursor:pointer;font-family:inherit;text-decoration:underline">
+          Forgot password?
+        </button>
+      </div>
     </div>
     <div class="login-foot">
       <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
@@ -812,7 +817,8 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
 <script type="module">
 import { initializeApp }                           from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getAuth, signInWithEmailAndPassword,
-         onAuthStateChanged, signOut }             from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+         onAuthStateChanged, signOut,
+         sendPasswordResetEmail }                  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { getFirestore, collection, doc,
          query, orderBy, where, limit,
          onSnapshot, updateDoc, addDoc, getCountFromServer,
@@ -894,6 +900,18 @@ window.doLogin = async function() {
   } catch(e) {
     showErr('Incorrect email or password.');
     btn.disabled = false; btn.innerHTML = `<svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:#000"><path d="M12 2L4 6v6c0 5.25 3.4 10.15 8 11.35C16.6 22.15 20 17.25 20 12V6l-8-4z"/></svg> Sign In to Portal`;
+  }
+};
+
+window.doResetPassword = async function() {
+  const email = document.getElementById('login-email').value.trim() || ADMIN_EMAIL;
+  try {
+    await sendPasswordResetEmail(auth, email);
+    showErr(`✓ Reset link sent to ${email} — check your inbox`);
+    document.getElementById('err-msg').parentElement.style.borderColor = 'rgba(34,197,94,0.4)';
+    document.getElementById('err-msg').parentElement.style.color = '#22c55e';
+  } catch(e) {
+    showErr('Could not send reset email: ' + e.message);
   }
 };
 
