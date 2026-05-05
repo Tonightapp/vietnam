@@ -63,9 +63,10 @@ service cloud.firestore {
 
       // Authenticated venue owners (portal) OR unauthenticated app submissions
       // Either way: status MUST be 'pending' on create — admin approves before going live
-      allow create: if request.resource.data.status == 'pending'
+      allow create: if (request.resource.data.status == 'pending'
                     && request.resource.data.keys().hasAll(['title','venueName','date','city','status'])
-                    && (isVenueOwner() || request.auth == null);
+                    && (isVenueOwner() || request.auth == null))
+                    || (isAuthenticated() && request.auth.token.email == 'app.tonigh1@gmail.com');
 
       allow update: if (isVenueOwner()
                         && resource.data.publishedBy == request.auth.uid

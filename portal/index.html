@@ -690,12 +690,92 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
           <div class="section-head">
             <div>
               <div class="section-title">Events</div>
-              <div style="font-size:12px;color:var(--text3);margin-top:2px">Approve events to publish them + auto-email all users</div>
+              <div style="font-size:12px;color:var(--text3);margin-top:2px">Approve submitted events or add directly</div>
             </div>
-            <div class="count-pill" id="events-count">—</div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="count-pill" id="events-count">—</div>
+              <button class="btn btn-approve" style="padding:8px 16px;font-size:13px" onclick="openAddEvent()">+ Add Event</button>
+            </div>
           </div>
           <div class="filter-tabs" id="event-filter-tabs" style="margin-bottom:12px"></div>
           <div id="event-list"></div>
+        </div>
+      </div>
+
+      <!-- ADD EVENT MODAL -->
+      <div id="add-event-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;overflow-y:auto;padding:24px 16px">
+        <div style="max-width:560px;margin:0 auto;background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:28px 24px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+            <div style="font-size:18px;font-weight:800;color:#fff">Add Event</div>
+            <button onclick="closeAddEvent()" style="background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer">✕</button>
+          </div>
+          <form id="add-event-form" onsubmit="submitAddEvent(event)" style="display:flex;flex-direction:column;gap:14px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div>
+                <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Event Title *</label>
+                <input id="ae-title" type="text" placeholder="e.g. Saturday Night Techno" required style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/>
+              </div>
+              <div>
+                <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Venue Name *</label>
+                <input id="ae-venue" type="text" placeholder="e.g. Broma Not A Bar" required style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div>
+                <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">City *</label>
+                <select id="ae-city" required style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit">
+                  <option value="">Select city...</option>
+                  <option>Hanoi</option>
+                  <option>Ho Chi Minh City</option>
+                  <option>Da Nang</option>
+                  <option>Nha Trang</option>
+                  <option>Hoi An</option>
+                  <option>Phu Quoc</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Genre</label>
+                <select id="ae-genre" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit">
+                  <option>House</option><option>Techno</option><option>DJ Night</option>
+                  <option>Live Music</option><option>Electronic</option><option>Hip-Hop</option>
+                  <option>Jazz</option><option>EDM</option><option>Themed Party</option><option>Other</option>
+                </select>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div>
+                <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Date *</label>
+                <input id="ae-date" type="date" required style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/>
+              </div>
+              <div>
+                <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Doors Open</label>
+                <input id="ae-time" type="text" placeholder="e.g. 9:00 PM" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div>
+                <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Price (VND, 0 = Free)</label>
+                <input id="ae-price" type="number" placeholder="0" min="0" value="0" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/>
+              </div>
+              <div>
+                <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Emoji</label>
+                <input id="ae-emoji" type="text" placeholder="🎵" value="🎵" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/>
+              </div>
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Image URL (optional)</label>
+              <input id="ae-img" type="url" placeholder="https://..." style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/>
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Description</label>
+              <textarea id="ae-desc" rows="3" placeholder="Describe the event..." style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;resize:vertical"></textarea>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
+              <input type="checkbox" id="ae-featured" style="width:16px;height:16px;accent-color:var(--gold)"/>
+              <label for="ae-featured" style="font-size:13px;color:var(--text2);cursor:pointer">Mark as Featured</label>
+            </div>
+            <button type="submit" id="ae-submit-btn" style="width:100%;padding:14px;background:var(--green);color:#000;font-weight:700;font-size:15px;border:none;border-radius:10px;cursor:pointer;margin-top:4px">Publish Event →</button>
+          </form>
         </div>
       </div>
 
@@ -735,7 +815,7 @@ import { getAuth, signInWithEmailAndPassword,
          onAuthStateChanged, signOut }             from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { getFirestore, collection, doc,
          query, orderBy, where, limit,
-         onSnapshot, updateDoc, getCountFromServer,
+         onSnapshot, updateDoc, addDoc, getCountFromServer,
          serverTimestamp }                         from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 // ── 🔧 PASTE YOUR FIREBASE CONFIG HERE ───────────────────
@@ -1132,6 +1212,47 @@ window.rejectEvent = async function(eventId, title) {
     });
     toast(`Event rejected`);
   } catch(e) { toast(`Error: ${e.message}`); }
+};
+
+// ── ADD EVENT (admin direct publish) ─────────────────────
+window.openAddEvent = function() {
+  document.getElementById('add-event-modal').style.display = 'block';
+};
+window.closeAddEvent = function() {
+  document.getElementById('add-event-modal').style.display = 'none';
+  document.getElementById('add-event-form').reset();
+};
+window.submitAddEvent = async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('ae-submit-btn');
+  btn.disabled = true; btn.textContent = 'Publishing…';
+  try {
+    await addDoc(collection(db, 'events'), {
+      title:       document.getElementById('ae-title').value.trim(),
+      venueName:   document.getElementById('ae-venue').value.trim(),
+      city:        document.getElementById('ae-city').value,
+      genre:       document.getElementById('ae-genre').value,
+      date:        document.getElementById('ae-date').value,
+      time:        document.getElementById('ae-time').value.trim(),
+      price:       parseInt(document.getElementById('ae-price').value) || 0,
+      emoji:       document.getElementById('ae-emoji').value.trim() || '🎵',
+      img:         document.getElementById('ae-img').value.trim(),
+      description: document.getElementById('ae-desc').value.trim(),
+      featured:    document.getElementById('ae-featured').checked,
+      status:      'approved',
+      emailSent:   false,
+      reminderSent:false,
+      isNew:       true,
+      source:      'admin-portal',
+      createdAt:   serverTimestamp(),
+      approvedAt:  serverTimestamp(),
+    });
+    toast('✅ Event published — live on Tonight now');
+    closeAddEvent();
+  } catch(err) {
+    toast(`Error: ${err.message}`);
+    btn.disabled = false; btn.textContent = 'Publish Event →';
+  }
 };
 
 // ── NAV ───────────────────────────────────────────────────
