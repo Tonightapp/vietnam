@@ -857,17 +857,30 @@ onAuthStateChanged(auth, async user => {
   document.getElementById('loading').classList.add('hide');
   if (!user) { showLogin(); return; }
 
-  // Verify admin role from Firestore
-  const snap = await getCountFromServer(
-    query(collection(db,'users'), where('uid','==',user.uid), where('role','==','admin'))
-  );
-  if (snap.data().count === 0) {
+  // Hardcoded admin email is always allowed (no users doc needed)
+  if (user.email === ADMIN_EMAIL) {
+    showApp(user);
+    return;
+  }
+
+  // For other admin accounts, verify role in Firestore
+  try {
+    const snap = await getCountFromServer(
+      query(collection(db,'users'), where('uid','==',user.uid), where('role','==','admin'))
+    );
+    if (snap.data().count === 0) {
+      await signOut(auth);
+      showErr('Access denied. Staff accounts only.');
+      showLogin();
+      return;
+    }
+    showApp(user);
+  } catch(e) {
+    console.error('[portal auth]', e);
     await signOut(auth);
     showErr('Access denied. Staff accounts only.');
     showLogin();
-    return;
   }
-  showApp(user);
 });
 
 window.doLogin = async function() {

@@ -17,8 +17,13 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
     }
 
+    function isAdminEmail() {
+      return isAuthenticated() && request.auth.token.email == 'app.tonigh1@gmail.com';
+    }
+
     function isStaff() {
-      return isAuthenticated() && getUserRole() == 'admin';
+      return isAdminEmail()
+          || (isAuthenticated() && getUserRole() == 'admin');
     }
 
     function isVenueOwner() {
