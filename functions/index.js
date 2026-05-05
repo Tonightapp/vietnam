@@ -45,7 +45,7 @@ function makeTransporter(user, pass) {
 // Reads community_signups (app sign-ups) — city match or no city set
 async function getUsersForCity(city) {
   const snap = await db.collection('community_signups')
-    .where('city', 'in', [city, '', null])
+    .where('city', 'in', [city, ''])
     .limit(500)
     .get();
   return snap.docs.map(d => {
@@ -580,7 +580,7 @@ exports.onVenueApproved = onDocumentUpdated(
     </div>
     <p style="color:#475569;font-size:13px;line-height:1.6;margin:0">
       After setting your password, log in at:<br/>
-      <a href="https://tonightvietnam.com/venue.html" style="color:#f5c842">tonightvietnam.com/venue.html</a>
+      <a href="https://tonightapp.github.io/vietnam/portal/venue.html" style="color:#f5c842">tonightapp.github.io/vietnam/portal/venue.html</a>
     </p>
   </td></tr>
   <tr><td style="background:rgba(255,255,255,0.03);border-top:1px solid rgba(255,255,255,0.06);padding:16px 32px;text-align:center">

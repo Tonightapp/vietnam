@@ -1089,7 +1089,6 @@ window.approveVenue = async function(reqId, userId, name) {
   if (!confirm(`Approve ${name}?\n\nThey will be able to publish events immediately.`)) return;
   try {
     await updateDoc(doc(db,'venue_requests',reqId), { status:'approved', reviewedAt: serverTimestamp() });
-    if (userId) await updateDoc(doc(db,'users',userId), { role:'venue_owner' });
     toast(`✅ ${name} approved — now live on Tonight`);
   } catch(e) { toast(`Error: ${e.message}`); }
 };

@@ -288,9 +288,9 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
 <!-- ACCESS DENIED -->
 <div id="denied" class="hide">
   <div class="denied-card">
-    <div class="denied-icon">⏳</div>
-    <div class="denied-title">Application Under Review</div>
-    <div class="denied-sub">Your venue application is pending approval. The Tonight team reviews all applications within 24 hours. You'll receive an email once you're approved.</div>
+    <div class="denied-icon" id="denied-icon">⏳</div>
+    <div class="denied-title" id="denied-title">Application Under Review</div>
+    <div class="denied-sub" id="denied-sub">Your venue application is pending approval. The Tonight team reviews all applications within 24 hours. You'll receive an email once you're approved.</div>
     <button class="denied-btn" onclick="doSignOut()">Sign Out</button>
   </div>
 </div>
@@ -629,7 +629,24 @@ onAuthStateChanged(auth, async user => {
   try {
     const snap = await getDocs(query(collection(db,'venue_requests'), where('uid','==',user.uid), where('status','==','approved')));
     if (snap.empty) {
-      // Check if pending
+      // Check actual status
+      const anySnap = await getDocs(query(collection(db,'venue_requests'), where('uid','==',user.uid)));
+      let icon = '⏳', title = 'Application Under Review';
+      let sub = 'Your venue application is pending approval. The Tonight team reviews all applications within 24 hours. You\'ll receive an email once you\'re approved.';
+
+      if (!anySnap.empty) {
+        const status = anySnap.docs[0].data().status;
+        if (status === 'rejected') {
+          icon = '❌';
+          title = 'Application Not Approved';
+          sub = 'Unfortunately your venue application was not approved at this time. If you believe this is an error, please contact the Tonight team.';
+        }
+        // pending: keep defaults above
+      }
+
+      document.getElementById('denied-icon').textContent = icon;
+      document.getElementById('denied-title').textContent = title;
+      document.getElementById('denied-sub').textContent = sub;
       document.getElementById('loading').classList.add('hide');
       document.getElementById('denied').classList.remove('hide');
       return;
