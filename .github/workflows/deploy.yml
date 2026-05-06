@@ -25,6 +25,7 @@ jobs:
           publish_dir: .
           publish_branch: gh-pages
           exclude_assets: '.github,functions,node_modules,supabase,.gitignore'
+          cname: www.tonightvietnam.com
 
   # ── Job 2: Firebase Hosting + Firestore (always runs) ────────────────────────
   firebase:
