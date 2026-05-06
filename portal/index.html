@@ -424,6 +424,58 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
   border:1.5px solid var(--surface);
 }
 
+/* ─── EVENT CARDS ────────────────────────────────────────── */
+.evt-toolbar{display:flex;align-items:center;gap:8px;padding:12px 18px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.genre-chips{display:flex;gap:6px;flex-wrap:wrap;padding:10px 18px;border-bottom:1px solid var(--border);align-items:center}
+.genre-chip{
+  padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;
+  border:1px solid var(--border);background:none;font-family:inherit;
+  color:var(--text3);cursor:pointer;transition:all .12s;white-space:nowrap;
+}
+.genre-chip:hover{color:var(--text2);background:var(--card2)}
+.genre-chip.active{background:var(--gold-dim);border-color:rgba(245,200,66,0.35);color:var(--gold)}
+.evt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px;padding:18px}
+.evt-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  overflow:hidden;transition:border-color .15s;display:flex;flex-direction:column;
+}
+.evt-card:hover{border-color:var(--border2)}
+.evt-card.featured{border-color:rgba(245,200,66,0.35)}
+.evt-status-bar{height:3px;width:100%}
+.evt-status-bar.approved{background:var(--green)}
+.evt-status-bar.pending{background:var(--orange)}
+.evt-status-bar.rejected{background:var(--red)}
+.evt-thumb{width:100%;height:120px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:42px;position:relative;flex-shrink:0}
+.evt-thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.evt-thumb-emoji{position:relative;z-index:1}
+.evt-body{padding:12px 14px;flex:1;display:flex;flex-direction:column;gap:5px}
+.evt-title{font-size:14px;font-weight:700;color:var(--text);line-height:1.3}
+.evt-venue{font-size:12px;color:var(--text2);margin-top:1px}
+.evt-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+.evt-tag{font-size:10px;color:var(--text3);background:var(--card2);border:1px solid var(--border);border-radius:4px;padding:2px 7px}
+.evt-tag.gold{background:rgba(245,200,66,0.08);color:var(--gold);border-color:rgba(245,200,66,0.2)}
+.evt-tag.green{background:rgba(34,197,94,0.08);color:var(--green);border-color:rgba(34,197,94,0.2)}
+.evt-tag.orange{background:rgba(249,115,22,0.08);color:var(--orange);border-color:rgba(249,115,22,0.2)}
+.evt-desc{font-size:12px;color:var(--text3);line-height:1.5;margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.evt-actions{display:flex;gap:5px;padding:10px 14px;border-top:1px solid var(--border);flex-wrap:wrap;align-items:center}
+.ea-btn{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:5px 10px;border-radius:6px;font-size:11px;font-weight:700;
+  font-family:inherit;cursor:pointer;border:1px solid transparent;transition:all .12s;white-space:nowrap;
+}
+.ea-approve{background:rgba(34,197,94,.1);color:var(--green);border-color:rgba(34,197,94,.2)}
+.ea-approve:hover{background:var(--green);color:#000;border-color:var(--green)}
+.ea-reject{background:rgba(239,68,68,.08);color:var(--red);border-color:rgba(239,68,68,.15)}
+.ea-reject:hover{background:rgba(239,68,68,.2);border-color:rgba(239,68,68,.3)}
+.ea-feat{background:rgba(245,200,66,.06);color:var(--text3);border-color:var(--border)}
+.ea-feat:hover{color:var(--gold);border-color:rgba(245,200,66,.3)}
+.ea-feat.on{background:rgba(245,200,66,.1);color:var(--gold);border-color:rgba(245,200,66,.3)}
+.ea-del{background:none;color:var(--text3);border-color:var(--border);margin-left:auto}
+.ea-del:hover{color:var(--red);border-color:rgba(239,68,68,.3)}
+.ea-del.confirm{background:rgba(239,68,68,.1);color:var(--red);border-color:rgba(239,68,68,.3)}
+.ea-prio-up{background:rgba(59,130,246,.08);color:var(--blue);border-color:rgba(59,130,246,.2)}
+.ea-prio-up:hover{background:rgba(59,130,246,.2)}
+
 /* ─── FIREBASE SETUP PROMPT ──────────────────────────────── */
 #setup-prompt{
   position:fixed;inset:0;background:rgba(8,8,16,0.9);backdrop-filter:blur(8px);
@@ -695,14 +747,24 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
           <div class="section-head">
             <div>
               <div class="section-title">Events</div>
-              <div style="font-size:12px;color:var(--text3);margin-top:2px">Approve submitted events or add directly</div>
+              <div style="font-size:12px;color:var(--text3);margin-top:2px">Manage · approve · feature · sort by genre</div>
             </div>
             <div style="display:flex;align-items:center;gap:10px">
               <div class="count-pill" id="events-count">—</div>
               <button class="btn btn-approve" style="padding:8px 16px;font-size:13px" onclick="openAddEvent()">+ Add Event</button>
             </div>
           </div>
-          <div class="filter-tabs" id="event-filter-tabs" style="margin-bottom:12px"></div>
+          <!-- Status tabs + search -->
+          <div class="evt-toolbar">
+            <div class="search-wrap" style="max-width:260px">
+              <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+              <input type="text" placeholder="Search title, venue, city…" oninput="evtSearch(this.value)" id="evt-search"/>
+            </div>
+            <div class="filter-tabs" id="event-filter-tabs" style="margin-left:auto"></div>
+          </div>
+          <!-- Genre chips (auto-built from data) -->
+          <div class="genre-chips" id="genre-chips"></div>
+          <!-- Cards -->
           <div id="event-list"></div>
         </div>
       </div>
@@ -821,7 +883,7 @@ import { getAuth, signInWithEmailAndPassword,
          sendPasswordResetEmail }                  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { getFirestore, collection, doc,
          query, orderBy, where, limit,
-         onSnapshot, updateDoc, addDoc,
+         onSnapshot, updateDoc, addDoc, deleteDoc,
          serverTimestamp }                         from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 // ── 🔧 PASTE YOUR FIREBASE CONFIG HERE ───────────────────
@@ -1101,8 +1163,11 @@ window.rejectVenue = async function(reqId, name) {
   } catch(e) { toast(`Error: ${e.message}`); }
 };
 
-// ── EVENTS — APPROVAL WORKFLOW ────────────────────────────
-let eventFilter = 'pending';
+// ── EVENTS ────────────────────────────────────────────────
+let eventFilter  = 'pending';
+let genreFilter  = 'all';
+let evtSearchQ   = '';
+const deleteConfirm = new Set(); // ids pending 2nd-click confirm
 
 function renderEventsTable() {
   const pending  = allEvents.filter(e => !e.status || e.status === 'pending').length;
@@ -1111,8 +1176,8 @@ function renderEventsTable() {
 
   document.getElementById('events-count').textContent = allEvents.length;
 
-  // Badge on nav
-  const badge = document.getElementById('events-badge');
+  // Nav badge
+  const badge  = document.getElementById('events-badge');
   const mbadge = document.getElementById('m-events-badge');
   if (pending > 0) {
     badge.textContent = pending; badge.classList.remove('hide');
@@ -1122,108 +1187,153 @@ function renderEventsTable() {
     if (mbadge) mbadge.classList.add('hide');
   }
 
-  // Filter tabs
+  // Status filter tabs
   document.getElementById('event-filter-tabs').innerHTML = [
-    ['pending',  `Pending Review${pending  > 0 ? ` (${pending})`  : ''}`],
-    ['approved', `Approved${approved > 0 ? ` (${approved})` : ''}`],
-    ['rejected', `Rejected${rejected > 0 ? ` (${rejected})` : ''}`],
-    ['all',      `All (${allEvents.length})`],
-  ].map(([f, label]) =>
-    `<button class="ftab ${eventFilter===f?'on-'+f:''}" onclick="setEF('${f}')">${label}</button>`
+    ['pending',  'Pending', pending],
+    ['approved', 'Live',    approved],
+    ['rejected', 'Rejected',rejected],
+    ['all',      'All',     allEvents.length],
+  ].map(([f, label, n]) =>
+    `<button class="ftab ${eventFilter===f?'on-'+f:''}" onclick="setEF('${f}')">
+      ${label}${n>0?`<span class="ftab-count">${n}</span>`:''}
+    </button>`
   ).join('');
 
-  // Filtered list
-  const filtered = eventFilter === 'all'
-    ? allEvents
-    : allEvents.filter(e => {
-        if (eventFilter === 'pending') return !e.status || e.status === 'pending';
-        return e.status === eventFilter;
-      });
+  // Genre chips (unique genres from all events)
+  const genres = ['all', ...new Set(allEvents.map(e => e.genre).filter(Boolean).sort())];
+  document.getElementById('genre-chips').innerHTML = genres.map(g =>
+    `<button class="genre-chip ${genreFilter===g?'active':''}" onclick="setGF('${esc(g)}')">${g==='all'?'All Genres':esc(g)}</button>`
+  ).join('');
+
+  // Apply filters
+  let filtered = allEvents.filter(e => {
+    if (eventFilter === 'pending') return !e.status || e.status === 'pending';
+    if (eventFilter !== 'all') return e.status === eventFilter;
+    return true;
+  });
+  if (genreFilter !== 'all') filtered = filtered.filter(e => e.genre === genreFilter);
+  if (evtSearchQ) {
+    const q = evtSearchQ.toLowerCase();
+    filtered = filtered.filter(e =>
+      (e.title||'').toLowerCase().includes(q) ||
+      (e.venueName||e.venue||'').toLowerCase().includes(q) ||
+      (e.city||'').toLowerCase().includes(q)
+    );
+  }
+
+  // Sort: featured first, then by date
+  filtered.sort((a,b) => {
+    if (a.featured && !b.featured) return -1;
+    if (!a.featured && b.featured) return  1;
+    return (a.date||'') < (b.date||'') ? -1 : 1;
+  });
 
   const el = document.getElementById('event-list');
   if (!filtered.length) {
-    el.innerHTML = `<div class="empty"><div class="empty-icon">${eventFilter==='pending'?'📭':'🎫'}</div><div class="empty-title">No ${eventFilter} events</div></div>`;
+    el.innerHTML = `<div class="empty"><div class="empty-icon">🎫</div><div class="empty-title">No events match</div><div class="empty-sub">Try a different filter or genre</div></div>`;
     return;
   }
-
-  const colSpan = eventFilter === 'pending' ? 6 : 5;
-  el.innerHTML = `<table class="data-table">
-    <thead><tr>
-      <th>Event</th>
-      <th>Venue · City</th>
-      <th>Date</th>
-      <th>Type</th>
-      ${eventFilter === 'pending' ? '' : '<th>Email</th>'}
-      <th>Submitted</th>
-      ${eventFilter === 'pending' ? '<th>Action</th>' : ''}
-    </tr></thead>
-    <tbody>${filtered.map(e => eventApprovalRow(e)).join('')}</tbody>
-  </table>`;
+  el.innerHTML = `<div class="evt-grid">${filtered.map(e => eventCard(e)).join('')}</div>`;
 }
 
-function eventApprovalRow(e) {
-  const statusColor = {
-    pending:  'background:rgba(249,115,22,.1);color:#f97316',
-    approved: 'background:rgba(34,197,94,.1);color:#22c55e',
-    rejected: 'background:rgba(239,68,68,.1);color:#ef4444',
-  }[e.status || 'pending'] || 'background:rgba(249,115,22,.1);color:#f97316';
+function eventCard(e) {
+  const status     = e.status || 'pending';
+  const title      = esc(e.title || '—');
+  const venue      = esc(e.venueName || e.venue || '—');
+  const city       = esc(e.city || '');
+  const genre      = esc(e.genre || '');
+  const dateStr    = shortDate(e.date);
+  const price      = e.price > 0 ? `${Number(e.price).toLocaleString()}₫` : 'Free';
+  const isPending  = status === 'pending';
+  const isFeat     = !!e.featured;
+  const emailLabel = e.emailSent ? `📧 ${e.emailCount||0} sent` : '📧 unsent';
 
-  const statusLabel = e.status ? e.status.charAt(0).toUpperCase()+e.status.slice(1) : 'Pending';
-  const emailBadge  = e.emailSent
-    ? `<span class="status-pill" style="background:rgba(34,197,94,.1);color:#22c55e">✓ Sent (${e.emailCount||0})</span>`
-    : `<span class="status-pill" style="background:rgba(255,255,255,.05);color:var(--text3)">Not sent</span>`;
+  const thumbInner = e.img
+    ? `<img src="${esc(e.img)}" loading="lazy" alt=""/><span class="evt-thumb-emoji">${e.emoji||'🎵'}</span>`
+    : `<span class="evt-thumb-emoji">${e.emoji||'🎵'}</span>`;
 
-  const actions = (!e.status || e.status === 'pending')
-    ? `<div class="action-cell">
-        <button class="btn btn-reject"  onclick="rejectEvent('${e.id}','${esc(e.title||'')}')">Reject</button>
-        <button class="btn btn-approve" onclick="approveEvent('${e.id}','${esc(e.title||'')}','${esc(e.venueName||'')}')">Approve &amp; Publish</button>
-       </div>`
-    : `<span class="td-muted">${timeAgo(e.approvedAt || e.createdAt)}</span>`;
+  const approveRejectBtns = isPending ? `
+    <button class="ea-btn ea-reject"  onclick="rejectEvent('${e.id}','${title}')">✕ Reject</button>
+    <button class="ea-btn ea-approve" onclick="approveEvent('${e.id}','${title}')">✓ Approve</button>
+  ` : '';
 
-  return `<tr>
-    <td>
-      <div class="name-cell">
-        <span style="font-size:18px;margin-right:6px">${e.emoji||'🎵'}</span>
-        <div>
-          <div class="td-name">${esc(e.title||'—')}</div>
-          ${e.featured?'<span class="status-pill" style="background:rgba(245,200,66,.1);color:#f5c842;font-size:10px">Featured</span>':''}
-        </div>
+  const delClass = deleteConfirm.has(e.id) ? 'ea-del confirm' : 'ea-del';
+  const delLabel = deleteConfirm.has(e.id) ? 'Sure?' : '🗑';
+
+  return `<div class="evt-card${isFeat?' featured':''}" id="ecard-${e.id}">
+    <div class="evt-status-bar ${status}"></div>
+    <div class="evt-thumb">${thumbInner}</div>
+    <div class="evt-body">
+      <div class="evt-title">${title}${isFeat?' ⭐':''}</div>
+      <div class="evt-venue">📍 ${venue}${city?` · ${city}`:''}</div>
+      <div class="evt-tags">
+        ${genre?`<span class="evt-tag">${genre}</span>`:''}
+        <span class="evt-tag">${dateStr}${e.time?` · ${esc(e.time)}`:''}</span>
+        <span class="evt-tag ${e.price>0?'orange':'green'}">${price}</span>
+        <span class="evt-tag ${status==='approved'?'green':status==='rejected'?'':'orange'}">${status}</span>
+        ${e.emailSent?`<span class="evt-tag green">${emailLabel}</span>`:`<span class="evt-tag">${emailLabel}</span>`}
       </div>
-    </td>
-    <td class="td-muted">${esc((e.venueName||e.venue||'—')+' · '+(e.city||'—'))}</td>
-    <td class="td-muted">${shortDate(e.date)}${e.time?'<br/><span style="font-size:11px">'+esc(e.time)+'</span>':''}</td>
-    <td class="td-muted">${esc(e.genre||'—')}</td>
-    ${eventFilter === 'pending' ? '' : `<td>${emailBadge}</td>`}
-    <td class="td-muted">${timeAgo(e.createdAt)}</td>
-    ${eventFilter === 'pending' ? `<td>${actions}</td>` : ''}
-  </tr>`;
+      ${e.description?`<div class="evt-desc">${esc(e.description)}</div>`:''}
+    </div>
+    <div class="evt-actions">
+      ${approveRejectBtns}
+      <button class="ea-btn ea-feat${isFeat?' on':''}" onclick="toggleFeatured('${e.id}',${isFeat})" title="${isFeat?'Unfeature':'Feature'}">⭐</button>
+      <button class="ea-btn ${delClass}" onclick="deleteEvent('${e.id}','${title}')">${delLabel}</button>
+    </div>
+  </div>`;
 }
 
-window.setEF = function(f) { eventFilter = f; renderEventsTable(); };
+window.setEF = function(f) { eventFilter = f; genreFilter = 'all'; renderEventsTable(); };
+window.setGF = function(g) { genreFilter = g; renderEventsTable(); };
+window.evtSearch = function(q) { evtSearchQ = q.trim(); renderEventsTable(); };
 
-// ── APPROVE EVENT → Firebase-only: Firestore update triggers Cloud Function ──
-// onEventApproved Cloud Function automatically emails all city community members
-window.approveEvent = async function(eventId, title, venueName) {
-  if (!confirm(`Approve "${title}" by ${venueName}?\n\nThis will:\n✅ Publish the event live on Tonight Vietnam\n📧 Firebase automatically emails all users in that city`)) return;
+window.approveEvent = async function(eventId, title) {
   try {
     await updateDoc(doc(db,'events',eventId), {
       status:     'approved',
       approvedAt: serverTimestamp(),
       approvedBy: auth.currentUser?.email || 'staff',
     });
-    // Cloud Function onEventApproved fires automatically — no extra call needed
-    toast(`✅ "${title}" is LIVE — Firebase is emailing the community now`);
-  } catch(e) { toast(`Error: ${e.message}`, 'err'); }
+    toast(`✅ "${title}" is LIVE — community will be emailed`);
+  } catch(e) { toast(`Error: ${e.message}`); }
 };
 
 window.rejectEvent = async function(eventId, title) {
-  if (!confirm(`Reject "${title}"?\n\nThe venue will be able to submit again.`)) return;
   try {
     await updateDoc(doc(db,'events',eventId), {
       status:     'rejected',
       rejectedAt: serverTimestamp(),
     });
-    toast(`Event rejected`);
+    toast(`"${title}" rejected`);
+  } catch(e) { toast(`Error: ${e.message}`); }
+};
+
+window.toggleFeatured = async function(eventId, current) {
+  try {
+    await updateDoc(doc(db,'events',eventId), { featured: !current });
+    toast(current ? 'Removed from featured' : '⭐ Event featured!');
+  } catch(e) { toast(`Error: ${e.message}`); }
+};
+
+window.deleteEvent = async function(eventId, title) {
+  if (!deleteConfirm.has(eventId)) {
+    deleteConfirm.add(eventId);
+    const card = document.getElementById('ecard-'+eventId);
+    if (card) {
+      const btn = card.querySelector('.ea-del');
+      if (btn) { btn.textContent = 'Sure?'; btn.classList.add('confirm'); }
+    }
+    setTimeout(() => {
+      deleteConfirm.delete(eventId);
+      const c = document.getElementById('ecard-'+eventId);
+      if (c) { const b = c.querySelector('.ea-del'); if(b){b.textContent='🗑';b.classList.remove('confirm');} }
+    }, 3000);
+    return;
+  }
+  deleteConfirm.delete(eventId);
+  try {
+    await deleteDoc(doc(db,'events',eventId));
+    toast(`"${title}" deleted`);
   } catch(e) { toast(`Error: ${e.message}`); }
 };
 
