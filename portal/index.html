@@ -395,17 +395,46 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
 }
 #toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 
+/* ─── MOBILE BRAND (topbar logo — hidden on desktop) ────── */
+.mobile-brand{display:none;align-items:center;gap:9px;flex:1}
+.mb-icon{
+  width:30px;height:30px;border-radius:8px;flex-shrink:0;
+  background:var(--gold-dim);border:1px solid rgba(245,200,66,0.25);
+  display:flex;align-items:center;justify-content:center;
+}
+.mb-icon svg{width:14px;height:14px;fill:var(--gold)}
+.mb-name{font-size:17px;font-weight:800;color:var(--gold);letter-spacing:-.4px}
+.mb-portal{font-size:9px;font-weight:700;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-top:1px}
+
 /* ─── MOBILE OVERRIDE ────────────────────────────────────── */
 @media(max-width:720px){
   .sidebar{display:none}
   .mobile-tabbar{
     display:flex;border-top:1px solid var(--border);
-    background:var(--surface);flex-shrink:0;order:1;
+    background:var(--surface);flex-shrink:0;order:1;width:100%;
   }
   #app.on{flex-direction:column}
   .main{order:0}
-  .content{padding:16px}
+  .content{padding:12px}
   .stats-row{grid-template-columns:1fr 1fr}
+
+  /* Topbar: hide desktop title, show mobile brand */
+  .topbar{padding:0 16px;height:54px;background:var(--bg);border-bottom:1px solid var(--border)}
+  .topbar-title{display:none}
+  .topbar-sub{display:none}
+  .mobile-brand{display:flex}
+
+  /* Topbar actions on mobile */
+  .topbar-actions{gap:6px}
+  .icon-btn{width:36px;height:36px}
+  #mobile-signout{display:flex!important}
+
+  /* Bottom tab bar — hard 4-column grid so all tabs always fit */
+  .mobile-tabbar{display:grid!important;grid-template-columns:repeat(4,1fr)}
+  .mobile-tabbar button{font-size:8px;font-weight:700;padding:8px 0;letter-spacing:.1px;min-width:0;width:100%;overflow:hidden}
+  .mobile-tabbar button svg{width:19px;height:19px}
+  /* Topbar — prevent right actions overflow */
+  .topbar-actions{flex-shrink:0;gap:4px}
 }
 @media(min-width:721px){
   .mobile-tabbar{display:none}
@@ -625,6 +654,17 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
   <!-- Main -->
   <div class="main">
     <div class="topbar">
+      <!-- Mobile brand (hidden on desktop, shown on mobile) -->
+      <div class="mobile-brand">
+        <div class="mb-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 2L4 6v6c0 5.25 3.4 10.15 8 11.35C16.6 22.15 20 17.25 20 12V6l-8-4z"/></svg>
+        </div>
+        <div>
+          <div class="mb-name">Tonight Vietnam</div>
+          <div class="mb-portal">Admin Portal</div>
+        </div>
+      </div>
+      <!-- Desktop title (hidden on mobile) -->
       <div>
         <div class="topbar-title" id="page-title">Overview</div>
         <div class="topbar-sub" id="page-sub">Tonight Vietnam · Admin</div>
@@ -633,6 +673,9 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
         <div class="live-dot" id="live-dot" style="display:none">Live</div>
         <div class="icon-btn" onclick="refresh()" title="Refresh">
           <svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+        </div>
+        <div class="icon-btn" onclick="doSignOut()" title="Sign Out" style="display:none" id="mobile-signout">
+          <svg viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
         </div>
       </div>
     </div>
