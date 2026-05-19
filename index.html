@@ -1733,6 +1733,9 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
     </div>
   </div>
 
+  <!-- SPOTLIGHT EVENT -->
+  <div id="spotlightSection" style="padding:12px 0 0"></div>
+
   <!-- LIVE PROMOTIONS STRIP -->
   <div class="promo-strip" id="promoStrip" style="display:none">
     <div class="promo-strip-head">
@@ -3077,7 +3080,9 @@ function renderHeroDots(){
 let heroIdx=0;
 function featuredEvents(){
   const base=filterCity?EVENTS.filter(e=>e.city===filterCity):EVENTS;
-  return base.filter(e=>e.featured).length ? base.filter(e=>e.featured) : base.slice(0,4);
+  const feat=base.filter(e=>e.featured).length ? base.filter(e=>e.featured) : base.slice(0,4);
+  const pin=feat.find(e=>e.id===44);
+  return pin ? [pin,...feat.filter(e=>e.id!==44)] : feat;
 }
 function setHero(i){
   const feat=featuredEvents();
@@ -3116,7 +3121,7 @@ setInterval(()=>{setHero(heroIdx+1);},5000);
 
 function filteredEvents(){
   const today=new Date();today.setHours(0,0,0,0);
-  return EVENTS.filter(e=>{
+  const results=EVENTS.filter(e=>{
     if(filterCity && e.city!==filterCity) return false;
     if(filterArea && e.area!==filterArea) return false;
     if(filterTime){
@@ -3139,6 +3144,8 @@ function filteredEvents(){
     }
     return true;
   });
+  const pin=results.find(e=>e.id===44);
+  return pin ? [pin,...results.filter(e=>e.id!==44)] : results;
 }
 function setTimeFilter(t,el){
   filterTime=t;
@@ -3236,7 +3243,33 @@ function renderRows(){
   document.getElementById('artistRow').innerHTML=ARTISTS.slice(0,5).map(a=>_artistBubble(a,a.name,a.genre,a.img,a.grad,a.emoji)).join('');
 }
 
-function renderAll(){renderTop10();renderRows();renderBrowse();}
+function renderSpotlight(){
+  const ev=EVENTS.find(e=>e.id===44);
+  const s=document.getElementById('spotlightSection');
+  if(!ev||!s) return;
+  const lineupHtml=(ev.lineup||[]).map(a=>`<span style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:100px;padding:3px 12px;font-size:11px;font-weight:700;color:#fff;white-space:nowrap">${a}</span>`).join('');
+  s.innerHTML=`
+  <div onclick="openEvent(44)" style="cursor:pointer;border-radius:16px;overflow:hidden;position:relative;background:#000">
+    <img src="${ev.img}" alt="${ev.title}" style="width:100%;display:block;object-fit:cover;max-height:520px;opacity:.92"/>
+    <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.88) 0%,rgba(0,0,0,.1) 55%,transparent 100%)"></div>
+    <div style="position:absolute;top:14px;left:14px;display:flex;gap:8px;align-items:center">
+      <span style="background:#ff3b5c;color:#fff;font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border-radius:100px">⭐ Featured</span>
+      <span style="background:rgba(0,0,0,.55);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#fff;font-size:10px;font-weight:700;letter-spacing:.5px;padding:5px 12px;border-radius:100px;border:1px solid rgba(255,255,255,.15)">Electric Bazaar</span>
+    </div>
+    <div style="position:absolute;bottom:0;left:0;right:0;padding:20px 20px 24px">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(32px,7vw,54px);line-height:.95;color:#fff;letter-spacing:1px;margin-bottom:10px">${ev.title}</div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px">
+        <span style="font-size:12px;color:rgba(255,255,255,.85);font-weight:500">📅 Sat 6 Jun 2026</span>
+        <span style="font-size:12px;color:rgba(255,255,255,.85);font-weight:500">📍 Red River Cruise · Hanoi</span>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px">${lineupHtml}</div>
+      ${ev.specialActs?`<div style="font-size:12px;color:var(--green);font-weight:700;margin-bottom:16px">✨ ${ev.specialActs}</div>`:''}
+      <button onclick="event.stopPropagation();openEvent(44)" style="background:#fff;color:#000;font-weight:800;font-size:14px;border:none;border-radius:100px;padding:12px 28px;cursor:pointer;letter-spacing:-.2px">Explore Event →</button>
+    </div>
+  </div>`;
+}
+
+function renderAll(){renderSpotlight();renderTop10();renderRows();renderBrowse();}
 
 // ── VENUES PAGE ──
 let _venueTypeFilter='', _venueCityFilter='';
@@ -5879,7 +5912,9 @@ function _runSearch(q){
 // ── INIT ──
 function _initApp(){
   // Critical: render above-fold content immediately
+  renderSpotlight();
   renderHeroDots();
+  setHero(0);
   renderTop10();
   renderRows();
 
