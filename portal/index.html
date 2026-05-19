@@ -880,6 +880,14 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
               <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Description</label>
               <textarea id="ae-desc" rows="3" placeholder="Describe the event..." style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;resize:vertical"></textarea>
             </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Lineup (one artist per line)</label>
+              <textarea id="ae-lineup" rows="3" placeholder="e.g.&#10;Rachel RM&#10;Winnie Wakanda&#10;Arixo" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;resize:vertical"></textarea>
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Special Acts (optional)</label>
+              <input id="ae-special" type="text" placeholder="e.g. Drag Show by Wet Dynasty" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/>
+            </div>
             <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
               <input type="checkbox" id="ae-featured" style="width:16px;height:16px;accent-color:var(--gold)"/>
               <label for="ae-featured" style="font-size:13px;color:var(--text2);cursor:pointer">Mark as Featured</label>
@@ -1404,6 +1412,8 @@ window.submitAddEvent = async function(e) {
       emoji:       document.getElementById('ae-emoji').value.trim() || '🎵',
       img:         document.getElementById('ae-img').value.trim(),
       description: document.getElementById('ae-desc').value.trim(),
+      lineup:      document.getElementById('ae-lineup').value.trim().split('\n').map(s=>s.trim()).filter(Boolean),
+      specialActs: document.getElementById('ae-special').value.trim(),
       featured:    document.getElementById('ae-featured').checked,
       status:      'approved',
       emailSent:   false,

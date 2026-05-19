@@ -411,6 +411,27 @@ img{max-width:100%;height:auto;-webkit-user-drag:none;user-select:none;-webkit-u
 .nav-av{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;}
 .nav-uname{font-size:12px;font-weight:500;color:var(--text);}
 
+/* ── MOBILE NAV ICONS (hidden on desktop) ── */
+.nav-mobile-icons{display:none;align-items:center;gap:2px;margin-left:auto;}
+.nav-icon-btn{
+  width:38px;height:38px;border-radius:9px;
+  background:none;border:none;font-family:inherit;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--text2);transition:.15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.nav-icon-btn:active{background:rgba(255,255,255,.08);color:#fff;transform:scale(.9);}
+.nav-icon-btn svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.nav-icon-btn.icon-portal svg{stroke:#a855f7;}
+.nav-icon-btn.icon-venues svg{stroke:#f5c842;}
+.nav-icon-btn.icon-community svg{stroke:#00d084;}
+@media(max-width:640px){
+  .nav-mobile-icons{display:flex;}
+  .nav-signin-btn{display:none!important;}
+  .nav-auth{display:none!important;}
+  .notif-bell{display:none!important;}
+}
+
 /* TOAST */
 .toasts{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
 .toast{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:11px 16px;font-size:13px;display:flex;align-items:center;gap:8px;transform:translateX(120%);transition:.3s;max-width:300px;box-shadow:0 8px 24px rgba(0,0,0,.5);}
@@ -1637,6 +1658,21 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
         <div class="nav-auth" id="navAuth">
           <button class="btn btn-white" onclick="openGateway()">Get Started</button>
         </div>
+        <!-- Mobile-only: 3 quick-access icons -->
+        <div class="nav-mobile-icons" id="navMobileIcons">
+          <!-- Community / Membership -->
+          <button class="nav-icon-btn icon-community" onclick="openCommunity()" title="Join Community">
+            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </button>
+          <!-- Venues / Business -->
+          <button class="nav-icon-btn icon-venues" onclick="openProSignup()" title="List a Venue">
+            <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </button>
+          <!-- Portal -->
+          <button class="nav-icon-btn icon-portal" onclick="openOverlay('portalChoiceOverlay')" title="Portal Access">
+            <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </button>
+        </div>
       </div>
       <div class="hamburger" onclick="toggleMob()" role="button" aria-label="Open menu" tabindex="0"><span></span><span></span><span></span></div>
     </div>
@@ -2803,6 +2839,8 @@ const EVENTS=[
   {id:41,title:"B-Side Techno Marathon",    artist:"Various Artists",   genre:"Techno", city:"Manila",           area:"BGC",           venue:"B-Side Manila",          lat:14.5491, lng:121.0490,date:"2026-05-08",price:400, img:"https://images.unsplash.com/photo-1574169208507-84376144848b?auto=format&fit=crop&w=800&q=90", emoji:"🌋",grad:"grad-purple",desc:"12 hours of uninterrupted techno at the Philippines' most underground venue. No phones. No compromise.",featured:false,soldOut:false,attendees:320, isNew:true },
   {id:42,title:"Manila Beach House Party",  artist:"Various Artists",   genre:"House",  city:"Manila",           area:"Makati",        venue:"XX XX Manila",           lat:14.5569, lng:121.0244, date:"2026-06-05",price:450, img:"https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=800&q=90", emoji:"🌴",grad:"grad-teal",  desc:"Manila's hottest new club throws its debut summer party with international house DJs and a Bali-style setup.",featured:false,soldOut:false,attendees:480, isNew:true },
   {id:43,title:"Tale Of Us — Manila",       artist:"Tale Of Us",        genre:"Techno", city:"Manila",           area:"BGC",           venue:"B-Side Manila",          lat:14.5491, lng:121.0490,date:"2026-06-19",price:580, img:"https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=800&q=90", emoji:"🌙",grad:"grad-indigo",desc:"Italian duo Tale Of Us bring their cinematic melodic techno to Manila for a rare Southeast Asia appearance.",featured:true, soldOut:false,attendees:600, isNew:false},
+  // ── Electric Bazaar ──
+  {id:44,title:"Excursion x Wet Dynasty",  artist:"Rachel RM, Winnie Wakanda, Arixo + more", genre:"Themed Party", city:"Hanoi", area:"Red River", venue:"Red River Cruise, Hanoi", lat:21.0450,lng:105.8412, date:"2026-06-06", price:0, img:"", emoji:"🛥",grad:"grad-pink", desc:"Electric Bazaar presents a river cruise party like no other — Excursion x Wet Dynasty sets sail on the Red River. Featuring DJ sets from Rachel RM, Winnie Wakanda, Arixo, Useph, Psyboost & Lamont, plus a spectacular Drag Show by Wet Dynasty. Hanoi's wildest night on the water.", featured:true, soldOut:false, attendees:800, isNew:true, lineup:["Rachel RM","Winnie Wakanda","Arixo","Useph","Psyboost","Lamont"], specialActs:"Drag Show by Wet Dynasty", organizer:"Electric Bazaar"},
 ];
 
 const ARTISTS=[
@@ -3814,6 +3852,11 @@ function openEvent(id){
       <span>🔞 Age: 18+</span>
     </div>
     <p style="font-size:13px;color:var(--text2);line-height:1.75;margin-bottom:20px">${ev.desc}</p>
+    ${ev.lineup&&ev.lineup.length?`<div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:12px 14px;margin-bottom:14px">
+      <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Lineup</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">${ev.lineup.map(a=>`<span style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;color:var(--text)">${a}</span>`).join('')}</div>
+      ${ev.specialActs?`<div style="margin-top:10px;font-size:12px;color:var(--green);font-weight:600">✨ ${ev.specialActs}</div>`:''}
+    </div>`:''}
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
       <button class="btn btn-white" style="flex:1;min-width:140px" onclick="openTktModal(${ev.id})">📋 Join Guestlist</button>
       <button class="btn btn-ghost" style="flex:1;min-width:120px" onclick="window.open('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(ev.venue+', '+ev.city+', Vietnam'),'_blank')">📍 Directions</button>
