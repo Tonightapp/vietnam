@@ -4002,7 +4002,14 @@ function _tktDoneBlock(tk){
     </div>
   </div>
   <button class="fsub" style="background:#f5c842;color:#000;margin-bottom:10px" onclick="sendTicketEmail('${tk.ref}');this.textContent='📧 QR resent to ${tk.buyerEmail} ✓';this.disabled=true">📧 Resend QR to ${tk.buyerEmail}</button>
-  <button class="fsub" style="background:rgba(255,255,255,.08);color:var(--text);border:1px solid var(--border)" onclick="closeOverlay('tktOverlay');openUser();showUTab('tickets',null)">View in My Requests →</button>
+  ${loggedIn
+    ? `<div style="display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 0 4px;font-size:12px;color:var(--green)"><span>✓</span> Ticket saved to your Tonight account — find it in <strong style="cursor:pointer;text-decoration:underline" onclick="closeOverlay('tktOverlay');openUser();showUTab('tickets',null)">My Tickets</strong></div>`
+    : `<div style="background:rgba(0,208,132,.07);border:1px solid rgba(0,208,132,.18);border-radius:12px;padding:14px;margin-bottom:10px;text-align:center">
+        <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px">📱 Access your QR anytime</div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:12px;line-height:1.5">Sign in to find your ticket in the QR section — even after closing this page.</div>
+        <button class="fsub" style="margin:0;background:linear-gradient(135deg,#fff,#f0f0f0);color:#000;font-weight:700" onclick="closeOverlay('tktOverlay');openGateway()">Sign In / Create Account →</button>
+      </div>`
+  }
   <p style="font-size:10px;color:rgba(255,255,255,.25);text-align:center;margin-top:8px;line-height:1.6">This is a free guestlist request, not a paid ticket. Entry is subject to venue confirmation. Tonight does not charge for guestlist requests.</p>`;
 }
 
@@ -4097,7 +4104,7 @@ async function sendTicketEmail(ref){
     deviceType:_dt.device, os:_dt.os, status:'valid'
   });
   if(ok) toast('📧 QR ticket sent to '+tk.buyerEmail,'ok');
-  else toast('QR saved locally — email sending shortly','ok');
+  else toast('⚠️ Email delivery failed — screenshot your QR code to save it','err');
 }
 
 // ── TICKETING / QR ──
@@ -4301,6 +4308,18 @@ function doIn(){
     const acc={name,email,password:_hashPw(pass),role:curRole,joinedAt:new Date().toISOString()};
     accs[email]=acc;
     _saveAccounts(accs);
+    // Create Firebase Auth account + send email verification (fire-and-forget)
+    (async()=>{
+      try{
+        const {createUserWithEmailAndPassword,sendEmailVerification}=await import(_FB_CDN+'/firebase-auth.js');
+        const fbAuth=await _getAuth();
+        const cred=await createUserWithEmailAndPassword(fbAuth,email,pass);
+        await sendEmailVerification(cred.user);
+        toast('📧 Verification email sent to '+email+' — please check your inbox','ok');
+      }catch(e){
+        if(e.code!=='auth/email-already-in-use') console.warn('[auth]',e.message);
+      }
+    })();
     finishLogin(name,'Email',acc);
   }
 }
@@ -6361,13 +6380,19 @@ const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
 
 // ── FORGOT PASSWORD ──
 function forgotPassword(){
-  const email = prompt('Enter your email address and we\'ll reset your password:');
-  if(!email) return;
-  const accs = _getAccounts();
-  const key = email.trim().toLowerCase();
-  if(!accs[key]){ toast('No account found for that email','err'); return; }
-  // In a real app this would send a reset email — here we show the stored hint
-  toast('Password reset link sent to ' + key + ' ✓', 'ok');
+  const emailEl=document.getElementById('loginEmail');
+  const email=(emailEl?.value||'').trim().toLowerCase();
+  if(!email){ toast('Enter your email address in the field above first','err'); if(emailEl) emailEl.focus(); return; }
+  (async()=>{
+    try{
+      const {sendPasswordResetEmail}=await import(_FB_CDN+'/firebase-auth.js');
+      const fbAuth=await _getAuth();
+      await sendPasswordResetEmail(fbAuth,email);
+      toast('📧 Password reset email sent to '+email+' — check your inbox','ok');
+    }catch(e){
+      toast(e.code==='auth/user-not-found'?'No account found for that email':e.message||'Could not send reset email','err');
+    }
+  })();
 }
 
 // ── GATEWAY ──
