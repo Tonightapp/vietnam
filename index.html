@@ -3890,11 +3890,17 @@ function submitWaitlist(evId){
 // ── TICKETS ──
 function openTicket(id){ openTktModal(id); }
 function openTktModal(id){
-  if(!loggedIn){ openAuth('login'); return; }
   activeEv = EVENTS.find(e=>e.id===id) || activeEv;
   tStep=1; tQty=1; tBookType='guestlist';
-  document.getElementById('tktTitle').textContent = 'Join Guestlist — Free';
+  document.getElementById('tktTitle').textContent = 'Reserve Your Spot — Free';
   renderTkt();
+  // Pre-fill from saved profile after DOM renders
+  try{
+    const p=JSON.parse(localStorage.getItem('tn_user_profile')||'{}');
+    if(p.name){ const n=document.getElementById('tf_name'); if(n) n.value=p.name; }
+    if(p.email){ const e=document.getElementById('tf_email'); if(e) e.value=p.email; }
+    if(p.phone){ const ph=document.getElementById('tf_phone'); if(ph) ph.value=p.phone; }
+  }catch(e){}
   openOverlay('tktOverlay');
 }
 function pickBookType(t){
@@ -3914,9 +3920,9 @@ function _tktDoneBlock(tk){
   const imgStyle=tk.img?`background-image:url('${tk.img}');background-size:cover;background-position:center`:'background:linear-gradient(135deg,#1a1a3e,#0d1a2e)';
   return `
   <div style="text-align:center;padding:6px 0 16px">
-    <div style="font-size:28px;margin-bottom:8px">${isGL?'📋':'🎟'}</div>
-    <h3 style="font-weight:700;margin-bottom:4px;font-size:17px;color:var(--text)">Guestlist request sent!</h3>
-    <p style="font-size:12px;color:var(--text3);font-weight:300">Show your reference code at the door · <strong style="color:var(--text2)">${tk.buyerName}</strong></p>
+    <div style="font-size:36px;margin-bottom:8px">🎉</div>
+    <h3 style="font-weight:800;margin-bottom:6px;font-size:18px;color:#fff">Reservation Confirmed!</h3>
+    <p style="font-size:13px;color:var(--text2);font-weight:400;line-height:1.6">You're on the list, <strong style="color:#fff">${tk.buyerName}</strong>.<br/>Show your QR at the door — your spot is reserved.</p>
   </div>
   <div class="qr-ticket">
     <div class="qr-ticket-hero">
@@ -3962,15 +3968,15 @@ function renderTkt(){
       <div style="font-size:12px;color:var(--text3);font-weight:300">${fmt(ev.date)} \u00b7 ${ev.venue}, ${ev.city}</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;background:rgba(0,208,132,.07);border:1px solid rgba(0,208,132,.18);border-radius:8px;padding:10px 12px">
-      <span style="font-size:18px">📋</span>
+      <span style="font-size:18px">✅</span>
       <div>
-        <div style="font-size:13px;font-weight:600;color:#fff">Free Guestlist</div>
-        <div style="font-size:11px;color:var(--text3);font-weight:300">Your name goes on the door list — show up and you're in.</div>
+        <div style="font-size:13px;font-weight:600;color:#fff">Free Entry — Reserve Your Spot</div>
+        <div style="font-size:11px;color:var(--text3);font-weight:300">Fill in your details and receive your QR reservation code instantly.</div>
       </div>
     </div>
-    <div class="fg"><label>Your Name</label><input class="fi" type="text" id="tf_name" placeholder="First and last name" autocomplete="name"/></div>
-    <div class="fg"><label>Email</label><input class="fi" type="email" id="tf_email" placeholder="your@email.com" autocomplete="email"/></div>
-    <div class="fg"><label>Phone</label><input class="fi" type="tel" id="tf_phone" placeholder="+84 9XX XXX XXX" autocomplete="tel"/></div>
+    <div class="fg"><label>Your Name *</label><input class="fi" type="text" id="tf_name" placeholder="First and last name" autocomplete="name"/></div>
+    <div class="fg"><label>Email *</label><input class="fi" type="email" id="tf_email" placeholder="your@email.com — QR sent here ✉️" autocomplete="email"/></div>
+    <div class="fg"><label>Phone</label><input class="fi" type="tel" id="tf_phone" placeholder="+84 9XX XXX XXX (optional)" autocomplete="tel"/></div>
     <div class="fg">
       <label>Number of People</label>
       <div class="qty-ctrl" style="margin-top:6px">
@@ -3979,7 +3985,7 @@ function renderTkt(){
         <div class="qbtn" onclick="chQty(1)">+</div>
       </div>
     </div>
-    <button class="fsub" style="margin-top:8px" onclick="confirmBooking()">Join Guestlist →</button>`;
+    <button class="fsub" style="margin-top:8px" onclick="confirmBooking()">Confirm My Reservation →</button>`;
   }
   if(tStep===2){
     b+=_tktDoneBlock(lastTicket);
@@ -4000,7 +4006,6 @@ function confirmBooking(){
   const phoneVal=(document.getElementById('tf_phone')||{}).value||'';
   if(!nameVal.trim()){toast('Please enter your name','err');return;}
   if(!emailVal.trim()||!emailVal.includes('@')){toast('Please enter a valid email','err');return;}
-  if(!phoneVal.trim()){toast('Please enter your phone number','err');return;}
   const ev=activeEv;
   const serial=genSerial();
   const tk={
