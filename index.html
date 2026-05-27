@@ -2808,7 +2808,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
 <!-- ════ TICKET MODAL ════ -->
 <div class="overlay" id="tktOverlay">
   <div class="modal">
-    <div class="mhead"><h2 id="tktTitle">Join Guestlist — Free</h2><button class="mclose" onclick="closeOverlay('tktOverlay')">✕</button></div>
+    <div class="mhead"><h2 id="tktTitle">Claim Your Place — Free</h2><button class="mclose" onclick="closeOverlay('tktOverlay')">✕</button></div>
     <div class="mbody" id="tktBody"></div>
   </div>
 </div>
@@ -3854,7 +3854,7 @@ function openEvent(id){
       ${ev.specialActs?`<div style="margin-top:10px;font-size:12px;color:var(--green);font-weight:600">✨ ${ev.specialActs}</div>`:''}
     </div>`:''}
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
-      <button class="btn btn-white" style="flex:1;min-width:140px" onclick="openTktModal(${ev.id})">📋 Join Guestlist</button>
+      <button class="btn btn-white" style="flex:1;min-width:140px" onclick="openTktModal(${ev.id})">🎟 Claim Your Place</button>
       <button class="btn btn-ghost" style="flex:1;min-width:120px" onclick="window.open('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(ev.venue+', '+ev.city+', Vietnam'),'_blank')">📍 Directions</button>
       <button class="btn btn-ghost" style="padding:9px 14px" onclick="toggleFav(${ev.id})">♥</button>
     </div>
@@ -3938,7 +3938,7 @@ function openTicket(id){ openTktModal(id); }
 function openTktModal(id){
   activeEv = EVENTS.find(e=>e.id===id) || activeEv;
   tStep=1; tQty=1; tBookType='guestlist';
-  document.getElementById('tktTitle').textContent = 'Reserve Your Spot — Free';
+  document.getElementById('tktTitle').textContent = 'Claim Your Place — Free';
   renderTkt();
   // Pre-fill from saved profile after DOM renders
   try{
@@ -3967,8 +3967,8 @@ function _tktDoneBlock(tk){
   return `
   <div style="text-align:center;padding:6px 0 16px">
     <div style="font-size:36px;margin-bottom:8px">🎉</div>
-    <h3 style="font-weight:800;margin-bottom:6px;font-size:18px;color:#fff">Reservation Confirmed!</h3>
-    <p style="font-size:13px;color:var(--text2);font-weight:400;line-height:1.6">You're on the list, <strong style="color:#fff">${tk.buyerName}</strong>.<br/>Show your QR at the door — your spot is reserved.</p>
+    <h3 style="font-weight:800;margin-bottom:6px;font-size:18px;color:#fff">Place Claimed! 🎟</h3>
+    <p style="font-size:13px;color:var(--text2);font-weight:400;line-height:1.6">You're on the list, <strong style="color:#fff">${tk.buyerName}</strong>.<br/>Organisers will contact you to confirm — show your QR at the door.</p>
   </div>
   <div class="qr-ticket">
     <div class="qr-ticket-hero">
@@ -4014,10 +4014,10 @@ function renderTkt(){
       <div style="font-size:12px;color:var(--text3);font-weight:300">${fmt(ev.date)} \u00b7 ${ev.venue}, ${ev.city}</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;background:rgba(0,208,132,.07);border:1px solid rgba(0,208,132,.18);border-radius:8px;padding:10px 12px">
-      <span style="font-size:18px">✅</span>
+      <span style="font-size:18px">🎟</span>
       <div>
-        <div style="font-size:13px;font-weight:600;color:#fff">Free Entry — Reserve Your Spot</div>
-        <div style="font-size:11px;color:var(--text3);font-weight:300">Fill in your details and receive your QR reservation code instantly.</div>
+        <div style="font-size:13px;font-weight:600;color:#fff">Free Entry — Claim Your Place</div>
+        <div style="font-size:11px;color:var(--text3);font-weight:300">Fill in your details — organisers will contact you to confirm.</div>
       </div>
     </div>
     <div class="fg"><label>Your Name *</label><input class="fi" type="text" id="tf_name" placeholder="First and last name" autocomplete="name"/></div>
@@ -4031,7 +4031,8 @@ function renderTkt(){
         <div class="qbtn" onclick="chQty(1)">+</div>
       </div>
     </div>
-    <button class="fsub" style="margin-top:8px" onclick="confirmBooking()">Confirm My Reservation →</button>`;
+    <button class="fsub" style="margin-top:8px" onclick="confirmBooking()">Claim My Place →</button>
+    <p style="font-size:11px;color:var(--text3);text-align:center;margin-top:6px;line-height:1.5">Organisers will contact you to confirm your spot.</p>`;
   }
   if(tStep===2){
     b+=_tktDoneBlock(lastTicket);
@@ -5494,7 +5495,7 @@ function showUTab(tab,el){
     <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;display:flex;align-items:center;gap:12px">
       <div style="width:40px;height:40px;border-radius:6px;background:url('${e.img||''}') center/cover no-repeat;background-color:var(--card2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${e.img?'':e.emoji}</div>
       <div style="flex:1"><div style="font-weight:400;font-size:13px">${e.title}</div><div style="font-size:11px;color:var(--text3)">${fmt(e.date)} · ${e.venue}</div></div>
-      <button class="btn btn-ghost" style="font-size:11px;padding:6px 12px" onclick="closeUserDash();openTktModal(${e.id})">Join Guestlist</button>
+      <button class="btn btn-ghost" style="font-size:11px;padding:6px 12px" onclick="closeUserDash();openTktModal(${e.id})">Claim Your Place</button>
     </div>`).join('')}</div>`;}
   if(tab==='favorites'){
     const fe=EVENTS.filter(e=>favs.includes(e.id));
@@ -5502,7 +5503,7 @@ function showUTab(tab,el){
       <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;display:flex;align-items:center;gap:12px;margin-bottom:8px">
         <div style="width:40px;height:40px;border-radius:6px;background:url('${e.img||''}') center/cover no-repeat;background-color:var(--card2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${e.img?'':e.emoji}</div>
         <div style="flex:1"><div style="font-weight:400;font-size:13px">${e.title}</div><div style="font-size:11px;color:var(--text3)">${fmt(e.date)} · ${e.venue}</div></div>
-        <button class="btn btn-ghost" style="font-size:11px;padding:6px 12px" onclick="closeUserDash();openTktModal(${e.id})">Join Guestlist</button>
+        <button class="btn btn-ghost" style="font-size:11px;padding:6px 12px" onclick="closeUserDash();openTktModal(${e.id})">Claim Your Place</button>
       </div>`).join(''):'<p style="color:var(--text3);text-align:center;padding:32px 0;font-weight:300">No saved events yet.</p>'}`;}
   if(tab==='profile'){
     const u=curUser||{};
