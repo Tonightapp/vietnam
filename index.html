@@ -2832,6 +2832,9 @@ function payLogos(size='sm'){
 }
 
 // ── DATA ──
+// IDs in the order they appear in the banner carousel
+const BANNER_IDS=[44,45];
+
 const EVENTS=[
   {id:45,title:"Afro Kulture Festival Vietnam", artist:"G.O.A.T Entertainment", genre:"Afrobeats", city:"Hanoi", area:"Tay Ho", venue:"Sala Nature Garden → Maya Fusion Bar → Vox Westlake Club", lat:21.0521,lng:105.8190, date:"2026-05-30", price:0, img:"images/afro-kulture-banner.jpg", imgDetail:"images/afro-kulture-vertical.jpg", emoji:"🌍", grad:"grad-gold", desc:"G.O.A.T Entertainment presents Afro Kulture Festival Vietnam — a full-day celebration of African culture, pool vibes and Afrobeats music across three iconic Tay Ho venues.\n\n1PM–7PM: Sala Nature Garden (9/154 D De Quai, Tu Lien, Tay Ho)\n9PM–Late: Maya Fusion Bar (27/52 To Ngoc Van, Tay Ho)\n11PM–Late: Vox Westlake Club (27/52 To Ngoc Van, Tay Ho)\n\nOfficial Partners: Hanoi Luxe, VOX Social Club, Maya, Afrobeats Vietnam.\n\nTickets & info: www.hanoiluxe.com/afrokulturefest", featured:true, soldOut:false, attendees:250, isNew:true, organizer:"G.O.A.T Entertainment", ticketUrl:"https://www.hanoiluxe.com/afrokulturefest"},
   {id:44,title:"Excursion x Wet Dynasty",  artist:"Rachel RM, Winnie Wakanda, Arixo + more", genre:"Themed Party", city:"Hanoi", area:"Red River", venue:"Red River Cruise, Hanoi", lat:21.0450,lng:105.8412, date:"2026-06-06", price:0, img:"images/excursion-wet-dynasty.jpg", emoji:"🛥",grad:"grad-pink", desc:"Electric Bazaar presents a river cruise party like no other — Excursion x Wet Dynasty sets sail on the Red River. Featuring DJ sets from Rachel RM, Winnie Wakanda, Arixo, Useph, Psyboost & Lamont, plus a spectacular Drag Show by Wet Dynasty. Hanoi's wildest night on the water.", featured:true, soldOut:false, attendees:150, isNew:true, lineup:["Rachel RM","Winnie Wakanda","Arixo","Useph","Psyboost","Lamont"], specialActs:"Drag Show by Wet Dynasty", organizer:"Electric Bazaar"},
@@ -3185,7 +3188,8 @@ let _spotIdx=0, _spotTimer=null;
 function renderSpotlight(){
   const s=document.getElementById('spotlightSection');
   if(!s) return;
-  const featured=EVENTS.filter(e=>e.featured).sort((a,b)=>(b.attendees||0)-(a.attendees||0));
+  // Use explicit BANNER_IDS order — guarantees only hardcoded events appear, never Firestore duplicates
+  const featured=BANNER_IDS.map(id=>EVENTS.find(e=>e.id===id)).filter(Boolean);
   if(!featured.length){s.innerHTML='';return;}
   // Build single carousel container
   s.innerHTML=`
@@ -3222,7 +3226,7 @@ function renderSpotlight(){
   if(featured.length>1) _spotTimer=setInterval(()=>_spotGo((_spotIdx+1)%featured.length),3500);
 }
 function _spotGo(i){
-  const featured=EVENTS.filter(e=>e.featured);
+  const featured=BANNER_IDS.map(id=>EVENTS.find(e=>e.id===id)).filter(Boolean);
   _spotIdx=i;
   const slides=document.getElementById('spotSlides');
   if(slides) slides.style.transform=`translateX(-${i*100}%)`;
@@ -5066,7 +5070,9 @@ function renderPromoStrip(){
         ${p.discount?`<div class="promo-card-badge" style="background:${color};color:${color==='#f5c842'?'#000':'#fff'}">${p.discount}</div>`:''}
         <div class="promo-card-countdown"><div class="promo-card-countdown-dot"></div>${p.startTime}–${p.endTime}</div>
         <div class="promo-card-venue-row">
-          <div class="promo-card-venue-ico">${p.emoji}</div>
+          <div class="promo-card-venue-ico" style="${p.logo?'padding:0;overflow:hidden;border-radius:6px;background:none':''}">
+            ${p.logo?`<img src="${p.logo}" alt="${p.venueName}" style="width:100%;height:100%;object-fit:cover;display:block"/>`:`${p.emoji}`}
+          </div>
           <div class="promo-card-venue-name">${p.venueName}</div>
           <div class="promo-card-city-tag">${p.city}</div>
         </div>
@@ -5862,8 +5868,10 @@ function _initApp(){
       const db=await _getDb();
       const q=query(collection(db,'events'),where('status','==','approved'),orderBy('date','asc'));
       const snap=await getDocs(q);
+      const _normTitle=s=>s.toLowerCase().replace(/[^a-z0-9]/g,'');
       const existingIds=new Set(EVENTS.map(e=>e.id));
       const existingTitles=new Set(EVENTS.map(e=>(e.title||'').toLowerCase().trim()));
+      const existingNorm=new Set(EVENTS.map(e=>_normTitle(e.title||'')));
       let added=0;
       snap.docs.forEach((d,i)=>{
         const ev=d.data();
@@ -5871,9 +5879,11 @@ function _initApp(){
         if(existingIds.has(id)) return;
         // Skip events without an image — every listed event must have a flyer
         if(!ev.img&&!ev.imageUrl) return;
-        // Skip if a hardcoded event with the same title already exists (prevents duplicate banner slides)
+        // Skip if a hardcoded event with the same (or normalized-matching) title already exists
         const titleKey=(ev.title||'').toLowerCase().trim();
+        const normKey=_normTitle(ev.title||'');
         if(titleKey&&existingTitles.has(titleKey)) return;
+        if(normKey&&existingNorm.has(normKey)) return;
         const _gGrad={Techno:'grad-purple',House:'grad-teal','DJ Night':'grad-purple',Electronic:'grad-orange',EDM:'grad-orange','Live Music':'grad-blue',Jazz:'grad-cyan','Hip-Hop':'grad-orange','Themed Party':'grad-gold'};
         EVENTS.push({
           id, title:ev.title||'', artist:ev.venueName||ev.contactName||'Various Artists',
@@ -5886,6 +5896,7 @@ function _initApp(){
         });
         existingIds.add(id);
         if(titleKey) existingTitles.add(titleKey);
+        if(normKey) existingNorm.add(normKey);
         added++;
       });
       if(added>0) renderAll();
