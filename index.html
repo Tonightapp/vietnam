@@ -2368,7 +2368,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
     <div style="padding:20px 24px calc(24px + env(safe-area-inset-bottom))">
       <form onsubmit="submitProSignup(event)">
         <div class="fg"><label>Your Name <span class="cm-req">*</span></label><input class="fi" id="psName" type="text" placeholder="Full name" required autocomplete="name"/></div>
-        <div class="fg"><label>Business / Venue Name <span class="cm-req">*</span></label><input class="fi" id="psBiz" type="text" placeholder="e.g. Lush Nightclub, Apocalypse Club" required/></div>
+        <div class="fg"><label>Business / Venue Name <span class="cm-req">*</span></label><input class="fi" id="psBiz" type="text" placeholder="e.g. Sacred Garden, Kater Blau Hanoi" required/></div>
         <div class="fg"><label>Email <span class="cm-req">*</span></label><input class="fi" id="psEmail" type="email" placeholder="you@yourvenue.com" required autocomplete="email"/></div>
         <div class="fg"><label>Password <span class="cm-req">*</span></label>
           <div style="position:relative">
@@ -2485,7 +2485,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
       <div style="font-size:36px;color:var(--green);flex-shrink:0;line-height:1">"</div>
       <div>
         <p style="font-size:15px;color:var(--text);line-height:1.8;font-weight:300;margin-bottom:12px">We pushed a happy hour deal at 5PM and had 40 extra people walk in by 7PM. Tonight users are <strong style="color:#fff">already looking</strong> — you just need to show up.</p>
-        <div style="font-size:12px;color:var(--text3);font-weight:500">— Dong Chi Bar, Ho Chi Minh City &nbsp;·&nbsp; <span style="color:var(--green)">Listed on Tonight</span></div>
+        <div style="font-size:12px;color:var(--text3);font-weight:500">— Sacred Garden, Hanoi &nbsp;·&nbsp; <span style="color:var(--green)">Listed on Tonight</span></div>
       </div>
     </div>
 
@@ -2688,7 +2688,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
           <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text2)"><span style="color:var(--green);font-size:14px">📣</span> Push live deals to users — fill tables in minutes</div>
           <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text2)"><span style="color:var(--green);font-size:14px">📊</span> See who's coming with full attendee details</div>
         </div>
-        <div style="border-top:1px solid var(--border);margin-top:14px;padding-top:12px;font-size:11px;color:var(--text3);font-weight:300;line-height:1.6;font-style:italic">"We pushed a happy hour at 5PM and had 40 extra people walk in by 7PM." — Dong Chi Bar, HCMC</div>
+        <div style="border-top:1px solid var(--border);margin-top:14px;padding-top:12px;font-size:11px;color:var(--text3);font-weight:300;line-height:1.6;font-style:italic">"We pushed a happy hour at 5PM and had 40 extra people walk in by 7PM." — Sacred Garden, Hanoi</div>
       </div>
 
       <div id="stepForm" style="display:none">
@@ -2714,7 +2714,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
         </div>
         <div id="sf" style="display:none">
           <div class="fg"><label>Full Name</label><input class="fi" id="sfName" type="text" placeholder="Your name" autocomplete="name"/></div>
-          <div class="fg" id="bizFg" style="display:none"><label>Business Name</label><input class="fi" id="sfBiz" placeholder="e.g. Lush Nightclub, Potato Head Bali"/></div>
+          <div class="fg" id="bizFg" style="display:none"><label>Business Name</label><input class="fi" id="sfBiz" placeholder="e.g. Sacred Garden, Kater Blau Hanoi"/></div>
           <div class="fg"><label>Email</label><input class="fi" id="sfEmail" type="email" placeholder="you@example.com" autocomplete="email"/></div>
           <div class="fg"><label>Password</label>
             <div style="position:relative">
@@ -2824,55 +2824,20 @@ const LOCAL_ARTISTS=[
 ];
 
 const VENUES=[
-  {id:1, name:"Fabric Club",        city:"Bangkok",          area:"Sukhumvit",     type:"Club",       capacity:800,  genres:["Techno","House"],   open:"10pm",close:"6am",  img:"https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=800&q=80",desc:"Bangkok's premier underground techno club. State-of-the-art sound system and internationally renowned DJs every weekend."},
-  {id:2, name:"Bungalow 9",         city:"Bangkok",          area:"Sukhumvit",     type:"Rooftop",    capacity:200,  genres:["Hip-Hop","R&B"],    open:"6pm", close:"2am",  img:"https://images.unsplash.com/photo-1519214605650-76a613ee3245?auto=format&fit=crop&w=800&q=80",desc:"Stylish rooftop bar with panoramic city views. Craft cocktails and a curated music selection every night."},
-  {id:3, name:"Dong Chi Bar",       city:"Ho Chi Minh City", area:"District 1",    type:"Bar",        capacity:150,  genres:["House","Pop"],      open:"5pm", close:"2am",  img:"https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=800&q=80",desc:"Beloved Saigon local bar known for strong cocktails, great playlists and the friendliest crowd in the city."},
-  {id:4, name:"Observatory",        city:"Ho Chi Minh City", area:"Binh Thanh",    type:"Club",       capacity:600,  genres:["Techno","House"],   open:"10pm",close:"6am",  img:"https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=800&q=80",desc:"Vietnam's most respected underground club. Darkroom aesthetic, serious sound and uncompromising music policy."},
-  {id:5, name:"Hanoi Social Club",  city:"Hanoi",            area:"Old Quarter",   type:"Bar",        capacity:100,  genres:["Jazz","Indie"],     open:"4pm", close:"12am", img:"https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?auto=format&fit=crop&w=800&q=80",desc:"Eclectic bar and live music venue in Hanoi's old quarter. Jazz nights, open mics and craft beer."},
-  {id:6, name:"Ku De Ta",           city:"Bali",             area:"Seminyak",      type:"Beach Club", capacity:400,  genres:["House","EDM"],      open:"12pm",close:"2am",  img:"https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=800&q=80",desc:"Bali's iconic oceanfront venue. Sunset sessions with world-class DJs and unbeatable Seminyak beach views."},
-  {id:7, name:"Myst Club",          city:"Phuket",           area:"Patong",        type:"Club",       capacity:1200, genres:["EDM","House"],      open:"10pm",close:"6am",  img:"https://images.unsplash.com/photo-1571266752849-f5a498db9350?auto=format&fit=crop&w=800&q=80",desc:"Phuket's largest nightclub featuring international headline acts and a legendary open-air dance floor."},
-  {id:8, name:"Huuuge Club",        city:"Chiang Mai",       area:"Nimman",        type:"Club",       capacity:500,  genres:["House","Pop"],      open:"9pm", close:"4am",  img:"https://images.unsplash.com/photo-1574391884720-bbc3740c59d1?auto=format&fit=crop&w=800&q=80",desc:"Northern Thailand's hottest club. Resident DJs, themed nights and the best dance floor in Chiang Mai."},
-  {id:9, name:"Kater Blau Hanoi",   city:"Hanoi",            area:"Tay Ho",        type:"Club",       capacity:250,  genres:["Techno","Minimal"], open:"9pm", close:"4am",  img:"https://images.unsplash.com/photo-1493676304819-0d7a8d026dcf?auto=format&fit=crop&w=800&q=80",desc:"Inspired by Berlin's underground scene, Kater Blau brings dark room culture and serious techno to Hanoi."},
-  {id:10,name:"Rooftop at Lotte",   city:"Hanoi",            area:"Ba Dinh",       type:"Rooftop",    capacity:300,  genres:["Jazz","Pop"],       open:"5pm", close:"12am", img:"https://images.unsplash.com/photo-1566737236500-c8ac43014a67?auto=format&fit=crop&w=800&q=80",desc:"65-floor sky bar with 360 Hanoi panoramas. Signature cocktails and live jazz every Friday and Saturday."},
-  {id:11,name:"Potato Head Beach",  city:"Bali",             area:"Seminyak",      type:"Beach Club", capacity:600,  genres:["House","R&B"],      open:"11am",close:"2am",  img:"https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80",desc:"Award-winning beach club. All-day dining, sunset cocktails and a world-famous pool deck lineup."},
-  {id:12,name:"Loft Warehouse",     city:"Ho Chi Minh City", area:"Binh Thanh",    type:"Club",       capacity:900,  genres:["Hip-Hop","EDM"],    open:"9pm", close:"5am",  img:"https://images.unsplash.com/photo-1571019613914-85f342c6a11e?auto=format&fit=crop&w=800&q=80",desc:"Industrial-chic warehouse hosting Vietnam's biggest hip-hop and electronic shows."},
-  {id:13,name:"Zouk Singapore",     city:"Singapore",        area:"Clarke Quay",   type:"Club",       capacity:2500, genres:["EDM","House"],      open:"10pm",close:"6am",  img:"https://images.unsplash.com/photo-1540039155159-0e3c16d2e8e8?auto=format&fit=crop&w=800&q=80",desc:"Asia's most iconic superclub. Legendary for its mega residencies and world-class production values."},
-  {id:14,name:"1-Altitude",         city:"Singapore",        area:"CBD",           type:"Rooftop",    capacity:400,  genres:["Pop","R&B"],        open:"5pm", close:"3am",  img:"https://images.unsplash.com/photo-1559305616-3f99cd43e353?auto=format&fit=crop&w=800&q=80",desc:"World's highest alfresco bar at 282m. Unmatched views of Singapore's skyline over cocktails."},
-  {id:15,name:"Canvas KL",          city:"Kuala Lumpur",     area:"Bukit Bintang", type:"Club",       capacity:700,  genres:["Techno","House"],   open:"10pm",close:"5am",  img:"https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=800&q=80",desc:"KL's underground electronic powerhouse. Regular international headliners and a fiercely loyal local following."},
-  {id:16,name:"Halo Rooftop",       city:"Kuala Lumpur",     area:"KLCC",          type:"Rooftop",    capacity:250,  genres:["House","Pop"],      open:"6pm", close:"2am",  img:"https://images.unsplash.com/photo-1527529482837-4698179dc6ce?auto=format&fit=crop&w=800&q=80",desc:"Sky bar above the KLCC skyline. Signature cocktails and sunset views of the Petronas Towers."},
-  {id:17,name:"B-Side Manila",      city:"Manila",           area:"BGC",           type:"Club",       capacity:450,  genres:["Techno","House"],   open:"10pm",close:"6am",  img:"https://images.unsplash.com/photo-1574169208507-84376144848b?auto=format&fit=crop&w=800&q=80",desc:"The Philippines' most respected underground club. No-nonsense music policy and a community-first approach."},
-  {id:18,name:"Palace Pool Club",   city:"Bangkok",          area:"Silom",         type:"Beach Club", capacity:800,  genres:["House","EDM"],      open:"12pm",close:"2am",  img:"https://images.unsplash.com/photo-1504196606672-aef5c9cefc92?auto=format&fit=crop&w=800&q=80",desc:"Bangkok's most glamorous pool party venue. International guest DJs every weekend with a stunning outdoor stage."},
-  {id:19,name:"Apocalypse Club",    city:"Ho Chi Minh City", area:"District 1",    type:"Club",       capacity:400,  genres:["Techno","Minimal"], open:"11pm",close:"6am",  img:"https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=800&q=80",desc:"Saigon's darkest underground club. Modeled on Berlin warehouse culture with a punishing sound system."},
-  {id:20,name:"Deus Ex Machina",    city:"Bali",             area:"Canggu",        type:"Bar",        capacity:300,  genres:["Rock","House"],     open:"8am", close:"2am",  img:"https://images.unsplash.com/photo-1604079628040-94301bb21b91?auto=format&fit=crop&w=800&q=80",desc:"Iconic Canggu garage-bar hybrid. Motorbikes, espresso, live gigs and DJs until late. Bali's cultural heart."},
-  {id:21,name:"Moon Bar Vertigo",   city:"Bangkok",          area:"Silom",         type:"Rooftop",    capacity:200,  genres:["Jazz","Pop"],       open:"5pm", close:"1am",  img:"https://images.unsplash.com/photo-1519214605650-76a613ee3245?auto=format&fit=crop&w=800&q=80",desc:"Open-air bar on the 61st floor of the Banyan Tree Hotel. One of the world's most spectacular cocktail experiences."},
-  {id:22,name:"Levels Bangkok",     city:"Bangkok",          area:"Sukhumvit",     type:"Club",       capacity:1500, genres:["Hip-Hop","R&B"],    open:"9pm", close:"4am",  img:"https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?auto=format&fit=crop&w=800&q=80",desc:"Multi-level megaclub in Sukhumvit. Multiple rooms, international DJs and Bangkok's most energetic nightlife."},
-  {id:23,name:"Acid Bar",           city:"Singapore",        area:"Clarke Quay",   type:"Bar",        capacity:180,  genres:["Rock","Indie"],     open:"5pm", close:"3am",  img:"https://images.unsplash.com/photo-1510915361894-db8b60106cb1?auto=format&fit=crop&w=800&q=80",desc:"Singapore's most beloved rock and indie bar. Live bands every weekend, exceptional whisky selection."},
-  {id:24,name:"Tadioto Rooftop",    city:"Hanoi",            area:"Tay Ho",        type:"Rooftop",    capacity:180,  genres:["House","Jazz"],     open:"4pm", close:"12am", img:"https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=800&q=80",desc:"Artsy West Lake rooftop bar beloved by Hanoi creatives. Sunset cocktails and intimate live music sets."},
-  {id:25,name:"Savoy Rooftop",      city:"Da Nang",          area:"Beachfront",    type:"Rooftop",    capacity:250,  genres:["House","Pop"],      open:"5pm", close:"2am",  img:"https://images.unsplash.com/photo-1518605246848-cbfaac93cf14?auto=format&fit=crop&w=800&q=80",desc:"Perched above Da Nang's famous beach, Savoy delivers unforgettable sunset sessions with ocean panoramas."},
-  {id:26,name:"The Vault",          city:"Ho Chi Minh City", area:"District 1",    type:"Club",       capacity:350,  genres:["Techno","House"],   open:"10pm",close:"6am",  img:"https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=800&q=80",desc:"Intimate basement club below a colonial building. Serious music, serious crowd, uncompromising sound."},
-  {id:27,name:"Zinc KL",            city:"Kuala Lumpur",     area:"Bukit Bintang", type:"Club",       capacity:600,  genres:["Hip-Hop","R&B"],    open:"9pm", close:"5am",  img:"https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=800&q=80",desc:"KL's premier hip-hop and R&B venue. High-energy nights with local and international MCs and DJs."},
-  {id:28,name:"Shelter Singapore",  city:"Singapore",        area:"Chinatown",     type:"Club",       capacity:300,  genres:["Techno","Minimal"], open:"10pm",close:"6am",  img:"https://images.unsplash.com/photo-1493676304819-0d7a8d026dcf?auto=format&fit=crop&w=800&q=80",desc:"Singapore's foremost underground electronic club. Minimalist interior, maximum sound."},
-  {id:29,name:"Skye Bar KL",        city:"Kuala Lumpur",     area:"KLCC",          type:"Rooftop",    capacity:200,  genres:["Jazz","Pop"],       open:"6pm", close:"1am",  img:"https://images.unsplash.com/photo-1566737236500-c8ac43014a67?auto=format&fit=crop&w=800&q=80",desc:"Infinity pool bar overlooking the Petronas Towers. The most photographed view in Kuala Lumpur."},
-  {id:30,name:"XX XX Manila",       city:"Manila",           area:"Makati",        type:"Club",       capacity:500,  genres:["House","EDM"],      open:"10pm",close:"5am",  img:"https://images.unsplash.com/photo-1574391884720-bbc3740c59d1?auto=format&fit=crop&w=800&q=80",desc:"Manila's most talked-about new club. Multiple dance floors, laser shows and international resident DJs."},
-  {id:31,name:"Sacred Garden",      city:"Hanoi",            area:"Tay Ho",        type:"Garden Bar", capacity:150,  genres:["House","Afrobeats","Indie"], open:"11am",close:"12am", img:"images/sacred-garden-logo.jpg", logo:"images/sacred-garden-logo.jpg", desc:"A lush hidden garden bar in the heart of Tay Ho. Sacred Garden blends open-air greenery with craft drinks, good music and a relaxed crowd. Known for afternoon sessions that stretch into late-night vibes. Home of Saigon Cider in Hanoi."},
+  {id:5, name:"Hanoi Social Club",  city:"Hanoi", area:"Old Quarter",   type:"Bar",        capacity:100,  genres:["Jazz","Indie"],             open:"4pm", close:"12am", img:"https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?auto=format&fit=crop&w=800&q=80",desc:"Eclectic bar and live music venue in Hanoi's old quarter. Jazz nights, open mics and craft beer."},
+  {id:9, name:"Kater Blau Hanoi",   city:"Hanoi", area:"Tay Ho",        type:"Club",       capacity:250,  genres:["Techno","Minimal"],         open:"9pm", close:"4am",  img:"https://images.unsplash.com/photo-1493676304819-0d7a8d026dcf?auto=format&fit=crop&w=800&q=80",desc:"Inspired by Berlin's underground scene, Kater Blau brings dark room culture and serious techno to Hanoi."},
+  {id:10,name:"Rooftop at Lotte",   city:"Hanoi", area:"Ba Dinh",       type:"Rooftop",    capacity:300,  genres:["Jazz","Pop"],               open:"5pm", close:"12am", img:"https://images.unsplash.com/photo-1566737236500-c8ac43014a67?auto=format&fit=crop&w=800&q=80",desc:"65-floor sky bar with 360 Hanoi panoramas. Signature cocktails and live jazz every Friday and Saturday."},
+  {id:24,name:"Tadioto Rooftop",    city:"Hanoi", area:"Tay Ho",        type:"Rooftop",    capacity:180,  genres:["House","Jazz"],             open:"4pm", close:"12am", img:"https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=800&q=80",desc:"Artsy West Lake rooftop bar beloved by Hanoi creatives. Sunset cocktails and intimate live music sets."},
+  {id:31,name:"Sacred Garden",      city:"Hanoi", area:"Tay Ho",        type:"Garden Bar", capacity:150,  genres:["House","Afrobeats","Indie"], open:"11am",close:"12am", img:"images/sacred-garden-logo.jpg", logo:"images/sacred-garden-logo.jpg", desc:"A lush hidden garden bar in the heart of Tay Ho. Sacred Garden blends open-air greenery with craft drinks, good music and a relaxed crowd. Known for afternoon sessions that stretch into late-night vibes. Home of Saigon Cider in Hanoi."},
 ];
 
 const MAGAZINE_ARTICLES=[
-  {id:1, cat:"Guide",     title:"The Ultimate Guide to Bangkok's Underground Techno Scene",          author:"Tonight Editorial", date:"2026-03-18",readMin:7,  img:"https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=1200&q=80",excerpt:"From Fabric to the city's hidden warehouse raves — everything you need to know before your first night out in Bangkok."},
-  {id:2, cat:"Culture",   title:"Why Bali is Becoming Southeast Asia's Festival Capital",             author:"Sarah Chen",        date:"2026-03-14",readMin:5,  img:"https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=800&q=80",excerpt:"With Dreamfields, Ubud Jazz and a dozen boutique festivals on the calendar, the island of the gods is rewriting the festival map."},
   {id:3, cat:"Tips",      title:"How to Get on the Guestlist Every Time (Legally)",                   author:"DJ Nguyen",         date:"2026-03-10",readMin:4,  img:"https://images.unsplash.com/photo-1574391884720-bbc3740c59d1?auto=format&fit=crop&w=800&q=80",excerpt:"Industry insiders share the moves that get them past the velvet rope — and how to use Tonight to skip the queue."},
-  {id:4, cat:"News",      title:"Ho Chi Minh City Extends Late-Night Venues to 6am",                  author:"Tonight News",      date:"2026-03-08",readMin:3,  img:"https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=800&q=80",excerpt:"New city policy allows select venues to operate until 6am Friday to Sunday, transforming Saigon nightlife."},
   {id:5, cat:"Guide",     title:"First Timer's Guide to Hanoi After Dark",                            author:"Mark Williams",     date:"2026-03-05",readMin:6,  img:"https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?auto=format&fit=crop&w=800&q=80",excerpt:"The capital's nightlife is nothing like the south. Here's where locals actually go when the day ends."},
   {id:6, cat:"Culture",   title:"Meet the DJs Defining Vietnam's Electronic Music Identity",          author:"Tonight Editorial", date:"2026-02-28",readMin:8,  img:"https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=800&q=80",excerpt:"A new generation of Vietnamese DJs are blending global electronic sounds with local influences — and the world is listening."},
-  {id:7, cat:"Guide",     title:"Singapore's Club Scene: The Complete 2026 Handbook",                 author:"Rachel Lim",        date:"2026-03-22",readMin:9,  img:"https://images.unsplash.com/photo-1540039155159-0e3c16d2e8e8?auto=format&fit=crop&w=800&q=80",excerpt:"Zouk, Shelter, 1-Altitude and beyond — Singapore's nightlife is world-class and fiercely diverse. Here's the definitive guide."},
   {id:8, cat:"Interview", title:"Charlotte de Witte: Asia Crowds Are the Most Honest in the World",   author:"Tonight Editorial", date:"2026-03-20",readMin:6,  img:"https://images.unsplash.com/photo-1574169208507-84376144848b?auto=format&fit=crop&w=800&q=80",excerpt:"The Belgian techno queen talks her upcoming Southeast Asia tour, all-night sets and the state of underground music."},
-  {id:9, cat:"Tips",      title:"How to Dress for Every Type of Night Out in Southeast Asia",         author:"Jade K",            date:"2026-03-16",readMin:5,  img:"https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=800&q=80",excerpt:"Rooftop bar vs warehouse rave vs beach club — navigating dress codes across the region so you never get turned away."},
+  {id:9, cat:"Tips",      title:"How to Dress for Every Type of Night Out in Southeast Asia",         author:"Jade K",            date:"2026-03-16",readMin:5,  img:"https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=800&q=80",excerpt:"Rooftop bar vs garden bar vs underground club — navigating dress codes so you never get turned away."},
   {id:10,cat:"News",      title:"Ultra Music Festival Confirms 2026 Vietnam Lineup",                  author:"Tonight News",      date:"2026-03-12",readMin:4,  img:"https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=800&q=80",excerpt:"The global EDM juggernaut has announced a stacked three-day lineup for its debut Vietnam edition this June."},
-  {id:11,cat:"Culture",   title:"The Rise of Canggu: How Bali's Surf Village Became a Music Hub",    author:"Tom Nguyen",        date:"2026-03-01",readMin:7,  img:"https://images.unsplash.com/photo-1604079628040-94301bb21b91?auto=format&fit=crop&w=800&q=80",excerpt:"Deus, La Brisa, Potato Head North — a wave of venues is turning Canggu into one of the most exciting destinations in Asia."},
-  {id:12,cat:"Tips",      title:"The Best Pre-Party Bars Across Southeast Asia",                      author:"Maya R",            date:"2026-02-24",readMin:4,  img:"https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=800&q=80",excerpt:"Where to start your night in Hanoi, Saigon, Bangkok and Bali — bars that set the perfect mood before the main event."},
-  {id:13,cat:"Interview", title:"Adam Beyer on Playing Vietnam: The Energy Was Like Nothing Else",    author:"Tonight Editorial", date:"2026-02-18",readMin:5,  img:"https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80",excerpt:"After his debut Saigon show sold out in hours, the Drumcode boss reflects on Southeast Asia's booming techno appetite."},
-  {id:14,cat:"Guide",     title:"Kuala Lumpur After Midnight: Where KL Really Comes Alive",           author:"Farah Z",           date:"2026-02-14",readMin:6,  img:"https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=800&q=80",excerpt:"Canvas, Zinc, Skye Bar and the late-night food scene — a local's complete guide to spending a Saturday night in KL."},
-  {id:15,cat:"News",      title:"Tonight App Expands to Singapore, KL and Manila",                    author:"Tonight News",      date:"2026-02-10",readMin:2,  img:"https://images.unsplash.com/photo-1559305616-3f99cd43e353?auto=format&fit=crop&w=800&q=80",excerpt:"The Southeast Asia events platform now covers three new major cities, bringing its total to 12 cities and 500+ listed events."},
 ];
 
 
@@ -2893,28 +2858,12 @@ let _scrollY=0;
 
 // ── CITY AREAS ──
 const CITY_AREAS={
-  'Hanoi':           ['Old Quarter','Tay Ho','Ba Dinh'],
-  'Ho Chi Minh City':['District 1','Thảo Điền','Bình Thạnh'],
-  'Bangkok':         ['Sukhumvit','RCA','Silom'],
-  'Bali':            ['Seminyak','Canggu','Ubud'],
-  'Singapore':       ['Clarke Quay','CBD','Chinatown'],
-  'Kuala Lumpur':    ['Bukit Bintang','KLCC'],
-  'Manila':          ['BGC','Makati'],
+  'Hanoi':['Old Quarter','Tay Ho','Ba Dinh'],
 };
 
 // ── CITY PICKER ──
 const CITY_META={
-  'Ho Chi Minh City':{flag:'🇻🇳',id:'hcmc'},
-  'Hanoi':           {flag:'🇻🇳',id:'hanoi'},
-  'Da Nang':         {flag:'🇻🇳',id:'danang'},
-  'Hoi An':          {flag:'🇻🇳',id:'hoian'},
-  'Bangkok':         {flag:'🇹🇭',id:'bangkok'},
-  'Phuket':          {flag:'🇹🇭',id:'phuket'},
-  'Chiang Mai':      {flag:'🇹🇭',id:'chiangmai'},
-  'Bali':            {flag:'🇮🇩',id:'bali'},
-  'Singapore':       {flag:'🇸🇬',id:'singapore'},
-  'Kuala Lumpur':    {flag:'🇲🇾',id:'kl'},
-  'Manila':          {flag:'🇵🇭',id:'manila'},
+  'Hanoi':{flag:'🇻🇳',id:'hanoi'},
 };
 function openCityPicker(){
   // populate event counts
@@ -3268,7 +3217,7 @@ function renderAll(){renderSpotlight();renderTop10();renderRows();renderBrowse()
 let _venueTypeFilter='', _venueCityFilter='';
 function renderVenues(){
   const types=['','Club','Bar','Rooftop'];
-  const cities=['','Ho Chi Minh City','Hanoi','Bangkok','Bali','Phuket','Chiang Mai'];
+  const cities=['','Hanoi'];
   document.getElementById('venueFilters').innerHTML=
     types.map(t=>`<button class="vchip ${_venueTypeFilter===t?'active':''}" onclick="setVenueType('${t}')">${t===''?'All Types':t+'s'}</button>`).join('')+
     '<div style="width:1px;background:var(--border);margin:0 4px;flex-shrink:0"></div>'+
@@ -3371,99 +3320,45 @@ function setMagCat(c){_magCatFilter=c;renderMagazine();}
 
 // ── MAGAZINE ARTICLE READER ──
 const ARTICLE_BODY={
-  1:`<p>Bangkok's underground techno scene has quietly become one of Southeast Asia's most sophisticated, anchored by a handful of venues that refuse to compromise on sound, booking or atmosphere. Fabric Club in Sukhumvit has become the city's de facto cathedral of underground music — its d&amp;b Audiotechnik system is among the finest in the region, and the booking policy reflects it. Charlotte de Witte, Tale Of Us and Amelie Lens have all played here in the past twelve months, and the crowd that receives them is as informed and engaged as anything you'll find in Berlin or Amsterdam.</p>
-<h3>Where to Go</h3>
-<p>Beyond Fabric, the scene stretches across the RCA district's cluster of warehouses, some of which only announce their lineups 48 hours in advance through private Facebook groups. The Onyx remains Bangkok's most opulent option if underground isn't your thing — but serious heads skip it for the rawer spaces where no one's checking your follower count. In Silom, a new wave of smaller rooms has emerged, drawing the after-crowd from legitimate venues and keeping the music going well past sunrise.</p>
-<h3>Practical Notes</h3>
-<p>Thai late-night culture means the real action begins around 1am and peaks at 3-4am. Get there early to avoid the queue, but don't expect much before midnight. Most venues are cash-only at the door. GrabCar is reliable throughout the night, and the BTS Skytrain runs from 6am if you're still standing. Dress code: all black is respected but not enforced. What will get you turned away is sportswear, flip-flops and visible intoxication before you've even made it inside.</p>
-<blockquote>"Bangkok's techno crowd has grown up. They're not here to say they went to a club — they're here for the music." — Fabric Club resident DJ</blockquote>`,
-
-  2:`<p>For years, Bali was primarily known for its beach clubs and sunset sessions — a beautiful backdrop for cocktails rather than a serious destination for music. That narrative has shifted dramatically. The island now hosts more than a dozen boutique festivals across its diverse geography, from the sacred rice terraces of Ubud to the surf breaks of Canggu and the glamour of Seminyak. Dreamfields drew 15,000 people last year. Ubud Jazz fills every available hotel within ten kilometres of the venue.</p>
-<h3>Why Bali Works</h3>
-<p>The economics are hard to argue with. International flights have become more competitive than they've been in years. Accommodation ranges from $15 dormitories to $1,000-per-night villas. The food scene is world-class without world-class pricing. And crucially, Bali's government has been actively courting cultural events as a tourism strategy — streamlining permits and encouraging international promoters to bring their events to the island. The process that once took months can now be managed in weeks for experienced operators.</p>
-<p>The creative community that has built up around Canggu deserves significant credit. What began as a surf village has become a hub for musicians, producers and event professionals who live on the island year-round and have created the infrastructure — contacts, venues, local crews — that makes running a festival here far more straightforward than it was five years ago. Expect the calendar to continue growing. Bali is no longer just a place to visit. For the right kind of event, it's become the destination.</p>`,
-
   3:`<p>The velvet rope has always been as much about knowing people as looking good. In 2026, that dynamic has evolved — promoters are more accessible than ever through social media, but the guest list is also more competitive. The key insight most people miss: guest lists are a marketing tool for promoters, not a perk for fans. Understanding that single fact changes how you approach the entire conversation.</p>
 <h3>The Right Way to Ask</h3>
 <p>Follow the event's promoter directly on Instagram, not just the venue page. Engage genuinely with their content over several weeks before making any request. When you do reach out, be specific: tell them what you do, what you can bring (a group of genuine music fans, social media coverage, a connection to local press) and keep it brief. A five-paragraph DM explaining your love of techno will be ignored. Two sentences with a clear value exchange will not.</p>
 <p>The slower route is simpler: show up consistently. Promoters notice the same faces at their events. The person who comes every night, buys drinks, stays late and treats the staff well will eventually be waved past the door without asking. It takes months, but it works in every city in the world. Use Tonight's following feature to track your favourite promoters — and always, always be respectful to door staff. They remember everyone.</p>
-<blockquote>"The people who ask for the guest list the most are usually the last ones we add. The regulars who never ask? They're always on it." — Bangkok promoter, anonymous</blockquote>`,
-
-  4:`<p>Ho Chi Minh City has officially extended late-night operating licenses for select venues in Districts 1, 3 and Bình Thạnh, allowing nightclubs and music venues to operate until 6am on Friday and Saturday nights. The policy, which took effect in February 2026, applies to venues that meet acoustic, safety and licensing criteria — and represents the most significant shift in Vietnamese nightlife regulation in over a decade.</p>
-<h3>What It Means in Practice</h3>
-<p>Observatory, The Vault and Apocalypse Club are among the first venues to apply under the new framework. For promoters, the extended hours open up the possibility of truly all-night events — something Saigon's techno community has been pushing for since 2019. For international DJs, it removes the frustration of having to cut sets short at 2am. Artists who previously declined Southeast Asia bookings due to curfew constraints are already signalling renewed interest.</p>
-<p>The change aligns Saigon more closely with regional rivals Bangkok and Singapore, both of which have near-24-hour nightlife economies. City officials cited projected increases in tourism revenue and hospitality employment as key factors. Critics within residential communities have raised concerns about noise, but the new licensing framework requires venues to demonstrate acoustic compliance before qualifying for extended hours. The pilot runs through the end of 2026, after which the city will assess whether to make the extensions permanent.</p>`,
+<blockquote>"The people who ask for the guest list the most are usually the last ones we add. The regulars who never ask? They're always on it." — Hanoi promoter, anonymous</blockquote>`,
 
   5:`<p>Hanoi's nightlife is nothing like Ho Chi Minh City's — and that's precisely what makes it special. Where Saigon is loud, relentless and international, Hanoi is idiosyncratic, local and quietly sophisticated. The Old Quarter's Tạ Hiện Street fills with plastic-stool drinkers from 5pm, but the night doesn't end there. Follow the music, and Hanoi will reward you with experiences that feel genuinely unlike anywhere else in Southeast Asia.</p>
 <h3>The Neighbourhoods</h3>
-<p>Start in the Old Quarter: Bê Bar on Tạ Hiện reliably hosts a jazz trio from 8pm, and the street itself becomes a de facto open-air party on weekends with no cover, no pretension and cold bia hơi from the pavement vendors. For something more curated, Manzi Art Space in Ba Đình hosts monthly events blending installation art with live music and DJs — the kind of evening that simply doesn't exist in Saigon. Tây Hồ (West Lake) is where you go later: rooftop bars like Tadioto and Summit Lounge serve some of the best cocktails in the country with views that justify every cent.</p>
+<p>Start in the Old Quarter: Bê Bar on Tạ Hiện reliably hosts a jazz trio from 8pm, and the street itself becomes a de facto open-air party on weekends with no cover, no pretension and cold bia hơi from the pavement vendors. For something more curated, Manzi Art Space in Ba Đình hosts monthly events blending installation art with live music and DJs — the kind of evening that simply doesn't exist anywhere else. Tây Hồ (West Lake) is where you go later: rooftop bars like Tadioto and Sacred Garden serve some of the best cocktails in the country with views that justify every cent.</p>
 <p>The underground scene is young but serious. Kater Blau Hanoi has been building genuinely Berlin-inspired club culture around West Lake, booking local and regional selectors who understand that the music comes before everything else. Don't expect bottle service or LED walls — just a focused crowd, a committed soundsystem and nights that quietly go until 4am. Dress for the weather (Hanoi winters can be cold), bring cash, and adjust your pace accordingly. This city rewards patience over impulse.</p>`,
 
   6:`<p>The first wave of Vietnamese electronic music was largely imitative — DJs playing Western trends for international crowds in tourist-heavy clubs. What has emerged over the past four years is something genuinely distinct: a generation of artists who have absorbed the global canon of house and techno and begun filtering it through local influences, from traditional Vietnamese scales to the rhythmic structures of folk music. The results are increasingly being noticed outside the country's borders.</p>
 <h3>The Artists to Know</h3>
-<p>Nguyen Anh Tuan has been the most internationally recognised of Hanoi's house producers, releasing on labels based in Berlin and Amsterdam while maintaining a residency at Kater Blau. DJ Oxy from Saigon plays a distorted, bass-heavy techno that sounds like nothing else in the region — his sets at Observatory have become things of legend. Mina brings a more introspective deep house sensibility that has connected with audiences far beyond Vietnam, while Quan PHAM's output sits somewhere between experimental club music and performance art.</p>
+<p>DJ Useph has become one of Hanoi's most recognisable faces — a House and Afrobeats selector who brings genuine warmth and energy to every set, with a residency at Kater Blau and regular appearances at Sacred Garden. DJ Psyboost, born in Namibia and raised in South Africa, brings a genre-bending approach that spans House, Afro House, Techno and Psytrance — his sets are a masterclass in musical storytelling shaped by years of classical training. Nguyen Anh Tuan has been the most internationally recognised of Hanoi's producers, releasing on labels based in Berlin and Amsterdam.</p>
 <p>What unites them is an authenticity born from necessity. Vietnam's electronic scene developed in relative isolation from the global industry — no major labels, no established festival circuit, no talent agencies. That isolation forced artists to develop their own aesthetic rather than mirroring what was happening in Europe or America. The result is a scene that feels hungry, inventive and distinctly Vietnamese in a way that is difficult to define but impossible to miss once you've experienced it.</p>`,
 
-  7:`<p>Singapore's nightlife sits in a paradox: one of the world's most regulated cities is also home to some of Asia's most sophisticated clubs. Strict licensing, high rents and the government's firm grip on public behaviour have, counterintuitively, produced venues that compete with the best in the world — because only serious operators can survive. Zouk, which has anchored Singapore's club scene for over thirty years, recently completed a renovation that makes it arguably the finest purpose-built club in Southeast Asia.</p>
-<h3>The Essential Addresses</h3>
-<p>Zouk's Main Room, Phuture and Capital suites cover everything from house to hip-hop to Mandopop, and the international booking calendar is relentless. For the underground, Shelter in Chinatown is the essential address: a low-ceilinged concrete bunker with a serious techno policy and a crowd that actually cares about music. Acid Bar in Clarke Quay does something different entirely — live indie bands, a vast whisky selection and an atmosphere that feels more like an Edinburgh pub than a Southeast Asian nightclub.</p>
-<p>Practical notes for the first-timer: drinks are expensive by regional standards (S$18–25 for a cocktail is typical). Most venues enforce smart casual dress — no flip-flops, vests or sportswear. Cover charges for international acts can reach S$80–120, but the production values justify it. The MRT stops running around midnight, so either factor that into your planning or budget for a Grab home. The city is safe at all hours; the nightlife is just concentrated enough to make it easy to do well with a little advance research.</p>`,
-
-  8:`<p>Charlotte de Witte has played to hundreds of thousands of people across five continents, but something about Southeast Asia keeps drawing her back. Speaking to Tonight backstage at Ho Chi Minh City's Observatory club — where she had just finished a four-hour set to a packed room that didn't lose a single person — she's refreshingly direct about why: "The honesty. European crowds sometimes perform their enjoyment. Here, people are either completely in it or they're not. When they're in it, there's nothing like it anywhere in the world."</p>
+  8:`<p>Charlotte de Witte has played to hundreds of thousands of people across five continents, but something about Southeast Asia keeps drawing her back. Speaking to Tonight backstage after her Hanoi debut at Kater Blau — where she had just finished a four-hour set to a packed room — she's refreshingly direct about why: "The honesty. European crowds sometimes perform their enjoyment. Here, people are either completely in it or they're not. When they're in it, there's nothing like it anywhere in the world."</p>
 <h3>On Vietnam's Scene</h3>
-<p>"Vietnam specifically has surprised me more than anywhere else in the past three years," she says. "When I first played Saigon, it felt like something on the edge of developing. Now it feels fully formed. There's a real scene — local artists, venues with serious sound systems, a booking culture that respects the music. That doesn't happen by accident. People have worked very hard for this." She's measured in what she says about the broader region but becomes visibly animated when the conversation turns to the audiences themselves.</p>
-<p>De Witte's upcoming Southeast Asia tour spans five cities over six weeks, including her first show in Hanoi. She's characteristically reluctant to discuss specific set plans — "I decide when I see the room" — but hints at new material: "I've been working on something darker and more physical than what I've been releasing lately. I'm ready to test it on the right crowd." On the evidence of the Saigon show, she has found one.</p>`,
+<p>"Vietnam specifically has surprised me more than anywhere else in the past three years," she says. "When I first heard about the Hanoi scene, I was sceptical. Now it feels fully formed. There's a real scene — local artists, venues with serious sound systems, a booking culture that respects the music. That doesn't happen by accident. People have worked very hard for this." She's measured in what she says about the broader region but becomes visibly animated when the conversation turns to the audiences themselves.</p>
+<p>De Witte is already in conversation about a return date. She hints at new material: "I've been working on something darker and more physical than what I've been releasing lately. I'm ready to test it on the right crowd." On the evidence of the Hanoi show, she has found one.</p>`,
 
-  9:`<p>Getting turned away from a venue because of how you're dressed is a uniquely deflating experience — and it happens far more often than it should, because dress codes across Southeast Asia's nightlife vary wildly and are rarely explained clearly in advance. The rules aren't about fashion. They're about context. A beach club in Seminyak has a completely different standard from a rooftop bar in Singapore's CBD, which shares nothing with the dress code at a Saigon warehouse rave. Here is the regional guide.</p>
+  9:`<p>Getting turned away from a venue because of how you're dressed is a uniquely deflating experience — and it happens far more often than it should, because dress codes across nightlife venues vary wildly and are rarely explained clearly in advance. The rules aren't about fashion. They're about context. A garden bar in Tay Ho has a completely different standard from a rooftop bar in Ba Dinh, which shares nothing with the dress code at a late-night techno club. Here is the Hanoi guide.</p>
 <h3>A Guide by Venue Type</h3>
-<p><strong>Beach clubs and sunset sessions</strong> (Potato Head, Ku De Ta, La Brisa): Elevated casual. Good swimwear transitioning to linen shirts or sundresses for the evening. Quality sandals are fine. The test: would you feel comfortable wearing it to a nice restaurant? If yes, you're probably fine. <strong>Underground clubs</strong> (Observatory, Shelter, Kater Blau, Fabric Bangkok): All black is respected but not enforced. Trainers are almost universally acceptable. What gets you turned away: jerseys, flip-flops, anything with visible branding from rival venues. <strong>Hotel rooftop bars</strong> (1-Altitude, Moon Bar, Lotte Hanoi): Smart casual is enforced. Collared shirts for men. No shorts after 8pm at most. Closed shoes required.</p>
-<p>The universal rule: clean, considered and appropriate to the context beats any specific dress code. A well-ironed simple outfit will get you past any door in Southeast Asia. Check the venue's Instagram before you go — the crowd photos tell you everything you need to know within about thirty seconds of scrolling.</p>`,
+<p><strong>Garden bars and outdoor venues</strong> (Sacred Garden, Tadioto): Relaxed and creative. Light summer clothes, good sandals are fine. The test: would you feel comfortable wearing it to a nice restaurant? If yes, you're probably fine. <strong>Underground clubs</strong> (Kater Blau): All black is respected but not enforced. Trainers are almost universally acceptable. What gets you turned away: jerseys, flip-flops, anything overly formal. <strong>Hotel rooftop bars</strong> (Rooftop at Lotte): Smart casual is enforced. Collared shirts for men. No shorts after 8pm at most. Closed shoes required.</p>
+<p>The universal rule: clean, considered and appropriate to the context beats any specific dress code. A well-ironed simple outfit will get you past any door in Hanoi. Check the venue's Instagram before you go — the crowd photos tell you everything you need to know within about thirty seconds of scrolling.</p>`,
 
-  10:`<p>Ultra Music Festival has confirmed its full three-day lineup for Ultra Vietnam 2026, set for June 15–17 at the Sala Urban Area in Ho Chi Minh City's Thảo Điền district. The announcement features 52 acts across five stages — the main Mainstage, the Ultra Park live stage, a Resistance underground stage and two emerging artist platforms reserved exclusively for Vietnamese and Southeast Asian talent. The festival expects to draw over 50,000 attendees across the three days.</p>
+  10:`<p>Ultra Music Festival has confirmed its full three-day lineup for Ultra Vietnam 2026, with Hanoi as one of the host cities. The announcement features acts across multiple stages — the main Mainstage, a Resistance underground stage and an emerging artist platform reserved exclusively for Vietnamese and Southeast Asian talent.</p>
 <h3>The Lineup</h3>
-<p>Headliners confirmed for the three nights are Martin Garrix (Friday), Armin van Buuren (Saturday) and The Chemical Brothers (Sunday). The Resistance stage — Ultra's underground-focused brand — will be headlined by Charlotte de Witte, Tale Of Us and Solomun across the weekend. Vietnamese headliner Sơn Tùng M-TP performs on the Ultra Park stage Saturday evening. Supporting acts span a full range of electronic genres, with strong local representation across all three days — a deliberate decision by the organizers to root the global event in the local scene.</p>
-<p>Tickets are available through Tonight at three tiers: single-day passes from 1,200,000 VND, weekend passes from 2,800,000 VND and premium VIP packages from 5,500,000 VND including access to dedicated viewing platforms, separate bar facilities and artist meet-and-greet opportunities. Early-bird tickets in the first allocation sold out in under four hours. A second allocation is expected within the next two weeks.</p>`,
-
-  11:`<p>Five years ago, Canggu was primarily known for its waves. The rice paddies were intact, and the most sophisticated venue on Batu Bolong beach was a warung serving Bintang until midnight. The transformation since then has been remarkable. The music community now has a concentration of venues, talent and cultural energy that rivals Seminyak for nightlife supremacy while maintaining an authenticity that Seminyak lost years ago to the resort crowd.</p>
-<h3>How It Happened</h3>
-<p>Deus Ex Machina deserves significant credit. The hybrid garage-café-venue that opened its Canggu outpost created a template: a space that worked for breakfast, worked for music and worked for community events without forcing anyone into a single identity. That flexibility attracted a creative crowd who brought their networks with them. Within two years, a cluster of venues had formed around the Batu Bolong–Echo Beach corridor, each feeding off the others' audiences and creating a genuine neighbourhood nightlife scene with its own character.</p>
-<p>La Brisa arrived later with an entirely different aesthetic — crafted driftwood architecture, curated international bookings, beach sunsets that photograph themselves — and showed that Canggu could support premium experiences alongside the underground. Now the two exist in productive tension. The infrastructure is solid, the local talent is developing, and the international bookings are getting bigger. Canggu is no longer a surf village with some bars. It's a destination in its own right.</p>`,
-
-  12:`<p>The pre-party is an art form that gets too little credit. Setting the right mood before the main event — loose enough to enjoy it, lucid enough to remember it — is a skill, and finding the right bar to do it in is half the battle. Tonight's local teams across Southeast Asia have compiled the definitive guide to where you should start your night, verified by people who go out properly.</p>
-<h3>By City</h3>
-<p><strong>Hanoi:</strong> Bê Bar on Tạ Hiện Street is the default — free entry, live jazz trio from 8pm, street food at arm's reach and Hanoi Bia on tap for pocket change. Manzi Art Space is the choice when you want something more considered. <strong>Ho Chi Minh City:</strong> Dong Chi Bar in District 1 has been the pre-game of choice for Saigon's creative crowd for a decade — strong cocktails, honest prices, a playlist that takes the night seriously. <strong>Bangkok:</strong> WTF (Wonderful Thai Friendship) on Sukhumvit 51 for conversation alongside drinks. For something with more energy, Demo on the RCA strip keeps the bass high from 9pm. <strong>Bali:</strong> La Brisa at Canggu for the full golden-hour experience, or Deus Ex Machina if you want something rougher around the edges. <strong>Singapore:</strong> Acid Bar in Clarke Quay for live music and an extraordinary whisky selection.</p>
-<p>The universal rule: two or three drinks maximum before the main venue, and make them count. Arrive between midnight and 1am at wherever you're going — any earlier and you'll be standing in an empty room; any later and you'll spend the night fighting the crowd instead of dancing with it.</p>`,
-
-  13:`<p>Adam Beyer was not expecting what happened when he arrived in Saigon. His debut Ho Chi Minh City show had sold out in under six hours — faster than comparable shows in Berlin, London or New York — and when he took the stage at The Vault, the crowd that greeted him was unlike anything in his twenty-five-year career. "I've played a thousand shows," he says, speaking from Stockholm. "I know what to expect from Tokyo, from São Paulo, from Berghain. Vietnam was the first time in years that I walked on stage genuinely not knowing what was going to happen. That feeling is a gift."</p>
-<h3>On Southeast Asia's Future</h3>
-<p>"What I noticed in Vietnam specifically is the depth of knowledge in the audience. These aren't people who discovered techno last year. They've been following the music seriously, from the underground, for a long time. They knew my catalogue. They knew when I was about to drop tracks I hadn't played in ten years. That level of engagement is something you spend your whole career trying to find, and you don't always find it in the places you expect."</p>
-<p>Beyer is already in conversation with promoters for a return date. "I want to play longer next time — I was cut short by the 2am curfew, which is being extended now, I hear. Four or five hours in the right room with that crowd would be something exceptional. Vietnam is going on a very short list of places I'll always say yes to." Asked what advice he'd give to Saigon's local producers: "Stop looking to Europe for permission. What's happening there is already interesting enough on its own terms."</p>`,
-
-  14:`<p>Kuala Lumpur's reputation for nightlife has always punched below its weight. A city of eight million people, a thriving expat community and a median age of 28 should produce a world-class club scene — and in pockets, it does. The challenge is navigation: KL's entertainment is scattered across a sprawling urban footprint with no obvious centre, and the distinction between tourist-facing venues and the spaces where locals actually go is sharper here than in almost any comparable city in Asia.</p>
-<h3>Where Locals Go</h3>
-<p>Canvas KL in Bukit Bintang is the essential address for electronic music. In a city where most clubs default to commercial EDM or hip-hop, Canvas has spent five years building a credible underground programme — Peggy Gou, Four Tet and Fisher have all played here in the past eighteen months. The production values are serious, the soundsystem is excellent and the crowd is genuinely there for the music. Zinc KL, two blocks away, does something different: KL's premier hip-hop venue, with local MCs and beatmakers creating a scene that feels rooted in Malaysian identity rather than borrowed from somewhere else.</p>
-<p>For rooftop experiences, Halo and Skye Bar both offer extraordinary views of the Petronas Towers across the KLCC skyline — arrive before 9pm to secure a good position and watch the towers light up as the city comes alive below. The after-hours scene clusters around Changkat Bukit Bintang: a dense street of bars and lounges that stays active until 4am on weekends. Grab is the only reliable way home — KL's MRT closes before midnight, and the city's traffic means even short journeys can take significantly longer than expected.</p>`,
-
-  15:`<p>Tonight is proud to announce the expansion of its events platform to three new cities: Singapore, Kuala Lumpur and Manila. The expansion brings Tonight's total coverage to twelve cities across Southeast Asia, with over 500 events listed and a combined venue network of more than 150 partners. Venues in all three cities can now list events, manage promotions and access Tonight's ticketing and door management tools through the Tonight Pro dashboard.</p>
-<p>Singapore, Kuala Lumpur and Manila were selected based on venue partner demand and user search data from the existing platform. "These three cities have been the most searched locations on Tonight by users in our existing markets," says the Tonight team. "The community was telling us where to go — we followed the data." Users in all three cities can now browse local events, save favourites, receive venue promotions and access all Tonight features including the calendar view and location-based discovery. All three expansions are live today, with local editorial teams already producing city guides, artist spotlights and venue reviews for each market.</p>`
+<p>The Resistance stage — Ultra's underground-focused brand — will be headlined by Charlotte de Witte, Tale Of Us and Solomun across the weekend. Strong local representation is confirmed across all three days — a deliberate decision by the organizers to root the global event in the local scene, with Hanoi-based acts including DJ Useph and DJ Psyboost among those confirmed.</p>
+<p>Tickets are available through Tonight at three tiers: single-day passes from 1,200,000 VND, weekend passes from 2,800,000 VND and premium VIP packages from 5,500,000 VND including access to dedicated viewing platforms, separate bar facilities and artist meet-and-greet opportunities.</p>`,
 };
 
 const ARTICLE_TAGS={
-  1:['Bangkok','Techno','Club Culture','Fabric Club','Nightlife Guide'],
-  2:['Bali','Festival','Canggu','Ubud','Southeast Asia'],
   3:['Guestlist','Tips','Promoters','Nightlife'],
-  4:['Ho Chi Minh City','Policy','Vietnam','Nightlife'],
   5:['Hanoi','Guide','Old Quarter','Tay Ho'],
   6:['Vietnam','Artists','Electronic Music','Culture'],
-  7:['Singapore','Club Guide','Zouk','Shelter'],
   8:['Interview','Charlotte de Witte','Techno'],
   9:['Dress Code','Tips','Beach Club','Style'],
   10:['Ultra','Festival','News','Vietnam'],
-  11:['Bali','Canggu','Culture','Venues'],
-  12:['Bars','Tips','Pre-Party','Guide'],
-  13:['Interview','Adam Beyer','Drumcode','Vietnam'],
-  14:['Kuala Lumpur','Guide','Canvas KL','Malaysia'],
-  15:['News','Platform','Singapore','KL','Manila']
 };
 
 function openArticle(id){
@@ -3634,8 +3529,8 @@ function initCalendar(){
 }
 
 function buildCalCityStrip(){
-  const cities=['','Ho Chi Minh City','Hanoi','Da Nang','Bangkok','Phuket','Chiang Mai','Bali'];
-  const labels={'':'All Cities','Ho Chi Minh City':'Ho Chi Minh City','Hanoi':'Hanoi','Da Nang':'Da Nang','Bangkok':'Bangkok','Phuket':'Phuket','Chiang Mai':'Chiang Mai','Bali':'Bali'};
+  const cities=['','Hanoi'];
+  const labels={'':'All Cities','Hanoi':'Hanoi'};
   document.getElementById('calCityStrip').innerHTML=cities.map(c=>`
     <button class="cal-city-chip ${calCityFilter===c?'active':''}" onclick="setCalCity('${c}')">${c===''?'🌏 All Cities':c}</button>
   `).join('');
@@ -4427,8 +4322,8 @@ function showPro(page,el){
     const now=new Date();
     const recent5=[...allTkts].reverse().slice(0,5);
     const _proEvts=[
-      {e:'🎛',g:'grad-purple',t:'Subculture Saigon',d:'Apr 5, 2026',views:320,joins:94,cap:600,genre:'Techno'},
-      {e:'🌿',g:'grad-teal',t:'Nora En Pure — Bali',d:'Jun 1, 2026',views:180,joins:51,cap:500,genre:'Melodic'},
+      {e:'🎛',g:'grad-purple',t:'Kater Blau Techno Night',d:'Apr 5, 2026',views:320,joins:94,cap:600,genre:'Techno'},
+      {e:'🌿',g:'grad-teal',t:'Sacred Garden Sunset',d:'Jun 1, 2026',views:180,joins:51,cap:500,genre:'House'},
       {e:'🎷',g:'grad-indigo',t:'Jazz & Neon Hanoi',d:'Apr 22, 2026',views:210,joins:63,cap:300,genre:'Jazz'},
     ];
     m.innerHTML=`
@@ -4469,10 +4364,10 @@ function showPro(page,el){
           <div class="af-time">${new Date(tk.issuedAt).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</div>
         </div>`).join('')
         :[
-          {n:'Minh Tran',e:'Subculture Saigon',t:'2m ago',type:'join'},
+          {n:'Minh Tran',e:'Kater Blau Techno Night',t:'2m ago',type:'join'},
           {n:'Sophie L.',e:'Jazz & Neon Hanoi',t:'8m ago',type:'join'},
-          {n:'Chen Wei',e:'Nora En Pure',t:'15m ago',type:'scan'},
-          {n:'Anna K.',e:'Subculture Saigon',t:'22m ago',type:'join'},
+          {n:'Chen Wei',e:'Sacred Garden Sunset',t:'15m ago',type:'scan'},
+          {n:'Anna K.',e:'Kater Blau Techno Night',t:'22m ago',type:'join'},
           {n:'Duc Nguyen',e:'Jazz & Neon Hanoi',t:'31m ago',type:'view'},
         ].map(a=>`<div class="af-row"><div class="af-dot ${a.type}"></div><div class="af-body"><strong>${a.n}</strong> ${a.type==='join'?'joined guestlist':a.type==='scan'?'✅ checked in':'viewed event'} — ${a.e}</div><div class="af-time">${a.t}</div></div>`).join('')}
       </div>
@@ -4489,8 +4384,8 @@ function showPro(page,el){
           <div class="fg"><label>Genre</label><select class="fi"><option>Techno</option><option>House</option><option>EDM</option><option>Rock</option><option>Hip-Hop</option><option>Jazz</option><option>Pop</option></select></div>
           <div class="fg"><label>Date *</label><input class="fi" type="date" required/></div>
           <div class="fg"><label>Doors Open</label><input class="fi" type="time" value="21:00"/></div>
-          <div class="fg"><label>City *</label><select class="fi"><option>Ho Chi Minh City</option><option>Hanoi</option><option>Da Nang</option><option>Hoi An</option><option>Bangkok</option><option>Phuket</option><option>Chiang Mai</option><option>Bali</option></select></div>
-          <div class="fg"><label>Venue *</label><input class="fi" placeholder="e.g. GEM Center, Potato Head, Lush" required/></div>
+          <div class="fg"><label>City *</label><select class="fi"><option>Hanoi</option></select></div>
+          <div class="fg"><label>Venue *</label><input class="fi" placeholder="e.g. Sacred Garden, Kater Blau Hanoi" required/></div>
           <div class="full fg"><label>Description *</label><textarea class="fta" placeholder="Describe your event…" required></textarea></div>
           <div class="full fg"><label>Rules</label><textarea class="fta" placeholder="18+ only, no re-entry…" style="min-height:60px"></textarea></div>
         </div>
@@ -4532,7 +4427,7 @@ function showPro(page,el){
         </div>
         <div class="fg"><label>City *</label>
           <select class="fi" id="pp_city">
-            ${['Ho Chi Minh City','Hanoi','Da Nang','Hoi An','Bangkok','Phuket','Chiang Mai','Bali'].map(o=>`<option${p.city===o?' selected':''}>${o}</option>`).join('')}
+            ${['Hanoi'].map(o=>`<option${p.city===o?' selected':''}>${o}</option>`).join('')}
           </select>
         </div>
         <div class="fg"><label>Address</label><input class="fi" id="pp_address" placeholder="Street address" value="${p.address||''}"/></div>
@@ -4602,8 +4497,8 @@ function showPro(page,el){
     const checkedIn=allTkts.filter(t=>t.status==='used'||t.status==='checked_in').length;
     const convRate=allTkts.length?Math.round(checkedIn/allTkts.length*100):0;
     const _proEvts=[
-      {e:'🎛',g:'grad-purple',t:'Subculture Saigon',views:320,joins:94,cap:600},
-      {e:'🌿',g:'grad-teal',t:'Nora En Pure — Bali',views:180,joins:51,cap:500},
+      {e:'🎛',g:'grad-purple',t:'Kater Blau Techno Night',views:320,joins:94,cap:600},
+      {e:'🌿',g:'grad-teal',t:'Sacred Garden Sunset',views:180,joins:51,cap:500},
       {e:'🎷',g:'grad-indigo',t:'Jazz & Neon Hanoi',views:210,joins:63,cap:300},
     ];
     const totalViews=_proEvts.reduce((s,e)=>s+e.views,0);
@@ -4646,7 +4541,7 @@ function showPro(page,el){
     </div>
     <div class="dsec">
       <h3>🌍 Top Cities</h3>
-      ${[['Ho Chi Minh City',47],['Hanoi',31],['Bali',14],['Hanoi',8]].map(([city,pct])=>`
+      ${[['Tay Ho',52],['Old Quarter',31],['Ba Dinh',17]].map(([city,pct])=>`
       <div class="an-bar-row">
         <div class="an-bar-label" style="width:110px;text-align:left;font-size:12px">${city}</div>
         <div class="an-bar-track"><div class="an-bar-fill" style="width:${pct}%"></div></div>
@@ -4895,8 +4790,8 @@ function showPro(page,el){
     </div>`;}
 }
 function proRows(){return[
-  {e:'🎛',g:'grad-purple',t:'Subculture Saigon',d:'Apr 5, 2026',s:320,c:600},
-  {e:'🌿',g:'grad-teal',t:'Nora En Pure — Bali',d:'Jun 1, 2026',s:180,c:500},
+  {e:'🎛',g:'grad-purple',t:'Kater Blau Techno Night',d:'Apr 5, 2026',s:320,c:600},
+  {e:'🌿',g:'grad-teal',t:'Sacred Garden Sunset',d:'Jun 1, 2026',s:180,c:500},
   {e:'🎷',g:'grad-indigo',t:'Jazz & Neon Hanoi',d:'Apr 22, 2026',s:210,c:300},
 ].map(r=>`<div class="prorow">
   <div class="prorow-img ${r.g}">${r.e}</div>
@@ -5102,7 +4997,7 @@ function submitPromo(e){
   if(!title||!desc){toast('Fill in title and description','err');return;}
   const promo={
     id:'promo_'+Date.now(),venueId:'pro_user',venueName,
-    city:filterCity||'Ho Chi Minh City',
+    city:filterCity||'Hanoi',
     emoji,title,discount,desc,startTime,endTime,active:true,
     createdAt:Date.now()
   };
