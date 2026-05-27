@@ -3229,33 +3229,55 @@ function renderRows(){
   document.getElementById('artistRow').innerHTML=ARTISTS.slice(0,5).map(a=>_artistBubble(a,a.name,a.genre,a.img,a.grad,a.emoji)).join('');
 }
 
-function _spotlightCard(ev){
-  const lineupHtml=(ev.lineup||[]).map(a=>`<span style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:100px;padding:3px 12px;font-size:11px;font-weight:700;color:#fff;white-space:nowrap">${a}</span>`).join('');
-  return`<div onclick="openEvent(${ev.id})" style="cursor:pointer;border-radius:16px;overflow:hidden;position:relative;background:#000;margin-bottom:12px">
-    <img src="${ev.img}" alt="${ev.title}" style="width:100%;display:block;object-fit:cover;max-height:480px;opacity:.92"/>
-    <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.88) 0%,rgba(0,0,0,.1) 55%,transparent 100%)"></div>
-    <div style="position:absolute;top:14px;left:14px;display:flex;gap:8px;align-items:center">
-      <span style="background:#ff3b5c;color:#fff;font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border-radius:100px">⭐ Featured</span>
-      ${ev.organizer?`<span style="background:rgba(0,0,0,.55);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#fff;font-size:10px;font-weight:700;letter-spacing:.5px;padding:5px 12px;border-radius:100px;border:1px solid rgba(255,255,255,.15)">${ev.organizer}</span>`:''}
-    </div>
-    <div style="position:absolute;bottom:0;left:0;right:0;padding:20px 20px 24px">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,6vw,50px);line-height:.95;color:#fff;letter-spacing:1px;margin-bottom:10px">${ev.title}</div>
-      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:${lineupHtml?'12px':'16px'}">
-        <span style="font-size:12px;color:rgba(255,255,255,.85);font-weight:500">📅 ${fmt(ev.date)}</span>
-        <span style="font-size:12px;color:rgba(255,255,255,.85);font-weight:500">📍 ${ev.venue}</span>
-      </div>
-      ${lineupHtml?`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px">${lineupHtml}</div>`:''}
-      ${ev.specialActs?`<div style="font-size:12px;color:var(--green);font-weight:700;margin-bottom:16px">✨ ${ev.specialActs}</div>`:''}
-      <button onclick="event.stopPropagation();openEvent(${ev.id})" style="background:#fff;color:#000;font-weight:800;font-size:14px;border:none;border-radius:100px;padding:12px 28px;cursor:pointer;letter-spacing:-.2px">Explore Event →</button>
-    </div>
-  </div>`;
-}
+let _spotIdx=0, _spotTimer=null;
 function renderSpotlight(){
   const s=document.getElementById('spotlightSection');
   if(!s) return;
   const featured=EVENTS.filter(e=>e.featured).sort((a,b)=>new Date(a.date)-new Date(b.date));
   if(!featured.length){s.innerHTML='';return;}
-  s.innerHTML=featured.map(_spotlightCard).join('');
+  // Build single carousel container
+  s.innerHTML=`
+    <div id="spotCarousel" style="position:relative;border-radius:16px;overflow:hidden;background:#000;cursor:pointer">
+      <div id="spotSlides" style="display:flex;transition:transform .5s cubic-bezier(.4,0,.2,1)">
+        ${featured.map(ev=>{
+          const lineupHtml=(ev.lineup||[]).map(a=>`<span style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:100px;padding:3px 12px;font-size:11px;font-weight:700;color:#fff;white-space:nowrap">${a}</span>`).join('');
+          return`<div class="spot-slide" onclick="openEvent(${ev.id})" style="min-width:100%;position:relative;flex-shrink:0">
+            <img src="${ev.img}" alt="${ev.title}" style="width:100%;display:block;object-fit:cover;max-height:480px;opacity:.92"/>
+            <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.88) 0%,rgba(0,0,0,.1) 55%,transparent 100%)"></div>
+            <div style="position:absolute;top:14px;left:14px;display:flex;gap:8px;align-items:center">
+              <span style="background:#ff3b5c;color:#fff;font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border-radius:100px">⭐ Featured</span>
+              ${ev.organizer?`<span style="background:rgba(0,0,0,.55);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#fff;font-size:10px;font-weight:700;letter-spacing:.5px;padding:5px 12px;border-radius:100px;border:1px solid rgba(255,255,255,.15)">${ev.organizer}</span>`:''}
+            </div>
+            <div style="position:absolute;bottom:0;left:0;right:0;padding:20px 20px 24px">
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,6vw,50px);line-height:.95;color:#fff;letter-spacing:1px;margin-bottom:10px">${ev.title}</div>
+              <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:${lineupHtml?'12px':'16px'}">
+                <span style="font-size:12px;color:rgba(255,255,255,.85);font-weight:500">📅 ${fmt(ev.date)}</span>
+                <span style="font-size:12px;color:rgba(255,255,255,.85);font-weight:500">📍 ${ev.venue}</span>
+              </div>
+              ${lineupHtml?`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px">${lineupHtml}</div>`:''}
+              ${ev.specialActs?`<div style="font-size:12px;color:var(--green);font-weight:700;margin-bottom:16px">✨ ${ev.specialActs}</div>`:''}
+              <button onclick="event.stopPropagation();openEvent(${ev.id})" style="background:#fff;color:#000;font-weight:800;font-size:14px;border:none;border-radius:100px;padding:12px 28px;cursor:pointer;letter-spacing:-.2px">Explore Event →</button>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+      ${featured.length>1?`<div style="position:absolute;bottom:14px;right:18px;display:flex;gap:6px" id="spotDots">
+        ${featured.map((_,i)=>`<div onclick="event.stopPropagation();_spotGo(${i})" style="width:${i===0?'20px':'8px'};height:8px;border-radius:4px;background:${i===0?'#fff':'rgba(255,255,255,.4)'};cursor:pointer;transition:.3s" id="spotDot${i}"></div>`).join('')}
+      </div>`:''}
+    </div>`;
+  _spotIdx=0;
+  clearInterval(_spotTimer);
+  if(featured.length>1) _spotTimer=setInterval(()=>_spotGo((_spotIdx+1)%featured.length),3500);
+}
+function _spotGo(i){
+  const featured=EVENTS.filter(e=>e.featured);
+  _spotIdx=i;
+  const slides=document.getElementById('spotSlides');
+  if(slides) slides.style.transform=`translateX(-${i*100}%)`;
+  featured.forEach((_,j)=>{
+    const dot=document.getElementById('spotDot'+j);
+    if(dot){dot.style.width=j===i?'20px':'8px';dot.style.background=j===i?'#fff':'rgba(255,255,255,.4)';}
+  });
 }
 
 function renderAll(){renderSpotlight();renderTop10();renderRows();renderBrowse();}
@@ -5951,6 +5973,8 @@ function _initApp(){
         const ev=d.data();
         const id=1000+i;
         if(existingIds.has(id)) return;
+        // Skip events without an image — every listed event must have a flyer
+        if(!ev.img&&!ev.imageUrl) return;
         const _gGrad={Techno:'grad-purple',House:'grad-teal','DJ Night':'grad-purple',Electronic:'grad-orange',EDM:'grad-orange','Live Music':'grad-blue',Jazz:'grad-cyan','Hip-Hop':'grad-orange','Themed Party':'grad-gold'};
         EVENTS.push({
           id, title:ev.title||'', artist:ev.venueName||ev.contactName||'Various Artists',
