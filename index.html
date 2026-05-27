@@ -1639,7 +1639,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
         <span class="nav-logo-main">Tonight</span>
         <span class="nav-logo-sub">Events &amp; Parties</span>
       </a>
-      <div class="live-pill" id="livePill"><div class="live-pill-dot"></div><span id="liveCount">847</span>&nbsp;active now</div>
+      <div class="live-pill" id="livePill"><div class="live-pill-dot"></div><span id="liveCount">62</span>&nbsp;active now</div>
       <div class="nav-search" onclick="openSearch()" style="cursor:pointer">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
         <input type="text" placeholder="Event, Venue, Artist or Promoter" id="navSearch" readonly style="cursor:pointer"/>
@@ -1705,7 +1705,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
 <div class="container">
 
   <!-- HERO BANNER -->
-  <div style="padding:16px 0 0">
+  <div style="display:none">
     <div class="hero-banner" id="heroBanner" onclick="openEvent(1)">
       <div class="hero-banner-bg grad-purple" id="heroBg">🎛</div>
       <div class="hero-banner-overlay"></div>
@@ -1894,9 +1894,6 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
   <div class="container">
     <div id="areaBar" style="display:none;gap:8px;flex-wrap:wrap;padding:0 0 4px;overflow-x:auto;scrollbar-width:none"></div>
     <div class="filter-bar" id="filterBar">
-      <div class="fchip" data-city="Ho Chi Minh City">Ho Chi Minh City</div>
-      <div class="fchip" data-city="Hanoi">Hanoi</div>
-      <div class="fchip" data-city="Da Nang">Da Nang</div>
       <div style="width:1px;background:var(--border);margin:0 4px"></div>
       <div class="fchip active" data-genre="">All Genres</div>
       <div class="fchip" data-genre="Techno">Techno</div>
@@ -2093,13 +2090,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
           <div class="le-field">
             <label>City <span class="cm-req">*</span></label>
             <select id="le_city">
-              <option value="" disabled selected>Select city</option>
-              <option>Ho Chi Minh City</option>
-              <option>Hanoi</option>
-              <option>Da Nang</option>
-              <option>Hoi An</option>
-              <option>Nha Trang</option>
-              <option>Phu Quoc</option>
+              <option value="Hanoi" selected>Hanoi</option>
             </select>
           </div>
           <div class="le-field">
@@ -2191,7 +2182,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
           <input type="text" id="le_offer" placeholder="e.g. Free entry on guestlist before midnight"/>
         </div>
         <div class="le-field">
-          <label>Event Flyer / Image <span class="cm-req-soft">(optional)</span></label>
+          <label>Event Flyer / Image <span class="cm-req">*</span></label>
           <input type="file" id="le_image_file" accept="image/*" style="font-size:13px;color:var(--text2)" onchange="leFlyerPreview(this)"/>
           <img id="le_img_preview" class="le-img-preview" alt="Flyer preview"/>
           <input type="hidden" id="le_imageData"/>
@@ -2554,7 +2545,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
     <div style="border-top:1px solid var(--border);padding:14px 0 0;margin-bottom:14px;font-size:10px;color:rgba(255,255,255,.2);line-height:1.7;text-align:center">
       Tonight is a free event discovery and information platform. We do not sell tickets, process payments, or guarantee entry. All events, deals and offers are listed by venues and promoters. Entry is subject to venue confirmation. Tonight is not liable for event cancellations, deal redemption, or third-party services.
     </div>
-    <div class="footer-bot"><span>© 2026 Tonight. All rights reserved.</span><span>🇻🇳 Ho Chi Minh City · Hanoi · Da Nang</span></div>
+    <div class="footer-bot"><span>© 2026 Tonight. All rights reserved.</span><span>🇻🇳 Hanoi</span></div>
   </div>
 </footer>
 
@@ -2622,9 +2613,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
       <div>
         <div class="city-region-label">🇻🇳 Vietnam</div>
         <div class="city-grid">
-          <div class="city-opt" onclick="selectCity('Ho Chi Minh City','🇻🇳')"><span class="city-flag">🌆</span><span>Ho Chi Minh City</span><span class="city-count" id="cnt-hcmc"></span></div>
           <div class="city-opt" onclick="selectCity('Hanoi','🇻🇳')"><span class="city-flag">🏛</span><span>Hanoi</span><span class="city-count" id="cnt-hanoi"></span></div>
-          <div class="city-opt" onclick="selectCity('Da Nang','🇻🇳')"><span class="city-flag">🏖</span><span>Da Nang</span><span class="city-count" id="cnt-danang"></span></div>
         </div>
       </div>
     </div>
@@ -3094,8 +3083,15 @@ function filteredEvents(){
     }
     return true;
   });
-  const pin=results.find(e=>e.id===44);
-  return pin ? [pin,...results.filter(e=>e.id!==44)] : results;
+  results.sort((a,b)=>{
+    // 1. Featured first
+    if(b.featured!==a.featured) return (b.featured?1:0)-(a.featured?1:0);
+    // 2. Events with images before those without
+    if(!!b.img!==!!a.img) return (b.img?1:0)-(a.img?1:0);
+    // 3. Soonest date first
+    return new Date(a.date)-new Date(b.date);
+  });
+  return results;
 }
 function setTimeFilter(t,el){
   filterTime=t;
@@ -5569,9 +5565,30 @@ const LIVE_NAMES=['Minh N.','Lan T.','Anh V.','Phương L.','Hùng N.','Thu H.',
   'Jake M.','Emma R.','Tom B.','Liam O.','Sofia C.','Chloe W.','Alex D.','Ryan K.'];
 const LIVE_ACTIONS=['just booked','just grabbed a ticket to','is viewing','just purchased 2 tickets to','saved','is checking out'];
 const LIVE_EMOJIS=['🎟','🔥','👀','💃','🎉','⚡','🎵','🌟'];
-let _liveBase=847, _liveDir=1, _liveFeedTimer=null;
+let _liveDir=1, _liveFeedTimer=null;
 
 function randInt(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+
+// Time-of-day curve: returns a 0–1 multiplier peaking in the evening (6pm–11pm)
+function _timeMultiplier(){
+  const h=new Date().getHours()+new Date().getMinutes()/60;
+  // dead hours 2am–10am → low (0.0–0.3), afternoon 10am–6pm → mid (0.3–0.7), evening 6pm–11pm → peak (0.7–1.0)
+  if(h>=2 && h<10) return 0.05+((h-2)/8)*0.25;
+  if(h>=10 && h<18) return 0.30+((h-10)/8)*0.40;
+  if(h>=18 && h<23) return 0.70+((h-18)/5)*0.30;
+  return 0.15; // midnight–2am winding down
+}
+
+function _targetRange(){
+  const m=_timeMultiplier();
+  const lo=Math.round(40+m*10);  // 40–50
+  const hi=Math.round(55+m*25);  // 55–80
+  return {lo,hi};
+}
+
+// Seed base at a natural starting value for current time
+let _liveBase=(function(){const {lo,hi}=_targetRange();return randInt(lo,hi);})();
+
 function animateCount(el,target,duration=600){
   const start=parseInt(el.textContent.replace(/,/g,''))||0;
   const diff=target-start;
@@ -5585,18 +5602,16 @@ function animateCount(el,target,duration=600){
 }
 
 function updateLiveCount(){
-  // Small realistic drift: 1–4 users at a time, occasional bigger wave
-  const isBigWave=Math.random()<0.08; // 8% chance of a slightly bigger move
-  const delta=(isBigWave ? randInt(5,12) : randInt(1,4)) * _liveDir;
-  _liveBase=Math.max(720,Math.min(1080,_liveBase+delta));
-  // flip direction near the edges or randomly with low probability
-  if(_liveBase>=1080||_liveBase<=720) _liveDir*=-1;
-  if(Math.random()<0.04) _liveDir*=-1; // rare organic reversal
+  const {lo,hi}=_targetRange();
+  const isBigWave=Math.random()<0.06;
+  const delta=(isBigWave ? randInt(2,5) : randInt(1,2)) * _liveDir;
+  _liveBase=Math.max(lo,Math.min(hi,_liveBase+delta));
+  if(_liveBase>=hi||_liveBase<=lo) _liveDir*=-1;
+  if(Math.random()<0.05) _liveDir*=-1;
   const el=document.getElementById('liveCount');
   const el2=document.getElementById('statActiveNum');
-  // slow smooth transition so the number eases in naturally
-  if(el) animateCount(el,_liveBase,2200);
-  if(el2) animateCount(el2,_liveBase,2200);
+  if(el) animateCount(el,_liveBase,2800);
+  if(el2) animateCount(el2,_liveBase,2800);
 }
 
 function buildStatsBar(){
@@ -5861,6 +5876,8 @@ function _runSearch(q){
 
 // ── INIT ──
 function _initApp(){
+  // Lock to Hanoi for launch
+  filterCity='Hanoi';
   // Critical: render above-fold content immediately
   renderSpotlight();
   renderHeroDots();
@@ -5974,9 +5991,11 @@ function leNextStep(from){
     const title=document.getElementById('le_title').value.trim();
     const date=document.getElementById('le_date').value;
     const desc=document.getElementById('le_desc').value.trim();
+    const imgFile=document.getElementById('le_image_file').files[0];
     if(!title){toast('Please enter the event name','err');return;}
     if(!date){toast('Please select the event date','err');return;}
     if(!desc){toast('Please describe the event','err');return;}
+    if(!imgFile){toast('Please upload an event flyer or image','err');return;}
     leRenderReview();
   }
   leSetStep(from+1);
@@ -6006,12 +6025,23 @@ function leRenderReview(){
 function leFlyerPreview(inp){
   const file=inp.files[0];
   if(!file)return;
-  if(file.size>2*1024*1024){toast('Image must be under 2MB','err');inp.value='';return;}
+  if(file.size>5*1024*1024){toast('Image must be under 5MB','err');inp.value='';return;}
   const reader=new FileReader();
   reader.onload=e=>{
     const preview=document.getElementById('le_img_preview');
     if(preview){preview.src=e.target.result;preview.style.display='block';}
-    try{document.getElementById('le_imageData').value=e.target.result.substring(0,200)+'...';}catch(_){}
+    // Compress to max 800px wide, JPEG 0.75 — keeps Firestore doc under 1MB
+    const img=new Image();
+    img.onload=()=>{
+      const maxW=800;
+      const scale=img.width>maxW?maxW/img.width:1;
+      const canvas=document.createElement('canvas');
+      canvas.width=Math.round(img.width*scale);
+      canvas.height=Math.round(img.height*scale);
+      canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+      try{document.getElementById('le_imageData').value=canvas.toDataURL('image/jpeg',0.75);}catch(_){}
+    };
+    img.src=e.target.result;
   };
   reader.readAsDataURL(file);
 }
@@ -6098,13 +6128,14 @@ async function submitListEvent(e){
   label.textContent = 'Submitting…';
 
   // Save to Firestore — Cloud Function + admin portal picks it up
+  const imgData=document.getElementById('le_imageData').value||'';
   await _saveToFirestore('events',{
     title:data.eventTitle, venueName:data.businessName, venueType:data.venueType,
     city:data.city, address:data.address, date:data.date, time:data.doorsOpen,
     genre:data.genre, capacity:data.capacity, description:data.description,
     specialOffer:data.specialOffer, contactName:data.contactName, phone:data.phone,
     email:data.email, instagram:data.instagram, website:data.website,
-    status:'pending', emailSent:false, reminderSent:false, featured:false,
+    img:imgData, status:'pending', emailSent:false, reminderSent:false, featured:false,
     emoji:'🎵', price:0, isNew:false, submittedAt:data.submittedAt,
     source:'app-pro-submission'
   });
