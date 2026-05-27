@@ -1765,7 +1765,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
   <div id="spotlightSection" style="padding:12px 0 0"></div>
 
   <!-- LIVE PROMOTIONS STRIP -->
-  <div class="promo-strip" id="promoStrip" style="display:none">
+  <div class="promo-strip" id="promoStrip">
     <div class="promo-strip-head">
       <div class="promo-strip-label">
         <span class="promo-strip-label-text">Live Deals</span>
@@ -5126,11 +5126,13 @@ function togglePromoActive(id){
 
 // Render the live promo strip on homepage
 function renderPromoStrip(){
-  const promos=getPromos().filter(p=>p.active);
+  // Always use SEED_PROMOS as source of truth — bypasses stale localStorage cache
+  const extra=(() => { try{ return JSON.parse(localStorage.getItem('tn_promos_venue')||'[]'); }catch(e){ return []; } })();
+  const promos=[...SEED_PROMOS,...extra].filter(p=>p.active);
   const strip=document.getElementById('promoStrip');
   const scroll=document.getElementById('promoScroll');
   if(!strip||!scroll) return;
-  const list=filterCity?promos.filter(p=>p.city===filterCity):promos;
+  const list=filterCity?promos.filter(p=>!p.city||p.city===filterCity):promos;
   if(!list.length){strip.style.display='none';return;}
   strip.style.display='block';
   const badgeColors={
