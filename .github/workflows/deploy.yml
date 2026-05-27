@@ -19,13 +19,15 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: .
-          publish_branch: gh-pages
-          exclude_assets: '.github,functions,node_modules,supabase,.gitignore'
-          cname: www.tonightvietnam.com
+          token: ${{ secrets.GITHUB_TOKEN }}
+          folder: .
+          branch: gh-pages
+          clean: true
+          clean-exclude: |
+            .nojekyll
+          single-commit: true
 
   # ── Job 2: Firebase Hosting + Firestore (always runs) ────────────────────────
   firebase:
