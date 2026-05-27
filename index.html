@@ -2900,7 +2900,7 @@ const VENUES=[
   {id:10,name:"Rooftop at Lotte",   city:"Hanoi", area:"Ba Dinh",       type:"Rooftop",    capacity:300,  genres:["Jazz","Pop"],               open:"5pm", close:"12am", img:"https://images.unsplash.com/photo-1566737236500-c8ac43014a67?auto=format&fit=crop&w=800&q=80",desc:"65-floor sky bar with 360 Hanoi panoramas. Signature cocktails and live jazz every Friday and Saturday."},
   {id:24,name:"Tadioto Rooftop",    city:"Hanoi", area:"Tay Ho",        type:"Rooftop",    capacity:180,  genres:["House","Jazz"],             open:"4pm", close:"12am", img:"https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=800&q=80",desc:"Artsy West Lake rooftop bar beloved by Hanoi creatives. Sunset cocktails and intimate live music sets."},
   {id:31,name:"Sacred Garden",      city:"Hanoi", area:"Tay Ho",        type:"Garden Bar", capacity:150,  genres:["House","Afrobeats","Indie"], open:"11am",close:"12am", img:"images/sacred-garden-logo.jpg", logo:"images/sacred-garden-logo.jpg", desc:"A lush hidden garden bar in the heart of Tay Ho. Sacred Garden blends open-air greenery with craft drinks, good music and a relaxed crowd. Known for afternoon sessions that stretch into late-night vibes. Home of Saigon Cider in Hanoi."},
-  {id:32,name:"Bi's Corner",        city:"Hanoi", area:"Tay Ho",        type:"Outdoor Bar", capacity:80,   genres:["House","Afrobeats","Chill"],  open:"5pm", close:"1am",  img:"images/bis-corner-logo.jpg",    logo:"images/bis-corner-logo.jpg",    desc:"Outdoor bar with a laid-back crowd, good music, and easy conversations. A small space, but always alive in the right way.", address:"2 Ng. 89 P. Tứ Liên, Hồng Hà, Hà Nội"},
+  {id:32,name:"Bi's Corner",        city:"Hanoi", area:"Tay Ho",        type:"Outdoor Bar", capacity:80,   genres:["House","Afrobeats","Chill"],  open:"5pm", close:"1am",  img:"images/bis-corner-logo.jpg",    logo:"images/bis-corner-logo.jpg",    desc:"Outdoor bar with a laid-back crowd, good music, and easy conversations. A small space, but always alive in the right way.", address:"2 Ng. 89 P. Tứ Liên, Hồng Hà, Hà Nội", photos:["images/bis-corner-venue.jpg"]},
 ];
 
 const MAGAZINE_ARTICLES=[
@@ -3490,12 +3490,19 @@ function openVenue(id){
   if(!v) return;
   const evts=EVENTS.filter(e=>e.venue===v.name||e.city===v.city).slice(0,4);
   document.getElementById('venueModalTitle').textContent=v.name;
+  const heroImg=(v.photos&&v.photos[0])||v.img;
   document.getElementById('venueModalBody').innerHTML=`
-    <img class="venue-modal-hero" src="${v.img}" alt="${v.name}" onerror="this.style.display='none'"/>
+    <img class="venue-modal-hero" src="${heroImg}" alt="${v.name}" onerror="this.style.display='none'" style="object-fit:cover"/>
+    ${v.photos&&v.photos.length>1?`<div style="display:flex;gap:6px;padding:8px 16px 0;overflow-x:auto;scrollbar-width:none">${v.photos.map((p,i)=>`<img src="${p}" onclick="this.closest('.mbody').previousElementSibling.src='${p}'" style="width:80px;height:60px;object-fit:cover;border-radius:8px;flex-shrink:0;cursor:pointer;border:2px solid ${i===0?'var(--green)':'transparent'}" onerror="this.style.display='none'"/>`).join('')}</div>`:''}
     <div class="mbody">
-      <span class="venue-modal-type">${v.type}</span>
-      <div class="venue-modal-name">${v.name}</div>
-      <div class="venue-modal-loc">📍 ${v.area?v.area+', ':''}${v.city}</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        ${v.logo?`<img src="${v.logo}" alt="${v.name}" style="width:40px;height:40px;border-radius:8px;object-fit:cover;flex-shrink:0"/>`:''}
+        <div>
+          <span class="venue-modal-type">${v.type}</span>
+          <div class="venue-modal-name" style="margin-bottom:0">${v.name}</div>
+        </div>
+      </div>
+      <div class="venue-modal-loc">📍 ${v.address||((v.area?v.area+', ':'')+v.city)}</div>
       <div class="venue-modal-stat-row">
         <div class="venue-modal-stat"><div class="venue-modal-stat-label">Hours</div><div class="venue-modal-stat-val">🕙 ${v.open} – ${v.close}</div></div>
         <div class="venue-modal-stat"><div class="venue-modal-stat-label">Capacity</div><div class="venue-modal-stat-val">👥 ${v.capacity.toLocaleString()}</div></div>
