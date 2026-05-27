@@ -2818,6 +2818,7 @@ const ARTISTS=[
 ];
 
 const LOCAL_ARTISTS=[
+  {name:"DJ Useph",        genre:"House / Afrobeats",  city:"Hanoi",       img:"images/djuseph.jpg",    instagram:"https://www.instagram.com/useph0/"},
   {name:"DJ Psyboost",     genre:"House / Electronic", city:"Hanoi",       img:"images/djpsyboost.jpg", instagram:"https://www.instagram.com/djpsyboost/", bio:"Born in Namibia, raised in South Africa, and chasing a mystical dream across Vietnam, DJ PsyBoost is a sonic storyteller whose journey transcends borders and genres. From the age of 7, music became his native language — mastering the violin and cello, performing in symphony orchestras across Germany, conducting full choirs, and teaching music long before he commanded a DJ booth. With over two decades of musical mastery, PsyBoost's sets are a seamless fusion of precision, passion, and pure dancefloor energy.\n\nA true multi-genre maestro, PsyBoost moves effortlessly from House, Afro House, and Techno to Trance and his signature Psytrance. His electrifying mashups and genre-bending flow have made him a crowd favorite, with every performance crafted to lift spirits, move bodies, and ignite hearts."},
   {name:"Nguyen Anh Tuan", genre:"House",         city:"Hanoi",            img:"https://images.unsplash.com/photo-1504257432389-52343af06ae3?auto=format&fit=crop&w=300&q=80"},
   {name:"DJ Oxy",          genre:"Techno",        city:"Ho Chi Minh City", img:"https://images.unsplash.com/photo-1463453091185-61582044d556?auto=format&fit=crop&w=300&q=80"},
@@ -3159,8 +3160,9 @@ function _artistBubble(a,name,genre,img,grad,emoji){
   const followBtn=ig
     ?`<button class="artist-bubble-follow" onclick="event.stopPropagation();window.open('${ig}','_blank')" style="border:1px solid rgba(255,255,255,.25);background:transparent;color:var(--text)">Follow on IG</button>`
     :`<button class="artist-bubble-follow" onclick="event.stopPropagation();toggleFollow('${name}',this)" style="border:1px solid ${isF?'transparent':'rgba(255,255,255,.25)'};background:${isF?'var(--green)':'transparent'};color:${isF?'#000':'var(--text)'}">${isF?'Following':'Follow'}</button>`;
+  const photoClick=hasBio?`openArtistProfile('${name.replace(/'/g,"\\'")}')`:ig?`window.open('${ig}','_blank')`:'';
   return`<div class="artist-bubble" ${hasBio?`onclick="openArtistProfile('${name.replace(/'/g,"\\'")}')"`  :''} style="${hasBio?'cursor:pointer':''}">
-    <div class="artist-bubble-photo">
+    <div class="artist-bubble-photo" ${photoClick?`onclick="event.stopPropagation();${photoClick}" style="cursor:pointer"`  :''}>
       ${img
         ?`<img src="${img}" alt="${name}" loading="lazy" onerror="var c=this.closest('.artist-bubble');if(c)c.remove();"/>`
         :`<div class="fallback evt-card-img ${grad||''}">${emoji||'🎵'}</div>`
