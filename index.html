@@ -2604,6 +2604,14 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
   </div>
 </div>
 
+<!-- ════ ARTIST PROFILE MODAL ════ -->
+<div class="overlay" id="artistProfileOverlay">
+  <div class="modal" style="max-width:420px;padding:0;overflow:hidden">
+    <button class="mclose" onclick="closeOverlay('artistProfileOverlay')" style="position:absolute;top:14px;right:14px;z-index:10">✕</button>
+    <div id="artistProfileContent"></div>
+  </div>
+</div>
+
 <!-- ════ CITY PICKER MODAL ════ -->
 <div class="city-modal" id="cityModal" onclick="if(event.target===this)closeCityPicker()">
   <div class="city-box">
@@ -2809,6 +2817,7 @@ const ARTISTS=[
 ];
 
 const LOCAL_ARTISTS=[
+  {name:"DJ Psyboost",     genre:"House / Electronic", city:"Hanoi",       img:"images/djpsyboost.jpg", instagram:"https://www.instagram.com/djpsyboost/", bio:"Born in Namibia, raised in South Africa, and chasing a mystical dream across Vietnam, DJ PsyBoost is a sonic storyteller whose journey transcends borders and genres. From the age of 7, music became his native language — mastering the violin and cello, performing in symphony orchestras across Germany, conducting full choirs, and teaching music long before he commanded a DJ booth. With over two decades of musical mastery, PsyBoost's sets are a seamless fusion of precision, passion, and pure dancefloor energy.\n\nA true multi-genre maestro, PsyBoost moves effortlessly from House, Afro House, and Techno to Trance and his signature Psytrance. His electrifying mashups and genre-bending flow have made him a crowd favorite, with every performance crafted to lift spirits, move bodies, and ignite hearts."},
   {name:"Nguyen Anh Tuan", genre:"House",         city:"Hanoi",            img:"https://images.unsplash.com/photo-1504257432389-52343af06ae3?auto=format&fit=crop&w=300&q=80"},
   {name:"DJ Oxy",          genre:"Techno",        city:"Ho Chi Minh City", img:"https://images.unsplash.com/photo-1463453091185-61582044d556?auto=format&fit=crop&w=300&q=80"},
   {name:"Mina",            genre:"Deep House",    city:"Hanoi",            img:"https://images.unsplash.com/photo-1524502397800-2eeaad7c3fe5?auto=format&fit=crop&w=300&q=80"},
@@ -3102,7 +3111,10 @@ function setTimeFilter(t,el){
 function emptyRow(msg){return `<div class="no-events" style="min-width:260px"><div class="ne-ico">🎟</div><p>${msg}</p></div>`;}
 
 function renderTop10(){
-  const list=filteredEvents().slice(0,9);
+  // Exclude events already shown in spotlight banner
+  const list=filteredEvents().filter(e=>e.id!==44).slice(0,9);
+  const section=document.querySelector('.home-section');
+  if(section) section.style.display=list.length?'':'none';
   document.getElementById('top10Grid').innerHTML=list.length ? list.map((ev,i)=>`
     <div class="top10-card" onclick="openEvent(${ev.id})">
       ${ev.img?`<img src="${ev.img}" style="position:absolute;width:0;height:0;opacity:0;pointer-events:none" loading="lazy" onerror="${_top10Err}"/>`:''}
@@ -3116,10 +3128,37 @@ function renderTop10(){
   : `<div class="no-events" style="grid-column:1/-1"><div class="ne-ico">📍</div><h3>No events in ${filterCity}</h3><p>Check back soon.</p></div>`;
 }
 
+function openArtistProfile(name){
+  const all=[...ARTISTS,...LOCAL_ARTISTS];
+  const a=all.find(x=>x.name===name);
+  if(!a) return;
+  const paras=(a.bio||'').split('\n\n').map(p=>`<p style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:12px">${p}</p>`).join('');
+  document.getElementById('artistProfileContent').innerHTML=`
+    <div style="position:relative">
+      <img src="${a.img||''}" alt="${a.name}" style="width:100%;max-height:320px;object-fit:cover;object-position:top;display:${a.img?'block':'none'}"/>
+      <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.85) 0%,transparent 60%);${a.img?'':'display:none'}"></div>
+    </div>
+    <div style="padding:20px 24px 28px">
+      <div style="font-size:22px;font-weight:800;color:#fff;margin-bottom:4px">${a.name}</div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:16px">${a.genre}${a.city?' · '+a.city:''}</div>
+      ${paras}
+      ${a.instagram?`<a href="${a.instagram}" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#E1306C;color:#fff;font-weight:700;font-size:13px;padding:11px 22px;border-radius:100px;text-decoration:none;margin-top:4px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+        Follow on Instagram
+      </a>`:''}
+    </div>`;
+  openOverlay('artistProfileOverlay');
+}
+
 function _artistBubble(a,name,genre,img,grad,emoji){
   const followed=JSON.parse(localStorage.getItem('tn_followed')||'[]');
   const isF=followed.includes(name);
-  return`<div class="artist-bubble">
+  const ig=a&&a.instagram;
+  const hasBio=a&&a.bio;
+  const followBtn=ig
+    ?`<button class="artist-bubble-follow" onclick="event.stopPropagation();window.open('${ig}','_blank')" style="border:1px solid rgba(255,255,255,.25);background:transparent;color:var(--text)">Follow on IG</button>`
+    :`<button class="artist-bubble-follow" onclick="event.stopPropagation();toggleFollow('${name}',this)" style="border:1px solid ${isF?'transparent':'rgba(255,255,255,.25)'};background:${isF?'var(--green)':'transparent'};color:${isF?'#000':'var(--text)'}">${isF?'Following':'Follow'}</button>`;
+  return`<div class="artist-bubble" ${hasBio?`onclick="openArtistProfile('${name.replace(/'/g,"\\'")}')"`  :''} style="${hasBio?'cursor:pointer':''}">
     <div class="artist-bubble-photo">
       ${img
         ?`<img src="${img}" alt="${name}" loading="lazy" onerror="var c=this.closest('.artist-bubble');if(c)c.remove();"/>`
@@ -3128,7 +3167,7 @@ function _artistBubble(a,name,genre,img,grad,emoji){
     </div>
     <div class="artist-bubble-name">${name}</div>
     <div class="artist-bubble-genre">${genre}</div>
-    <button class="artist-bubble-follow" onclick="toggleFollow('${name}',this)" style="border:1px solid ${isF?'transparent':'rgba(255,255,255,.25)'};background:${isF?'var(--green)':'transparent'};color:${isF?'#000':'var(--text)'}">${isF?'Following':'Follow'}</button>
+    ${followBtn}
   </div>`;
 }
 
@@ -3266,7 +3305,7 @@ function renderArtistsPage(){
   document.getElementById('artistsGrid').innerHTML=list.map(a=>{
     const isF=followed.includes(a.name);
     const evCount=EVENTS.filter(e=>e.artist===a.name).length;
-    return`<div class="artist-pg-card">
+    return`<div class="artist-pg-card" ${a.bio?`onclick="openArtistProfile('${a.name.replace(/'/g,"\\'")}')"`  :''} style="${a.bio?'cursor:pointer':''}">
       <div class="artist-pg-avatar">
         ${a.img
           ?`<img src="${a.img}" alt="${a.name}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" loading="lazy" onerror="this.outerHTML='<div class=\\"artist-pg-avatar-inner evt-card-img ${a.grad||'grad-teal'}\\">${a.emoji||'🎵'}</div>'"/>`
@@ -3276,7 +3315,10 @@ function renderArtistsPage(){
       <div class="artist-pg-name">${a.name}</div>
       <div class="artist-pg-genre">${a.genre}${a.city?' · '+a.city:''}</div>
       <div class="artist-pg-events">${evCount?`🎟 ${evCount} upcoming event${evCount>1?'s':''}`:''}</div>
-      <button class="artist-pg-follow" onclick="toggleFollowPage('${a.name}')" style="border:1px solid ${isF?'transparent':'rgba(255,255,255,.25)'};background:${isF?'var(--green)':'transparent'};color:${isF?'#000':'var(--text)'}">${isF?'Following ✓':'Follow'}</button>
+      ${a.instagram
+        ?`<button class="artist-pg-follow" onclick="event.stopPropagation();window.open('${a.instagram}','_blank')" style="border:1px solid rgba(255,255,255,.25);background:transparent;color:var(--text)">Follow on IG</button>`
+        :`<button class="artist-pg-follow" onclick="event.stopPropagation();toggleFollowPage('${a.name}')" style="border:1px solid ${isF?'transparent':'rgba(255,255,255,.25)'};background:${isF?'var(--green)':'transparent'};color:${isF?'#000':'var(--text)'}">${isF?'Following ✓':'Follow'}</button>`
+      }
     </div>`;
   }).join('');
 }
