@@ -3091,7 +3091,7 @@ function filteredEvents(){
         const afterSun=new Date(sun);afterSun.setDate(sun.getDate()+1);
         if(eDate<sat||eDate>=afterSun) return false;
       } else if(filterTime==='month'){
-        if(eDate.getFullYear()!==today.getFullYear()||eDate.getMonth()!==today.getMonth()+1) return false;
+        if(eDate.getFullYear()!==today.getFullYear()||eDate.getMonth()!==today.getMonth()) return false;
       }
     }
     return true;
@@ -3207,8 +3207,8 @@ function renderRows(){
   const _next7=new Date(_now);_next7.setDate(_now.getDate()+7);
   const weekEvs=base.filter(e=>{const d=new Date(e.date);return d>=_now&&d<=_next7;});
   document.getElementById('weekRow').innerHTML=weekEvs.length ? weekEvs.map(wideCard).join('') : emptyRow('Nothing this week');
-  const fests=base.filter(e=>e.genre==='EDM'||e.attendees>3000);
-  document.getElementById('festRow').innerHTML=fests.length ? fests.map(wideCard).join('') : emptyRow('No festivals found');
+  const fests=base.filter(e=>e.featured||e.attendees>=100);
+  document.getElementById('festRow').innerHTML=fests.length ? fests.map(wideCard).join('') : emptyRow('No upcoming events');
 
   // Local Artists (second row — same data, shows more)
   const _la2=document.getElementById('localArtistRow2');
@@ -3576,7 +3576,7 @@ function switchCat(cat,el){
   window.scrollTo({top:0,behavior:'smooth'});
   // sync bottom tab bar
   document.querySelectorAll('.btab').forEach(b=>b.classList.remove('active'));
-  const btabMap={home:'btab-home',events:'btab-events',festivals:'btab-events',calendar:'btab-calendar'};
+  const btabMap={home:'btab-home',events:'btab-home',festivals:'btab-home',calendar:'btab-calendar'};
   const btEl=document.getElementById(btabMap[cat]);
   if(btEl) btEl.classList.add('active');
 }
@@ -3854,7 +3854,9 @@ function openEvent(id){
       ${ev.specialActs?`<div style="margin-top:10px;font-size:12px;color:var(--green);font-weight:600">✨ ${ev.specialActs}</div>`:''}
     </div>`:''}
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
-      <button class="btn btn-white" style="flex:1;min-width:140px" onclick="openTktModal(${ev.id})">🎟 Claim Your Place</button>
+      ${ev.soldOut
+        ? `<button class="btn btn-ghost" style="flex:1;min-width:140px;border-color:rgba(245,200,66,.3);color:#f5c842" onclick="openWaitlist(${ev.id})">📋 Join Waitlist</button>`
+        : `<button class="btn btn-white" style="flex:1;min-width:140px" onclick="openTktModal(${ev.id})">🎟 Claim Your Place</button>`}
       <button class="btn btn-ghost" style="flex:1;min-width:120px" onclick="window.open('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(ev.venue+', '+ev.city+', Vietnam'),'_blank')">📍 Directions</button>
       <button class="btn btn-ghost" style="padding:9px 14px" onclick="toggleFav(${ev.id})">♥</button>
     </div>
@@ -6262,6 +6264,7 @@ function claimDeal(){
   const name=(ni?.value||'').trim();
   if(!name){ if(ni)ni.focus(); toast('Please enter your name','err'); return; }
   const email=(ei?.value||'').trim();
+  if(!email||!email.includes('@')){ if(ei)ei.focus(); toast('Please enter a valid email to receive your QR','err'); return; }
   const phone=(pi?.value||'').trim();
   // Build personalised QR data: TONIGHT-DEAL:VENUE-SLUG|CODE|Name|Phone
   const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
