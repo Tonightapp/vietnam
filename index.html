@@ -2790,6 +2790,7 @@ function payLogos(size='sm'){
 
 // ── DATA ──
 const EVENTS=[
+  {id:45,title:"Afro Kulture Festival Vietnam", artist:"G.O.A.T Entertainment", genre:"Afrobeats", city:"Hanoi", area:"Tay Ho", venue:"Sala Nature Garden → Maya Fusion Bar → Vox Westlake Club", lat:21.0521,lng:105.8190, date:"2026-05-30", price:0, img:"images/afro-kulture-banner.jpg", imgDetail:"images/afro-kulture-vertical.jpg", emoji:"🌍", grad:"grad-gold", desc:"G.O.A.T Entertainment presents Afro Kulture Festival Vietnam — a full-day celebration of African culture, pool vibes and Afrobeats music across three iconic Tay Ho venues.\n\n1PM–7PM: Sala Nature Garden (9/154 D De Quai, Tu Lien, Tay Ho)\n9PM–Late: Maya Fusion Bar (27/52 To Ngoc Van, Tay Ho)\n11PM–Late: Vox Westlake Club (27/52 To Ngoc Van, Tay Ho)\n\nOfficial Partners: Hanoi Luxe, VOX Social Club, Maya, Afrobeats Vietnam.\n\nTickets & info: www.hanoiluxe.com/afrokulturefest", featured:true, soldOut:false, attendees:500, isNew:true, organizer:"G.O.A.T Entertainment", ticketUrl:"https://www.hanoiluxe.com/afrokulturefest"},
   {id:44,title:"Excursion x Wet Dynasty",  artist:"Rachel RM, Winnie Wakanda, Arixo + more", genre:"Themed Party", city:"Hanoi", area:"Red River", venue:"Red River Cruise, Hanoi", lat:21.0450,lng:105.8412, date:"2026-06-06", price:0, img:"images/excursion-wet-dynasty.jpg", emoji:"🛥",grad:"grad-pink", desc:"Electric Bazaar presents a river cruise party like no other — Excursion x Wet Dynasty sets sail on the Red River. Featuring DJ sets from Rachel RM, Winnie Wakanda, Arixo, Useph, Psyboost & Lamont, plus a spectacular Drag Show by Wet Dynasty. Hanoi's wildest night on the water.", featured:true, soldOut:false, attendees:800, isNew:true, lineup:["Rachel RM","Winnie Wakanda","Arixo","Useph","Psyboost","Lamont"], specialActs:"Drag Show by Wet Dynasty", organizer:"Electric Bazaar"},
 ];
 
@@ -3112,7 +3113,7 @@ function emptyRow(msg){return `<div class="no-events" style="min-width:260px"><d
 
 function renderTop10(){
   // Exclude events already shown in spotlight banner
-  const list=filteredEvents().filter(e=>e.id!==44).slice(0,9);
+  const list=filteredEvents().filter(e=>!e.featured).slice(0,9);
   const section=document.querySelector('.home-section');
   if(section) section.style.display=list.length?'':'none';
   document.getElementById('top10Grid').innerHTML=list.length ? list.map((ev,i)=>`
@@ -3228,30 +3229,33 @@ function renderRows(){
   document.getElementById('artistRow').innerHTML=ARTISTS.slice(0,5).map(a=>_artistBubble(a,a.name,a.genre,a.img,a.grad,a.emoji)).join('');
 }
 
-function renderSpotlight(){
-  const ev=EVENTS.find(e=>e.id===44);
-  const s=document.getElementById('spotlightSection');
-  if(!ev||!s) return;
+function _spotlightCard(ev){
   const lineupHtml=(ev.lineup||[]).map(a=>`<span style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:100px;padding:3px 12px;font-size:11px;font-weight:700;color:#fff;white-space:nowrap">${a}</span>`).join('');
-  s.innerHTML=`
-  <div onclick="openEvent(44)" style="cursor:pointer;border-radius:16px;overflow:hidden;position:relative;background:#000">
-    <img src="${ev.img}" alt="${ev.title}" style="width:100%;display:block;object-fit:cover;max-height:520px;opacity:.92"/>
+  return`<div onclick="openEvent(${ev.id})" style="cursor:pointer;border-radius:16px;overflow:hidden;position:relative;background:#000;margin-bottom:12px">
+    <img src="${ev.img}" alt="${ev.title}" style="width:100%;display:block;object-fit:cover;max-height:480px;opacity:.92"/>
     <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.88) 0%,rgba(0,0,0,.1) 55%,transparent 100%)"></div>
     <div style="position:absolute;top:14px;left:14px;display:flex;gap:8px;align-items:center">
       <span style="background:#ff3b5c;color:#fff;font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border-radius:100px">⭐ Featured</span>
-      <span style="background:rgba(0,0,0,.55);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#fff;font-size:10px;font-weight:700;letter-spacing:.5px;padding:5px 12px;border-radius:100px;border:1px solid rgba(255,255,255,.15)">Electric Bazaar</span>
+      ${ev.organizer?`<span style="background:rgba(0,0,0,.55);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#fff;font-size:10px;font-weight:700;letter-spacing:.5px;padding:5px 12px;border-radius:100px;border:1px solid rgba(255,255,255,.15)">${ev.organizer}</span>`:''}
     </div>
     <div style="position:absolute;bottom:0;left:0;right:0;padding:20px 20px 24px">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(32px,7vw,54px);line-height:.95;color:#fff;letter-spacing:1px;margin-bottom:10px">${ev.title}</div>
-      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px">
-        <span style="font-size:12px;color:rgba(255,255,255,.85);font-weight:500">📅 Sat 6 Jun 2026</span>
-        <span style="font-size:12px;color:rgba(255,255,255,.85);font-weight:500">📍 Red River Cruise · Hanoi</span>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,6vw,50px);line-height:.95;color:#fff;letter-spacing:1px;margin-bottom:10px">${ev.title}</div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:${lineupHtml?'12px':'16px'}">
+        <span style="font-size:12px;color:rgba(255,255,255,.85);font-weight:500">📅 ${fmt(ev.date)}</span>
+        <span style="font-size:12px;color:rgba(255,255,255,.85);font-weight:500">📍 ${ev.venue}</span>
       </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px">${lineupHtml}</div>
+      ${lineupHtml?`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px">${lineupHtml}</div>`:''}
       ${ev.specialActs?`<div style="font-size:12px;color:var(--green);font-weight:700;margin-bottom:16px">✨ ${ev.specialActs}</div>`:''}
-      <button onclick="event.stopPropagation();openEvent(44)" style="background:#fff;color:#000;font-weight:800;font-size:14px;border:none;border-radius:100px;padding:12px 28px;cursor:pointer;letter-spacing:-.2px">Explore Event →</button>
+      <button onclick="event.stopPropagation();openEvent(${ev.id})" style="background:#fff;color:#000;font-weight:800;font-size:14px;border:none;border-radius:100px;padding:12px 28px;cursor:pointer;letter-spacing:-.2px">Explore Event →</button>
     </div>
   </div>`;
+}
+function renderSpotlight(){
+  const s=document.getElementById('spotlightSection');
+  if(!s) return;
+  const featured=EVENTS.filter(e=>e.featured).sort((a,b)=>new Date(a.date)-new Date(b.date));
+  if(!featured.length){s.innerHTML='';return;}
+  s.innerHTML=featured.map(_spotlightCard).join('');
 }
 
 function renderAll(){renderSpotlight();renderTop10();renderRows();renderBrowse();}
@@ -3854,8 +3858,8 @@ function openEvent(id){
   const shareTitle=encodeURIComponent( ev.title+ ' on Tonight!');
   const shareCopy='Tonight \u2014 '+ev.title+' @ '+ev.venue;
   document.getElementById('evtBody').innerHTML=`
-    <div class="evt-modal-hero ${ev.grad}" style="${ev.img?'background:url(\''+ev.img+'\') center/cover no-repeat':''}" >
-      ${ev.img?'':'<div style="font-size:80px;position:relative;z-index:1">'+ev.emoji+'</div>'}
+    <div class="evt-modal-hero ${ev.grad}" style="${(ev.imgDetail||ev.img)?'background:url(\''+(ev.imgDetail||ev.img)+'\') center/cover no-repeat':''}">
+      ${(ev.imgDetail||ev.img)?'':'<div style="font-size:80px;position:relative;z-index:1">'+ev.emoji+'</div>'}
       <div class="ov"></div>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">
