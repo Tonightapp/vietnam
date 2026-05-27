@@ -1903,16 +1903,6 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
     <div class="scroll-row" id="venueHomeRow"></div>
   </div>
 
-  <!-- 10. POPULAR ARTISTS — Global stars -->
-  <div class="home-section">
-    <div class="section-head">
-      <h2>Popular Artists</h2>
-      <div class="see-all">
-        <a href="#" onclick="switchCat('artists',document.querySelectorAll('.cat-tab')[5])">All</a>
-      </div>
-    </div>
-    <div class="artist-row-centered" id="artistRow"></div>
-  </div>
 
 </div><!-- /container -->
 </div><!-- /homePage -->
@@ -2822,28 +2812,7 @@ const EVENTS=[
   {id:44,title:"Excursion x Wet Dynasty",  artist:"Rachel RM, Winnie Wakanda, Arixo + more", genre:"Themed Party", city:"Hanoi", area:"Red River", venue:"Red River Cruise, Hanoi", lat:21.0450,lng:105.8412, date:"2026-06-06", price:0, img:"images/excursion-wet-dynasty.jpg", emoji:"🛥",grad:"grad-pink", desc:"Electric Bazaar presents a river cruise party like no other — Excursion x Wet Dynasty sets sail on the Red River. Featuring DJ sets from Rachel RM, Winnie Wakanda, Arixo, Useph, Psyboost & Lamont, plus a spectacular Drag Show by Wet Dynasty. Hanoi's wildest night on the water.", featured:true, soldOut:false, attendees:150, isNew:true, lineup:["Rachel RM","Winnie Wakanda","Arixo","Useph","Psyboost","Lamont"], specialActs:"Drag Show by Wet Dynasty", organizer:"Electric Bazaar"},
 ];
 
-const ARTISTS=[
-  {name:"Adam Beyer",         genre:"Techno",        emoji:"🎛",grad:"grad-purple", img:"https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=300&q=80"},
-  {name:"Armin van Buuren",   genre:"Trance",        emoji:"✨",grad:"grad-blue",   img:"https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80"},
-  {name:"Charlotte de Witte", genre:"Techno",        emoji:"🖤",grad:"grad-pink",   img:"https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=300&q=80"},
-  {name:"Hardwell",           genre:"EDM",           emoji:"⚡",grad:"grad-orange", img:"https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=300&q=80"},
-  {name:"Nora En Pure",       genre:"Deep House",    emoji:"🌿",grad:"grad-teal",   img:"https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?auto=format&fit=crop&w=300&q=80"},
-  {name:"Jungle",             genre:"R&B / Funk",    emoji:"🌴",grad:"grad-gold",   img:"https://images.unsplash.com/photo-1529665253569-6d01c0eaf7b6?auto=format&fit=crop&w=300&q=80"},
-  {name:"Rick Ross",          genre:"Hip-Hop",       emoji:"🎤",grad:"grad-red",    img:"https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=300&q=80"},
-  {name:"The 1975",           genre:"Indie Rock",    emoji:"🎸",grad:"grad-indigo", img:"https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80"},
-  {name:"Martin Garrix",      genre:"EDM",           emoji:"⚡",grad:"grad-orange", img:"https://images.unsplash.com/photo-1463453091185-61582044d556?auto=format&fit=crop&w=300&q=80"},
-  {name:"Kygo",               genre:"Tropical House",emoji:"🌊",grad:"grad-cyan",   img:"https://images.unsplash.com/photo-1500048993953-d23a436266cf?auto=format&fit=crop&w=300&q=80"},
-  {name:"DJ Snake",           genre:"Trap / EDM",    emoji:"🐍",grad:"grad-rose",   img:"https://images.unsplash.com/photo-1489980557514-251d61e3eeb6?auto=format&fit=crop&w=300&q=80"},
-  {name:"Fisher",             genre:"Tech House",    emoji:"🦈",grad:"grad-teal",   img:"https://images.unsplash.com/photo-1520813792240-56fc4a3765a7?auto=format&fit=crop&w=300&q=80"},
-  {name:"Peggy Gou",          genre:"House",         emoji:"🌸",grad:"grad-pink",   img:"https://images.unsplash.com/photo-1524502397800-2eeaad7c3fe5?auto=format&fit=crop&w=300&q=80"},
-  {name:"Tale Of Us",         genre:"Melodic Techno",emoji:"🌙",grad:"grad-indigo", img:"https://images.unsplash.com/photo-1504257432389-52343af06ae3?auto=format&fit=crop&w=300&q=80"},
-  {name:"Black Coffee",       genre:"Afro House",    emoji:"☕",grad:"grad-gold",   img:"https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=300&q=80"},
-  {name:"Amelie Lens",        genre:"Techno",        emoji:"💿",grad:"grad-purple", img:"https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=300&q=80"},
-  {name:"Fred Again..",       genre:"House",         emoji:"🎹",grad:"grad-blue",   img:"https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80"},
-  {name:"John Summit",        genre:"Tech House",    emoji:"🔊",grad:"grad-orange", img:"https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=300&q=80"},
-  {name:"Bicep",              genre:"Electronic",    emoji:"🎶",grad:"grad-cyan",   img:"https://images.unsplash.com/photo-1529665253569-6d01c0eaf7b6?auto=format&fit=crop&w=300&q=80"},
-  {name:"Kaytranada",         genre:"Electronic",    emoji:"🎧",grad:"grad-rose",   img:"https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80"},
-];
+const ARTISTS=[];
 
 const LOCAL_ARTISTS=[
   {name:"DJ Useph",        genre:"House / Afrobeats",  city:"Hanoi",       img:"images/djuseph.jpg",    instagram:"https://www.instagram.com/useph0/"},
@@ -3235,8 +3204,6 @@ function renderRows(){
   // Local Artists
   document.getElementById('localArtistRow').innerHTML=LOCAL_ARTISTS.filter(a=>a.city==='Hanoi').map(a=>_artistBubble(a,a.name,a.genre,a.img,'grad-teal','🎵')).join('');
 
-  // Popular Artists (5, centered)
-  document.getElementById('artistRow').innerHTML=ARTISTS.slice(0,5).map(a=>_artistBubble(a,a.name,a.genre,a.img,a.grad,a.emoji)).join('');
 }
 
 let _spotIdx=0, _spotTimer=null;
