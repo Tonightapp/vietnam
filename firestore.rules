@@ -14,7 +14,8 @@ service cloud.firestore {
     }
 
     function getUserRole() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+      let userDoc = /databases/$(database)/documents/users/$(request.auth.uid);
+      return exists(userDoc) ? get(userDoc).data.role : null;
     }
 
     function isAdminEmail() {
@@ -36,7 +37,7 @@ service cloud.firestore {
       allow read: if isOwner(uid) || isStaff();
 
       allow create: if isOwner(uid)
-                    && request.resource.data.role == 'user'
+                    && request.resource.data.role in ['user', 'venue_owner', 'guest']
                     && request.resource.data.keys().hasAll(['email', 'fullName', 'role', 'createdAt']);
 
       allow update: if isOwner(uid)

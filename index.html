@@ -4363,7 +4363,32 @@ function togglePwVis(id,btn){
   btn.textContent=el.type==='password'?'👁':'🙈';
 }
 
-function socialIn(p){finishLogin(curUser&&curUser.name||'User',p);}
+async function socialIn(provider){
+  try{
+    const {GoogleAuthProvider,OAuthProvider,signInWithPopup}=await import(_FB_CDN+'/firebase-auth.js');
+    const fbAuth=await _getAuth();
+    let prov;
+    if(provider==='Google')    prov=new GoogleAuthProvider();
+    else if(provider==='Apple'){prov=new OAuthProvider('apple.com');prov.addScope('email');prov.addScope('name');}
+    else if(provider==='Microsoft'){prov=new OAuthProvider('microsoft.com');prov.addScope('email');}
+    else{toast('Unknown provider','err');return;}
+    const result=await signInWithPopup(fbAuth,prov);
+    const u=result.user;
+    const name=u.displayName||(u.email||'').split('@')[0];
+    const email=(u.email||'').toLowerCase();
+    const accs=_getAccounts();
+    if(!accs[email]){
+      const acc={name,email,password:_hashPw('_social_'+Math.random().toString(36).slice(2)),role:curRole||'guest',joinedAt:new Date().toISOString(),provider};
+      accs[email]=acc; _saveAccounts(accs);
+    }
+    curRole=accs[email].role||'guest';
+    finishLogin(name,provider,accs[email]);
+  }catch(e){
+    if(e.code==='auth/popup-closed-by-user'||e.code==='auth/cancelled-popup-request') return;
+    if(e.code==='auth/popup-blocked'){toast('Allow popups for this site then try again','err');return;}
+    toast(e.message||provider+' sign-in failed','err');
+  }
+}
 function doIn(){
   // Determine which tab is visible
   const isLogin=document.getElementById('lf').style.display!=='none';
@@ -6452,13 +6477,11 @@ async function _saveToFirestore(col,data){
   }catch(err){ console.warn('[Tonight Firebase]',err.message); return false; }
 }
 
-// ─── GOOGLE SIGN-IN ──────────────────────────────────────────────────────
-// To enable real Google OAuth:
-//   1. Go to console.cloud.google.com → APIs & Services → Credentials
-//   2. Create OAuth 2.0 Client ID → Web application
-//   3. Add https://tonightvietnam.com to Authorized JavaScript origins
-//   4. Paste the Client ID below
-const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
+// ─── SOCIAL SIGN-IN (Firebase popup — no external client IDs needed) ─────────
+// Requires Firebase Console → Authentication → Sign-in method:
+//   Google: enable (one click)
+//   Apple: requires Apple Developer account + Service ID
+//   Microsoft: requires Azure AD app registration
 
 // ── FORGOT PASSWORD ──
 function forgotPassword(){
@@ -6509,7 +6532,7 @@ async function submitProSignup(e){
     // 2. Create venue_requests doc (status: pending — staff must approve)
     await _saveToFirestore('venue_requests',{
       email, contactName:name, venueName:biz,
-      userId: cred.user.uid,
+      uid: cred.user.uid,
       status:'pending',
       source:'main-app-signup',
     });
@@ -6539,74 +6562,29 @@ async function submitProSignup(e){
 function openCommunity(){
   openOverlay('communityOverlay');
   animateCmCounter();
-  // Load Google Identity Services script lazily
-  if(GOOGLE_CLIENT_ID !== 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com' && !window._gisLoaded){
-    window._gisLoaded = true;
-    const s = document.createElement('script');
-    s.src = 'https://accounts.google.com/gsi/client';
-    s.async = true; s.defer = true;
-    document.head.appendChild(s);
-  }
 }
 
-function socialSignIn(provider){
-  if(provider === 'google') _googleSignIn();
-  else if(provider === 'microsoft') _msSignIn();
-  else if(provider === 'apple') _appleSignIn();
-}
-
-// ── Google One Tap / GIS ─────────────────────────────────────
-function _googleSignIn(){
-  if(GOOGLE_CLIENT_ID === 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com'){
-    // Client ID not yet configured — fall back to email prompt so sign-in still works
-    _socialEmailPrompt('google'); return;
-  }
-  if(!window.google){
-    toast('Loading Google sign-in…','ok');
-    const s = document.createElement('script');
-    s.src = 'https://accounts.google.com/gsi/client';
-    s.onload = ()=>_initGoogleSignIn();
-    document.head.appendChild(s);
-    return;
-  }
-  _initGoogleSignIn();
-}
-function _initGoogleSignIn(){
-  google.accounts.id.initialize({
-    client_id: GOOGLE_CLIENT_ID,
-    callback: _handleGoogleToken,
-    ux_mode: 'popup'
-  });
-  google.accounts.id.prompt(n=>{
-    if(n.isNotDisplayed() || n.isSkippedMoment()){
-      // Fallback to button render
-      const wrap = document.createElement('div');
-      wrap.style.display='none';
-      document.body.appendChild(wrap);
-      google.accounts.id.renderButton(wrap,{theme:'filled_black',size:'large'});
-      wrap.querySelector('[role=button]')?.click();
-      setTimeout(()=>wrap.remove(),3000);
-    }
-  });
-}
-function _handleGoogleToken(response){
+async function socialSignIn(provider){
   try{
-    // Decode JWT payload (no signature verification needed client-side)
-    const payload = JSON.parse(atob(response.credential.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
-    _prefillSocialForm(payload.name || '', payload.email || '', 'Google');
-  }catch(e){ toast('Could not read Google profile','err'); }
-}
-
-// ── Microsoft / Outlook ──────────────────────────────────────
-function _msSignIn(){
-  // Microsoft OAuth requires Azure AD app — use email prompt fallback
-  _socialEmailPrompt('microsoft');
-}
-
-// ── Apple / iCloud ───────────────────────────────────────────
-function _appleSignIn(){
-  // Apple Sign In requires Apple Developer Service ID — use email prompt fallback
-  _socialEmailPrompt('apple');
+    const {GoogleAuthProvider,OAuthProvider,signInWithPopup}=await import(_FB_CDN+'/firebase-auth.js');
+    const fbAuth=await _getAuth();
+    let prov;
+    if(provider==='google')        prov=new GoogleAuthProvider();
+    else if(provider==='apple')   {prov=new OAuthProvider('apple.com');prov.addScope('email');prov.addScope('name');}
+    else if(provider==='microsoft'){prov=new OAuthProvider('microsoft.com');prov.addScope('email');}
+    else{toast('Unknown provider','err');return;}
+    const result=await signInWithPopup(fbAuth,prov);
+    const u=result.user;
+    _prefillSocialForm(u.displayName||(u.email||'').split('@')[0], u.email||'', provider==='google'?'Google':provider==='apple'?'Apple':'Microsoft');
+  }catch(e){
+    if(e.code==='auth/popup-closed-by-user'||e.code==='auth/cancelled-popup-request') return;
+    if(e.code==='auth/popup-blocked'){toast('Allow popups for this site then try again','err');return;}
+    // Provider not enabled in Firebase Console — fall back to email prompt
+    if(e.code==='auth/operation-not-supported-in-this-environment'||e.code==='auth/unauthorized-domain'||e.code==='auth/internal-error'){
+      _socialEmailPrompt(provider); return;
+    }
+    toast(e.message||'Sign-in failed','err');
+  }
 }
 
 // Fallback: ask for email only, then prefill the form

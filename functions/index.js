@@ -419,7 +419,7 @@ exports.onGuestlistCreate = onDocumentCreated(
     <div style="font-size:12px;color:rgba(255,255,255,0.35);margin-top:10px">Show this QR at venue entry · Staff scans to check you in</div>
   </td></tr>
   <tr><td style="background:rgba(255,255,255,0.03);border-top:1px solid rgba(255,255,255,0.06);padding:18px 32px;text-align:center">
-    <div style="font-size:11px;color:rgba(255,255,255,0.25)">Free guestlist · Entry subject to venue confirmation<br/>
+    <div style="font-size:11px;color:rgba(255,255,255,0.25)">Guestlist registration · Entry subject to organiser confirmation<br/>
     <a href="https://tonightvietnam.com" style="color:rgba(255,255,255,0.35)">tonightvietnam.com</a></div>
   </td></tr>
 </table>
