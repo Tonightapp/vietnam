@@ -3313,8 +3313,10 @@ let _spotIdx=0, _spotTimer=null;
 function renderSpotlight(){
   const s=document.getElementById('spotlightSection');
   if(!s) return;
-  // Use explicit BANNER_IDS order — guarantees only hardcoded events appear, never Firestore duplicates
-  const featured=BANNER_IDS.map(id=>EVENTS.find(e=>e.id===id)).filter(Boolean);
+  // Try featured IDs first, then any event with featured:true, then first events with images
+  let featured=BANNER_IDS.map(id=>EVENTS.find(e=>String(e.id)===String(id))).filter(Boolean);
+  if(!featured.length) featured=EVENTS.filter(e=>e.featured&&e.img);
+  if(!featured.length) featured=EVENTS.filter(e=>e.img).slice(0,3);
   if(!featured.length){s.innerHTML='';return;}
   // Build single carousel container
   s.innerHTML=`
@@ -3351,7 +3353,9 @@ function renderSpotlight(){
   if(featured.length>1) _spotTimer=setInterval(()=>_spotGo((_spotIdx+1)%featured.length),3500);
 }
 function _spotGo(i){
-  const featured=BANNER_IDS.map(id=>EVENTS.find(e=>e.id===id)).filter(Boolean);
+  let featured=BANNER_IDS.map(id=>EVENTS.find(e=>String(e.id)===String(id))).filter(Boolean);
+  if(!featured.length) featured=EVENTS.filter(e=>e.featured&&e.img);
+  if(!featured.length) featured=EVENTS.filter(e=>e.img).slice(0,3);
   _spotIdx=i;
   const slides=document.getElementById('spotSlides');
   if(slides) slides.style.transform=`translateX(-${i*100}%)`;
