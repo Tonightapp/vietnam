@@ -1654,6 +1654,36 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
 .promoter-btn-follow.following{background:rgba(0,208,132,.12);border-color:rgba(0,208,132,.3);color:var(--green);}
 .promoter-btn-ig{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--text2);}
 .promoter-btn:hover{opacity:.8;}
+/* ── GDPR COOKIE BANNER ── */
+#gdprBanner{position:fixed;bottom:0;left:0;right:0;z-index:9999;background:rgba(10,11,20,.97);border-top:1px solid rgba(255,255,255,.1);padding:16px 20px calc(16px + env(safe-area-inset-bottom));backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);transform:translateY(100%);transition:transform .3s ease;pointer-events:none;}
+#gdprBanner.show{transform:translateY(0);pointer-events:all;}
+.gdpr-inner{max-width:860px;margin:0 auto;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.gdpr-icon{font-size:22px;flex-shrink:0;}
+.gdpr-text{flex:1;min-width:220px;}
+.gdpr-text strong{font-size:13px;font-weight:700;color:#fff;display:block;margin-bottom:2px;}
+.gdpr-text p{font-size:12px;color:var(--text3);margin:0;line-height:1.5;}
+.gdpr-text a{color:var(--text2);text-decoration:underline;}
+.gdpr-actions{display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap;}
+.gdpr-btn{padding:9px 18px;border-radius:10px;font-size:12px;font-weight:600;border:none;cursor:pointer;font-family:inherit;transition:.15s;white-space:nowrap;}
+.gdpr-btn-ess{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:var(--text2);}
+.gdpr-btn-ess:hover{background:rgba(255,255,255,.12);}
+.gdpr-btn-all{background:#f5c842;color:#000;}
+.gdpr-btn-all:hover{background:#ffe066;}
+.gdpr-btn-manage{background:none;border:none;color:var(--text3);font-size:11px;padding:4px 8px;cursor:pointer;font-family:inherit;text-decoration:underline;}
+/* Cookie prefs modal */
+#cookiePrefsOverlay{display:none;}
+#cookiePrefsOverlay.active{display:flex;}
+.cpref-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid var(--border);}
+.cpref-row:last-child{border-bottom:none;}
+.cpref-info strong{font-size:13px;color:#fff;display:block;margin-bottom:3px;}
+.cpref-info p{font-size:12px;color:var(--text3);margin:0;line-height:1.5;}
+.cpref-toggle{position:relative;width:42px;height:24px;flex-shrink:0;margin-top:2px;}
+.cpref-toggle input{opacity:0;width:0;height:0;position:absolute;}
+.cpref-toggle-track{position:absolute;inset:0;background:rgba(255,255,255,.12);border-radius:12px;cursor:pointer;transition:.2s;}
+.cpref-toggle input:checked+.cpref-toggle-track{background:#f5c842;}
+.cpref-toggle-track::after{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:3px;left:3px;transition:.2s;}
+.cpref-toggle input:checked+.cpref-toggle-track::after{transform:translateX(18px);}
+@media(max-width:640px){.gdpr-inner{flex-direction:column;align-items:flex-start;gap:12px;}.gdpr-actions{width:100%;}.gdpr-btn{flex:1;text-align:center;}}
 </style>
 </head>
 <body>
@@ -2465,6 +2495,14 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
       </div>
     </div>
     <div style="padding:20px 24px calc(24px + env(safe-area-inset-bottom))">
+      <div class="social-btns" style="margin-bottom:4px">
+        <button type="button" class="sbtn" onclick="socialSignUpPro('google')">
+          <span class="gicon"><svg width="14" height="14" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.5 1.2 8.9 3.2l6.6-6.6C35.5 2.5 30.1 0 24 0 14.6 0 6.6 5.4 2.5 13.3l7.7 6C12.1 13 17.6 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4 6.9-9.9 7.1-17z"/><path fill="#FBBC05" d="M10.2 28.7A14.5 14.5 0 019.5 24c0-1.6.3-3.2.7-4.7l-7.7-6A23.9 23.9 0 000 24c0 3.9.9 7.5 2.5 10.7l7.7-6z"/><path fill="#34A853" d="M24 48c6.1 0 11.2-2 14.9-5.4l-7.5-5.8c-2 1.4-4.6 2.2-7.4 2.2-6.4 0-11.9-3.5-13.8-8.4l-7.7 6C6.6 42.6 14.6 48 24 48z"/></svg></span>
+          Continue with Google
+        </button>
+        <button type="button" class="sbtn" onclick="socialSignUpPro('apple')"><span style="font-size:16px">🍎</span> Continue with Apple</button>
+      </div>
+      <div class="div-or">or sign up with email</div>
       <form onsubmit="submitProSignup(event)">
         <div class="fg"><label>Your Name <span class="cm-req">*</span></label><input class="fi" id="psName" type="text" placeholder="Full name" required autocomplete="name"/></div>
         <div class="fg"><label>Business / Venue Name <span class="cm-req">*</span></label><input class="fi" id="psBiz" type="text" placeholder="e.g. Sacred Garden, Kater Blau Hanoi" required/></div>
@@ -2497,6 +2535,14 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
       <div class="cm-counter" id="cmCounter"><span id="cmCount">847</span> members already in</div>
     </div>
     <form class="cm-form" id="communityForm" onsubmit="submitCommunity(event)" style="padding:0 24px 24px">
+      <div class="social-btns" style="margin-bottom:4px">
+        <button type="button" class="sbtn" onclick="socialSignUpCommunity('google')">
+          <span class="gicon"><svg width="14" height="14" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.5 1.2 8.9 3.2l6.6-6.6C35.5 2.5 30.1 0 24 0 14.6 0 6.6 5.4 2.5 13.3l7.7 6C12.1 13 17.6 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4 6.9-9.9 7.1-17z"/><path fill="#FBBC05" d="M10.2 28.7A14.5 14.5 0 019.5 24c0-1.6.3-3.2.7-4.7l-7.7-6A23.9 23.9 0 000 24c0 3.9.9 7.5 2.5 10.7l7.7-6z"/><path fill="#34A853" d="M24 48c6.1 0 11.2-2 14.9-5.4l-7.5-5.8c-2 1.4-4.6 2.2-7.4 2.2-6.4 0-11.9-3.5-13.8-8.4l-7.7 6C6.6 42.6 14.6 48 24 48z"/></svg></span>
+          Continue with Google
+        </button>
+        <button type="button" class="sbtn" onclick="socialSignUpCommunity('apple')"><span style="font-size:16px">🍎</span> Continue with Apple</button>
+      </div>
+      <div class="div-or">or sign up with email</div>
       <div class="cm-field">
         <label>Full Name <span class="cm-req">*</span></label>
         <input type="text" id="cmName" placeholder="Your full name" required autocomplete="name"/>
@@ -6524,15 +6570,23 @@ async function submitProSignup(e){
   btn.textContent = 'Creating account…';
 
   try {
-    // 1. Create Firebase Auth account (used to log into venue portal)
-    const {createUserWithEmailAndPassword} = await import(_FB_CDN+'/firebase-auth.js');
-    const auth = await _getAuth();
-    const cred = await createUserWithEmailAndPassword(auth, email, pass);
+    // 1. Get Firebase UID — from social sign-in if available, otherwise create account
+    let uid;
+    if(window._proSocialUid){
+      uid = window._proSocialUid;
+      window._proSocialUid = null;
+      window._proSocialProvider = null;
+    } else {
+      const {createUserWithEmailAndPassword} = await import(_FB_CDN+'/firebase-auth.js');
+      const auth = await _getAuth();
+      const cred = await createUserWithEmailAndPassword(auth, email, pass);
+      uid = cred.user.uid;
+    }
 
     // 2. Create venue_requests doc (status: pending — staff must approve)
     await _saveToFirestore('venue_requests',{
       email, contactName:name, venueName:biz,
-      uid: cred.user.uid,
+      uid,
       status:'pending',
       source:'main-app-signup',
     });
@@ -6910,6 +6964,112 @@ function ageFail(){
     }
   }
 })();
+
+// ── SOCIAL SIGN-UP: Community ─────────────────────────────────────────────────
+async function socialSignUpCommunity(provider){
+  try{
+    const {GoogleAuthProvider,OAuthProvider,signInWithPopup}=await import(_FB_CDN+'/firebase-auth.js');
+    const fbAuth=await _getAuth();
+    let prov;
+    if(provider==='google')    prov=new GoogleAuthProvider();
+    else if(provider==='apple'){prov=new OAuthProvider('apple.com');prov.addScope('email');prov.addScope('name');}
+    else return;
+    const result=await signInWithPopup(fbAuth,prov);
+    const u=result.user;
+    const name=u.displayName||(u.email||'').split('@')[0];
+    const email=(u.email||'').toLowerCase();
+    // Save to local accounts
+    const accs=_getAccounts();
+    if(!accs[email]){
+      accs[email]={name,email,password:_hashPw('_social_'+Math.random().toString(36).slice(2)),role:'guest',joinedAt:new Date().toISOString(),provider};
+      _saveAccounts(accs);
+    }
+    // Save to Firestore community list
+    try{ await _saveToFirestore('community_signups',{fullName:name,email,city:'',joinedAt:new Date().toISOString(),provider,source:'tonight-app'}); }catch(_){}
+    curRole=accs[email].role||'guest';
+    finishLogin(name,provider,accs[email]);
+    closeOverlay('communityOverlay');
+    toast('Welcome '+name.split(' ')[0]+'! You\'re in 🎉','ok');
+  }catch(e){
+    if(e.code==='auth/popup-closed-by-user'||e.code==='auth/cancelled-popup-request') return;
+    if(e.code==='auth/popup-blocked'){toast('Allow popups for this site then try again','err');return;}
+    toast(e.message||'Sign-in failed','err');
+  }
+}
+
+// ── SOCIAL SIGN-UP: Pro / Venue ───────────────────────────────────────────────
+async function socialSignUpPro(provider){
+  try{
+    const {GoogleAuthProvider,OAuthProvider,signInWithPopup}=await import(_FB_CDN+'/firebase-auth.js');
+    const fbAuth=await _getAuth();
+    let prov;
+    if(provider==='google')    prov=new GoogleAuthProvider();
+    else if(provider==='apple'){prov=new OAuthProvider('apple.com');prov.addScope('email');prov.addScope('name');}
+    else return;
+    const result=await signInWithPopup(fbAuth,prov);
+    const u=result.user;
+    const name=u.displayName||(u.email||'').split('@')[0];
+    const email=(u.email||'').toLowerCase();
+    // Pre-fill form
+    const nameEl=document.getElementById('psName');
+    const emailEl=document.getElementById('psEmail');
+    const passWrap=document.getElementById('psPassword')?.closest('.fg');
+    const consentEl=document.getElementById('psConsent');
+    if(nameEl){nameEl.value=name;nameEl.style.borderColor='rgba(0,208,132,.4)';}
+    if(emailEl){emailEl.value=email;emailEl.style.borderColor='rgba(0,208,132,.4)';}
+    if(passWrap) passWrap.style.display='none';
+    if(consentEl) consentEl.checked=true;
+    // Store uid so submitProSignup skips createUserWithEmailAndPassword
+    window._proSocialUid=u.uid;
+    window._proSocialProvider=provider;
+    const provLabel=provider==='google'?'Google':'Apple';
+    toast(`✓ ${provLabel} connected — enter your venue name and submit`,'ok');
+    const bizEl=document.getElementById('psBiz');
+    if(bizEl){bizEl.style.borderColor='rgba(245,200,66,.5)';setTimeout(()=>bizEl.focus(),200);}
+  }catch(e){
+    if(e.code==='auth/popup-closed-by-user'||e.code==='auth/cancelled-popup-request') return;
+    if(e.code==='auth/popup-blocked'){toast('Allow popups for this site then try again','err');return;}
+    toast(e.message||'Sign-in failed','err');
+  }
+}
+
+// ── GDPR / COOKIE CONSENT ─────────────────────────────────────────────────────
+function initGDPR(){
+  if(localStorage.getItem('tn_cookie_consent')) return;
+  setTimeout(()=>document.getElementById('gdprBanner')?.classList.add('show'),1200);
+}
+function setCookieConsent(type){
+  const prefs={essential:true,analytics:type==='all',marketing:type==='all',savedAt:new Date().toISOString()};
+  localStorage.setItem('tn_cookie_consent',JSON.stringify(prefs));
+  document.getElementById('gdprBanner')?.classList.remove('show');
+  if(type==='all') toast('Cookie preferences saved','ok');
+}
+function openCookiePrefs(){
+  document.getElementById('gdprBanner')?.classList.remove('show');
+  const saved=JSON.parse(localStorage.getItem('tn_cookie_consent')||'{}');
+  const ana=document.getElementById('cp_analytics');
+  const mkt=document.getElementById('cp_marketing');
+  if(ana) ana.checked=saved.analytics!==false;
+  if(mkt) mkt.checked=saved.marketing!==false;
+  document.getElementById('cookiePrefsOverlay')?.classList.add('active');
+}
+function closeCookiePrefs(){
+  document.getElementById('cookiePrefsOverlay')?.classList.remove('active');
+}
+function saveCookiePrefs(){
+  const prefs={
+    essential:true,
+    analytics:!!document.getElementById('cp_analytics')?.checked,
+    marketing:!!document.getElementById('cp_marketing')?.checked,
+    savedAt:new Date().toISOString()
+  };
+  localStorage.setItem('tn_cookie_consent',JSON.stringify(prefs));
+  closeCookiePrefs();
+  toast('Cookie preferences saved','ok');
+}
+
+// Init GDPR on load
+window.addEventListener('DOMContentLoaded',initGDPR);
 </script>
 
 <!-- ════ VENUE DETAIL MODAL ════ -->
@@ -6919,5 +7079,56 @@ function ageFail(){
     <div style="overflow-y:auto;max-height:calc(90vh - 56px);-webkit-overflow-scrolling:touch;overscroll-behavior:contain" id="venueModalBody"></div>
   </div>
 </div>
+
+<!-- ════ GDPR COOKIE BANNER ════ -->
+<div id="gdprBanner">
+  <div class="gdpr-inner">
+    <div class="gdpr-icon">🍪</div>
+    <div class="gdpr-text">
+      <strong>We use cookies</strong>
+      <p>We use essential cookies to run the app and optional analytics cookies to improve your experience. <a href="privacy.html" target="_blank">Privacy Policy</a> · <button class="gdpr-btn-manage" onclick="openCookiePrefs()">Manage preferences</button></p>
+    </div>
+    <div class="gdpr-actions">
+      <button class="gdpr-btn gdpr-btn-ess" onclick="setCookieConsent('essential')">Essential Only</button>
+      <button class="gdpr-btn gdpr-btn-all" onclick="setCookieConsent('all')">Accept All</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ COOKIE PREFERENCES MODAL ════ -->
+<div class="overlay" id="cookiePrefsOverlay">
+  <div class="modal" style="max-width:440px;padding:0;overflow:hidden">
+    <div class="mhead" style="padding:20px 24px"><h2 style="font-size:17px">Cookie Preferences</h2><button class="mclose" onclick="closeCookiePrefs()">✕</button></div>
+    <div style="padding:0 24px 8px;overflow-y:auto;max-height:60vh">
+      <p style="font-size:12px;color:var(--text3);margin-bottom:16px;line-height:1.6">Tonight uses cookies and local storage to provide core functionality and understand how users interact with the app. You can choose which categories to allow.</p>
+      <div class="cpref-row">
+        <div class="cpref-info">
+          <strong>Essential</strong>
+          <p>Session management, preferences, authentication. Required for the app to work.</p>
+        </div>
+        <label class="cpref-toggle"><input type="checkbox" id="cp_essential" checked disabled/><div class="cpref-toggle-track"></div></label>
+      </div>
+      <div class="cpref-row">
+        <div class="cpref-info">
+          <strong>Analytics</strong>
+          <p>Helps us understand how people use Tonight so we can improve the experience. No personal data sold.</p>
+        </div>
+        <label class="cpref-toggle"><input type="checkbox" id="cp_analytics"/><div class="cpref-toggle-track"></div></label>
+      </div>
+      <div class="cpref-row">
+        <div class="cpref-info">
+          <strong>Marketing</strong>
+          <p>Used to show relevant event promotions. We do not share data with third-party advertisers.</p>
+        </div>
+        <label class="cpref-toggle"><input type="checkbox" id="cp_marketing"/><div class="cpref-toggle-track"></div></label>
+      </div>
+    </div>
+    <div style="padding:16px 24px calc(20px + env(safe-area-inset-bottom));border-top:1px solid var(--border);display:flex;gap:10px">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeCookiePrefs()">Cancel</button>
+      <button class="fsub" style="flex:2;margin:0" onclick="saveCookiePrefs()">Save Preferences</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
