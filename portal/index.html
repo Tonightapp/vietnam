@@ -504,6 +504,10 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
 .ea-del.confirm{background:rgba(239,68,68,.1);color:var(--red);border-color:rgba(239,68,68,.3)}
 .ea-prio-up{background:rgba(59,130,246,.08);color:var(--blue);border-color:rgba(59,130,246,.2)}
 .ea-prio-up:hover{background:rgba(59,130,246,.2)}
+.ea-edit{background:rgba(59,130,246,.08);color:var(--blue);border-color:rgba(59,130,246,.2)}
+.ea-edit:hover{background:rgba(59,130,246,.2)}
+.ea-unblock{background:rgba(34,197,94,.08);color:var(--green);border-color:rgba(34,197,94,.2)}
+.ea-unblock:hover{background:rgba(34,197,94,.2)}
 
 /* ─── FIREBASE SETUP PROMPT ──────────────────────────────── */
 #setup-prompt{
@@ -762,9 +766,10 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
               <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
               <input type="text" placeholder="Search name, email or role…" oninput="filterMembers(this.value)" id="member-search"/>
             </div>
+            <div class="filter-tabs" id="member-filter-tabs" style="margin-left:auto"></div>
           </div>
           <table class="data-table">
-            <thead><tr><th>Member</th><th>Email</th><th>Role</th><th>Joined</th></tr></thead>
+            <thead><tr><th>Member</th><th>Email</th><th>Role</th><th>Source</th><th>Joined</th><th>Actions</th></tr></thead>
             <tbody id="members-body"></tbody>
           </table>
         </div>
@@ -816,7 +821,7 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
       <div id="add-event-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;overflow-y:auto;padding:24px 16px">
         <div style="max-width:560px;margin:0 auto;background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:28px 24px">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
-            <div style="font-size:18px;font-weight:800;color:#fff">Add Event</div>
+            <div id="ae-modal-title" style="font-size:18px;font-weight:800;color:#fff">Add Event</div>
             <button onclick="closeAddEvent()" style="background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer">✕</button>
           </div>
           <form id="add-event-form" onsubmit="submitAddEvent(event)" style="display:flex;flex-direction:column;gap:14px">
@@ -888,9 +893,29 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
               <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Special Acts (optional)</label>
               <input id="ae-special" type="text" placeholder="e.g. Drag Show by Wet Dynasty" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/>
             </div>
-            <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
-              <input type="checkbox" id="ae-featured" style="width:16px;height:16px;accent-color:var(--gold)"/>
-              <label for="ae-featured" style="font-size:13px;color:var(--text2);cursor:pointer">Mark as Featured</label>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div>
+                <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Area / Neighborhood</label>
+                <input id="ae-area" type="text" placeholder="e.g. Tay Ho, Old Quarter" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/>
+              </div>
+              <div>
+                <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Organizer</label>
+                <input id="ae-organizer" type="text" placeholder="e.g. G.O.A.T Entertainment" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/>
+              </div>
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Ticket URL (optional)</label>
+              <input id="ae-ticketurl" type="url" placeholder="https://..." style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/>
+            </div>
+            <div style="display:flex;gap:24px;margin-top:4px">
+              <div style="display:flex;align-items:center;gap:10px">
+                <input type="checkbox" id="ae-featured" style="width:16px;height:16px;accent-color:var(--gold)"/>
+                <label for="ae-featured" style="font-size:13px;color:var(--text2);cursor:pointer">Mark as Featured</label>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px">
+                <input type="checkbox" id="ae-soldout" style="width:16px;height:16px;accent-color:var(--red)"/>
+                <label for="ae-soldout" style="font-size:13px;color:var(--text2);cursor:pointer">Sold Out</label>
+              </div>
             </div>
             <button type="submit" id="ae-submit-btn" style="width:100%;padding:14px;background:var(--green);color:#000;font-weight:700;font-size:15px;border:none;border-radius:10px;cursor:pointer;margin-top:4px">Publish Event →</button>
           </form>
@@ -965,11 +990,14 @@ const auth = getAuth(app);
 const db   = getFirestore(app);
 
 // ── STATE ─────────────────────────────────────────────────
-let allMembers  = [];
-let allRequests = [];
-let allEvents   = [];
-let venueFilter = 'pending';
-let unsubs      = [];
+let allMembers   = [];
+let allUsers     = [];
+let allRequests  = [];
+let allEvents    = [];
+let venueFilter  = 'pending';
+let memberFilter = 'all';
+let editingEventId = null;
+let unsubs       = [];
 
 // ── AUTH ──────────────────────────────────────────────────
 onAuthStateChanged(auth, async user => {
@@ -1050,6 +1078,12 @@ function subscribeAll() {
       renderNewSignups();
       renderMembersTable(document.getElementById('member-search')?.value || '');
     }),
+    onSnapshot(query(collection(db,'users'), orderBy('createdAt','desc')), snap => {
+      allUsers = snap.docs.map(d => ({id:d.id,...d.data()}));
+      renderStats();
+      renderNewSignups();
+      renderMembersTable(document.getElementById('member-search')?.value || '');
+    }),
     onSnapshot(query(collection(db,'venue_requests'), orderBy('createdAt','desc')), snap => {
       allRequests = snap.docs.map(d => ({id:d.id,...d.data()}));
       renderStats();
@@ -1068,10 +1102,14 @@ function subscribeAll() {
 // ── STATS ─────────────────────────────────────────────────
 function renderStats() {
   const weekAgo = Date.now() - 7*24*60*60*1000;
-  const newThisWeek = allMembers.filter(m => m.createdAt?.toMillis?.() > weekAgo).length;
-  const pending     = allRequests.filter(r => r.status === 'pending').length;
+  const unified = getUnifiedMembers();
+  const newThisWeek = unified.filter(m => {
+    const ms = m.createdAt?.toMillis?.() || m.createdAt?.seconds*1000 || 0;
+    return ms > weekAgo;
+  }).length;
+  const pending = allRequests.filter(r => r.status === 'pending').length;
 
-  document.getElementById('s-members').textContent   = allMembers.length;
+  document.getElementById('s-members').textContent   = unified.length;
   document.getElementById('s-week').textContent       = newThisWeek;
   document.getElementById('s-week-label').textContent = `+${newThisWeek} this week`;
   document.getElementById('s-events').textContent     = allEvents.filter(e => e.status === 'approved').length;
@@ -1113,39 +1151,109 @@ function renderBars() {
   `).join('')}</div>`;
 }
 
+// ── UNIFIED MEMBERS HELPER ───────────────────────────────
+function getUnifiedMembers() {
+  const byEmail = new Map();
+  allUsers.forEach(u => {
+    const email = (u.email||'').toLowerCase();
+    if (!email) return;
+    byEmail.set(email, {
+      id:u.id, email:u.email,
+      name: u.fullName||u.name||email.split('@')[0],
+      role: u.role||'user', createdAt:u.createdAt,
+      blocked:u.blocked||false, source:'app', collection:'users'
+    });
+  });
+  allMembers.forEach(m => {
+    const email = (m.email||'').toLowerCase();
+    if (!email) return;
+    if (!byEmail.has(email)) {
+      byEmail.set(email, {
+        id:m.id, email:m.email,
+        name: m.fullName||m.full_name||email.split('@')[0],
+        role: m.role||'user', createdAt:m.createdAt,
+        blocked:m.blocked||false, source:'community', collection:'community_signups'
+      });
+    }
+  });
+  return [...byEmail.values()].sort((a,b) => {
+    const ta = a.createdAt?.toMillis?.() || a.createdAt?.seconds*1000 || 0;
+    const tb = b.createdAt?.toMillis?.() || b.createdAt?.seconds*1000 || 0;
+    return tb - ta;
+  });
+}
+
 // ── NEW SIGN-UPS (overview) ───────────────────────────────
 function renderNewSignups() {
-  const recent = allMembers.slice(0,8);
-  document.getElementById('new-signups-count').textContent = allMembers.length;
+  const unified = getUnifiedMembers();
+  document.getElementById('new-signups-count').textContent = unified.length;
   const tbody = document.getElementById('new-signups-body');
+  const recent = unified.slice(0,8);
   if (!recent.length) { tbody.innerHTML = `<tr><td colspan="4"><div class="empty"><div class="empty-icon">👤</div><div class="empty-title">No members yet</div></div></td></tr>`; return; }
-  tbody.innerHTML = recent.map(m => memberRow(m)).join('');
+  tbody.innerHTML = recent.map(m => memberRow(m, true)).join('');
 }
 
 // ── MEMBERS TABLE ─────────────────────────────────────────
-window.filterMembers = function(q) {
-  const ql = q.toLowerCase();
-  const filtered = ql
-    ? allMembers.filter(m => (m.fullName||m.full_name||'').toLowerCase().includes(ql) || (m.email||'').toLowerCase().includes(ql) || (m.role||'').includes(ql))
-    : allMembers;
-  document.getElementById('all-members-count').textContent = filtered.length;
-  document.getElementById('members-body').innerHTML = filtered.map(m => memberRow(m)).join('') || emptyRow('No results found','🔍');
-};
+window.filterMembers = function(q) { renderMembersTable(q); };
+window.setMF = function(f) { memberFilter=f; renderMembersTable(document.getElementById('member-search')?.value||''); };
 
-function renderMembersTable(q) {
-  document.getElementById('all-members-count').textContent = allMembers.length;
-  filterMembers(q);
+function renderMembersTable(q='') {
+  const all = getUnifiedMembers();
+  const counts = {
+    all:all.length,
+    app:all.filter(m=>m.source==='app').length,
+    community:all.filter(m=>m.source==='community').length,
+    blocked:all.filter(m=>m.blocked).length,
+  };
+  document.getElementById('member-filter-tabs').innerHTML = [
+    ['all','All',counts.all],
+    ['app','App Users',counts.app],
+    ['community','Community',counts.community],
+    ['blocked','Blocked',counts.blocked],
+  ].map(([f,label,n]) =>
+    `<button class="ftab ${memberFilter===f?'on-approved':''}" onclick="setMF('${f}')">
+      ${label}${n>0?`<span class="ftab-count">${n}</span>`:''}
+    </button>`
+  ).join('');
+  let filtered = all;
+  if (memberFilter==='app')       filtered = all.filter(m=>m.source==='app');
+  else if (memberFilter==='community') filtered = all.filter(m=>m.source==='community');
+  else if (memberFilter==='blocked')   filtered = all.filter(m=>m.blocked);
+  if (q) {
+    const ql=q.toLowerCase();
+    filtered=filtered.filter(m=>(m.name||'').toLowerCase().includes(ql)||(m.email||'').toLowerCase().includes(ql)||(m.role||'').toLowerCase().includes(ql));
+  }
+  document.getElementById('all-members-count').textContent = filtered.length;
+  document.getElementById('members-body').innerHTML = filtered.length
+    ? filtered.map(m=>memberRow(m,false)).join('')
+    : `<tr><td colspan="6"><div class="empty"><div class="empty-icon">👤</div><div class="empty-title">No members found</div></div></td></tr>`;
 }
 
-function memberRow(m) {
-  const name  = esc(m.fullName || m.full_name || m.email?.split('@')[0] || 'Unknown');
-  const email = esc(m.email || '—');
-  const role  = m.role || 'user';
-  return `<tr>
-    <td><div class="name-cell"><div class="av av-${role}">${name[0].toUpperCase()}</div><span class="td-name">${name}</span></div></td>
+function memberRow(m, compact=false) {
+  const name  = esc(m.name||'Unknown');
+  const email = esc(m.email||'—');
+  const role  = m.role||'user';
+  const srcBadge = m.source==='app'
+    ? `<span style="font-size:9px;background:rgba(59,130,246,.12);color:var(--blue);border:1px solid rgba(59,130,246,.2);border-radius:4px;padding:1px 6px;font-weight:700">APP</span>`
+    : `<span style="font-size:9px;background:rgba(168,85,247,.1);color:var(--purple);border:1px solid rgba(168,85,247,.2);border-radius:4px;padding:1px 6px;font-weight:700">LIST</span>`;
+  const blockedTag = m.blocked?`<span style="font-size:9px;background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.2);border-radius:4px;padding:1px 6px;font-weight:700;margin-left:4px">BLOCKED</span>`:'';
+  if (compact) return `<tr>
+    <td><div class="name-cell"><div class="av av-${role}">${name[0].toUpperCase()}</div><span class="td-name">${name}${blockedTag}</span></div></td>
     <td class="td-mono">${email}</td>
     <td><span class="role-pill role-${role}">${role}</span></td>
     <td class="td-muted">${timeAgo(m.createdAt)}</td>
+  </tr>`;
+  const blockBtn = m.blocked
+    ? `<button class="ea-btn ea-unblock" onclick="unblockMember('${m.id}','${m.collection}','${name}')">Unblock</button>`
+    : `<button class="ea-btn ea-reject"  onclick="blockMember('${m.id}','${m.collection}','${name}')">Block</button>`;
+  const delBtn = `<button class="ea-btn ea-del" onclick="deleteMember('${m.id}','${m.collection}','${name}')">🗑</button>`;
+  return `<tr style="${m.blocked?'opacity:.55':''}">
+    <td><div class="name-cell"><div class="av av-${role}">${name[0].toUpperCase()}</div><span class="td-name">${name}${blockedTag}</span></div></td>
+    <td class="td-mono">${email}</td>
+    <td><span class="role-pill role-${role}">${role}</span></td>
+    <td>${srcBadge}</td>
+    <td class="td-muted">${timeAgo(m.createdAt)}</td>
+    <td><div class="action-cell">${blockBtn}${delBtn}</div></td>
   </tr>`;
 }
 
@@ -1181,12 +1289,23 @@ function renderVenueList() {
 function venueRow(r) {
   const name  = esc(r.fullName || r.full_name || '—');
   const venue = esc(r.venueName || r.venue_name || '—');
-  const actions = r.status === 'pending'
-    ? `<div class="action-cell">
-        <button class="btn btn-reject"  onclick="rejectVenue('${r.id}','${name}')">Reject</button>
-        <button class="btn btn-approve" onclick="approveVenue('${r.id}','${r.userId||r.user_id||''}','${name}')">Approve</button>
-       </div>`
-    : `<span class="td-muted">${timeAgo(r.reviewedAt)}</span>`;
+  let actions = '';
+  if (r.status === 'pending') {
+    actions = `<div class="action-cell">
+      <button class="btn btn-reject"  onclick="rejectVenue('${r.id}','${name}')">Reject</button>
+      <button class="btn btn-approve" onclick="approveVenue('${r.id}','${r.userId||r.user_id||''}','${name}')">Approve</button>
+    </div>`;
+  } else if (r.status === 'rejected') {
+    actions = `<div class="action-cell">
+      <button class="btn" style="background:rgba(59,130,246,.1);color:var(--blue);border:1px solid rgba(59,130,246,.2);padding:6px 12px;font-size:12px" onclick="reOpenVenue('${r.id}','${name}')">Re-open</button>
+      <button class="btn btn-reject" style="font-size:11px" onclick="deleteVenueRequest('${r.id}','${name}')">Delete</button>
+    </div>`;
+  } else {
+    actions = `<div class="action-cell">
+      <span class="td-muted">${timeAgo(r.reviewedAt)}</span>
+      <button class="btn btn-reject" style="font-size:11px;padding:5px 8px" onclick="deleteVenueRequest('${r.id}','${name}')">Delete</button>
+    </div>`;
+  }
   return `<tr>
     <td><div class="name-cell"><div class="av av-user">${name[0].toUpperCase()}</div><div><div class="td-name">${name}</div><div class="td-muted">${esc(r.email||'')}</div></div></div></td>
     <td class="td-name">${venue}</td>
@@ -1211,6 +1330,45 @@ window.rejectVenue = async function(reqId, name) {
   try {
     await updateDoc(doc(db,'venue_requests',reqId), { status:'rejected', reviewedAt: serverTimestamp() });
     toast(`Request from ${name} rejected`);
+  } catch(e) { toast(`Error: ${e.message}`); }
+};
+
+window.reOpenVenue = async function(reqId, name) {
+  try {
+    await updateDoc(doc(db,'venue_requests',reqId), { status:'pending', reviewedAt: null });
+    toast(`${name}'s application re-opened for review`);
+  } catch(e) { toast(`Error: ${e.message}`); }
+};
+
+window.deleteVenueRequest = async function(reqId, name) {
+  if (!confirm(`Delete application from ${name}? This cannot be undone.`)) return;
+  try {
+    await deleteDoc(doc(db,'venue_requests',reqId));
+    toast(`Application deleted`);
+  } catch(e) { toast(`Error: ${e.message}`); }
+};
+
+// ── MEMBER ACTIONS ────────────────────────────────────────
+window.blockMember = async function(id, coll, name) {
+  if (!confirm(`Block ${name}? They will be flagged in the system.`)) return;
+  try {
+    await updateDoc(doc(db,coll,id), { blocked:true });
+    toast(`${name} blocked`);
+  } catch(e) { toast(`Error: ${e.message}`); }
+};
+
+window.unblockMember = async function(id, coll, name) {
+  try {
+    await updateDoc(doc(db,coll,id), { blocked:false });
+    toast(`${name} unblocked`);
+  } catch(e) { toast(`Error: ${e.message}`); }
+};
+
+window.deleteMember = async function(id, coll, name) {
+  if (!confirm(`Permanently delete ${name}? This cannot be undone.`)) return;
+  try {
+    await deleteDoc(doc(db,coll,id));
+    toast(`${name} deleted`);
   } catch(e) { toast(`Error: ${e.message}`); }
 };
 
@@ -1328,6 +1486,7 @@ function eventCard(e) {
     </div>
     <div class="evt-actions">
       ${approveRejectBtns}
+      <button class="ea-btn ea-edit" onclick="openEditEvent('${e.id}')" title="Edit">✏</button>
       <button class="ea-btn ea-feat${isFeat?' on':''}" onclick="toggleFeatured('${e.id}',${isFeat})" title="${isFeat?'Unfeature':'Feature'}">⭐</button>
       <button class="ea-btn ${delClass}" onclick="deleteEvent('${e.id}','${title}')">${delLabel}</button>
     </div>
@@ -1388,46 +1547,85 @@ window.deleteEvent = async function(eventId, title) {
   } catch(e) { toast(`Error: ${e.message}`); }
 };
 
-// ── ADD EVENT (admin direct publish) ─────────────────────
+// ── ADD / EDIT EVENT ──────────────────────────────────────
 window.openAddEvent = function() {
+  editingEventId = null;
+  document.getElementById('ae-modal-title').textContent = 'Add Event';
+  document.getElementById('ae-submit-btn').textContent = 'Publish Event →';
+  document.getElementById('add-event-form').reset();
   document.getElementById('add-event-modal').style.display = 'block';
 };
 window.closeAddEvent = function() {
   document.getElementById('add-event-modal').style.display = 'none';
   document.getElementById('add-event-form').reset();
+  editingEventId = null;
 };
+
+window.openEditEvent = function(eventId) {
+  const ev = allEvents.find(e => e.id === eventId);
+  if (!ev) return;
+  editingEventId = eventId;
+  document.getElementById('ae-title').value     = ev.title||'';
+  document.getElementById('ae-venue').value     = ev.venueName||ev.venue||'';
+  document.getElementById('ae-city').value      = ev.city||'';
+  document.getElementById('ae-genre').value     = ev.genre||'House';
+  document.getElementById('ae-date').value      = ev.date||'';
+  document.getElementById('ae-time').value      = ev.time||'';
+  document.getElementById('ae-price').value     = ev.price||0;
+  document.getElementById('ae-emoji').value     = ev.emoji||'🎵';
+  document.getElementById('ae-img').value       = ev.img||'';
+  document.getElementById('ae-desc').value      = ev.description||ev.desc||'';
+  document.getElementById('ae-lineup').value    = (ev.lineup||[]).join('\n');
+  document.getElementById('ae-special').value   = ev.specialActs||'';
+  document.getElementById('ae-area').value      = ev.area||'';
+  document.getElementById('ae-organizer').value = ev.organizer||'';
+  document.getElementById('ae-ticketurl').value = ev.ticketUrl||'';
+  document.getElementById('ae-featured').checked = !!ev.featured;
+  document.getElementById('ae-soldout').checked   = !!ev.soldOut;
+  document.getElementById('ae-modal-title').textContent = 'Edit Event';
+  document.getElementById('ae-submit-btn').textContent = 'Save Changes →';
+  document.getElementById('add-event-modal').style.display = 'block';
+};
+
 window.submitAddEvent = async function(e) {
   e.preventDefault();
   const btn = document.getElementById('ae-submit-btn');
-  btn.disabled = true; btn.textContent = 'Publishing…';
+  btn.disabled = true; btn.textContent = editingEventId ? 'Saving…' : 'Publishing…';
+  const data = {
+    title:       document.getElementById('ae-title').value.trim(),
+    venueName:   document.getElementById('ae-venue').value.trim(),
+    city:        document.getElementById('ae-city').value,
+    genre:       document.getElementById('ae-genre').value,
+    date:        document.getElementById('ae-date').value,
+    time:        document.getElementById('ae-time').value.trim(),
+    price:       parseInt(document.getElementById('ae-price').value)||0,
+    emoji:       document.getElementById('ae-emoji').value.trim()||'🎵',
+    img:         document.getElementById('ae-img').value.trim(),
+    description: document.getElementById('ae-desc').value.trim(),
+    lineup:      document.getElementById('ae-lineup').value.trim().split('\n').map(s=>s.trim()).filter(Boolean),
+    specialActs: document.getElementById('ae-special').value.trim(),
+    area:        document.getElementById('ae-area').value.trim(),
+    organizer:   document.getElementById('ae-organizer').value.trim(),
+    ticketUrl:   document.getElementById('ae-ticketurl').value.trim(),
+    featured:    document.getElementById('ae-featured').checked,
+    soldOut:     document.getElementById('ae-soldout').checked,
+  };
   try {
-    await addDoc(collection(db, 'events'), {
-      title:       document.getElementById('ae-title').value.trim(),
-      venueName:   document.getElementById('ae-venue').value.trim(),
-      city:        document.getElementById('ae-city').value,
-      genre:       document.getElementById('ae-genre').value,
-      date:        document.getElementById('ae-date').value,
-      time:        document.getElementById('ae-time').value.trim(),
-      price:       parseInt(document.getElementById('ae-price').value) || 0,
-      emoji:       document.getElementById('ae-emoji').value.trim() || '🎵',
-      img:         document.getElementById('ae-img').value.trim(),
-      description: document.getElementById('ae-desc').value.trim(),
-      lineup:      document.getElementById('ae-lineup').value.trim().split('\n').map(s=>s.trim()).filter(Boolean),
-      specialActs: document.getElementById('ae-special').value.trim(),
-      featured:    document.getElementById('ae-featured').checked,
-      status:      'approved',
-      emailSent:   false,
-      reminderSent:false,
-      isNew:       true,
-      source:      'admin-portal',
-      createdAt:   serverTimestamp(),
-      approvedAt:  serverTimestamp(),
-    });
-    toast('✅ Event published — live on Tonight now');
+    if (editingEventId) {
+      await updateDoc(doc(db,'events',editingEventId), {...data, updatedAt:serverTimestamp()});
+      toast('✅ Event updated');
+    } else {
+      await addDoc(collection(db,'events'), {
+        ...data, status:'approved', emailSent:false, reminderSent:false,
+        isNew:true, source:'admin-portal',
+        createdAt:serverTimestamp(), approvedAt:serverTimestamp(),
+      });
+      toast('✅ Event published — live on Tonight now');
+    }
     closeAddEvent();
   } catch(err) {
     toast(`Error: ${err.message}`);
-    btn.disabled = false; btn.textContent = 'Publish Event →';
+    btn.disabled=false; btn.textContent = editingEventId?'Save Changes →':'Publish Event →';
   }
 };
 

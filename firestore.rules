@@ -40,8 +40,8 @@ service cloud.firestore {
                     && request.resource.data.role in ['user', 'venue_owner', 'guest']
                     && request.resource.data.keys().hasAll(['email', 'fullName', 'role', 'createdAt']);
 
-      allow update: if isOwner(uid)
-                    && request.resource.data.role == resource.data.role;
+      allow update: if (isOwner(uid) && request.resource.data.role == resource.data.role)
+                    || isStaff();
 
       allow delete: if isStaff();
     }
