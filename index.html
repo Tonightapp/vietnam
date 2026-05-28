@@ -534,7 +534,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
   }
 }
 /* Defer rendering of off-screen content sections */
-#browsePage,#calPage,#venuesPage,#artistsPage,#magazinePage,
+#browsePage,#calPage,#venuesPage,#artistsPage,#magazinePage,#promotersPage,
 .uv-section,.business-section,.footer-wrap{
   content-visibility:auto;
   contain-intrinsic-size:0 600px;
@@ -1630,9 +1630,30 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
   .footer-wrap{display:none;}
 
   /* ── PAGE BACKGROUNDS ── */
-  #browsePage,#calPage,#venuesPage,#artistsPage,#magazinePage,
+  #browsePage,#calPage,#venuesPage,#artistsPage,#magazinePage,#promotersPage,
   #festPage,#businessPage{background:#000;}
 }
+/* ── PROMOTERS PAGE ── */
+.promo-page-wrap{padding:24px 0 80px;}
+.promo-page-head{margin-bottom:20px;}
+.promo-page-head h2{font-size:22px;font-weight:800;color:#fff;margin-bottom:4px;}
+.promo-page-head p{font-size:13px;color:var(--text3);font-weight:300;}
+.promoter-list{display:flex;flex-direction:column;gap:14px;}
+.promoter-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:16px;display:flex;align-items:flex-start;gap:14px;}
+.promoter-avatar{width:56px;height:56px;border-radius:14px;overflow:hidden;flex-shrink:0;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:22px;}
+.promoter-avatar img{width:100%;height:100%;object-fit:cover;}
+.promoter-info{flex:1;min-width:0;}
+.promoter-name{font-size:15px;font-weight:700;color:#fff;margin-bottom:2px;}
+.promoter-meta{font-size:11px;color:var(--text3);margin-bottom:6px;}
+.promoter-bio{font-size:12px;color:var(--text2);line-height:1.5;margin-bottom:10px;}
+.promoter-genres{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
+.promoter-genre-tag{background:rgba(245,200,66,.1);border:1px solid rgba(245,200,66,.2);border-radius:20px;padding:2px 9px;font-size:10px;font-weight:600;color:var(--gold);letter-spacing:.3px;}
+.promoter-actions{display:flex;gap:8px;}
+.promoter-btn{padding:7px 14px;border-radius:10px;font-size:12px;font-weight:600;border:none;cursor:pointer;font-family:inherit;transition:.15s;}
+.promoter-btn-follow{background:rgba(245,200,66,.12);border:1px solid rgba(245,200,66,.25);color:var(--gold);}
+.promoter-btn-follow.following{background:rgba(0,208,132,.12);border-color:rgba(0,208,132,.3);color:var(--green);}
+.promoter-btn-ig{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--text2);}
+.promoter-btn:hover{opacity:.8;}
 </style>
 </head>
 <body>
@@ -1712,6 +1733,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
       <div class="cat-tab" onclick="switchCat('festivals',this)">Festivals</div>
       <div class="cat-tab" onclick="switchCat('artists',this)">Artists</div>
       <div class="cat-tab" onclick="switchCat('magazine',this)">Magazine</div>
+      <div class="cat-tab" onclick="switchCat('promoters',this)">Promoters</div>
     </div>
   </div>
 </nav>
@@ -2010,6 +2032,16 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
     </div>
     <div class="mag-cats" id="magCats"></div>
     <div class="mag-grid" id="magGrid"></div>
+  </div>
+</div>
+
+<div id="promotersPage" style="display:none">
+  <div class="container promo-page-wrap">
+    <div class="promo-page-head">
+      <h2>Promoters</h2>
+      <p>The people behind Hanoi's best nights — follow them to never miss an event.</p>
+    </div>
+    <div class="promoter-list" id="promoterList"></div>
   </div>
 </div>
 
@@ -2808,7 +2840,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
 <!-- ════ TICKET MODAL ════ -->
 <div class="overlay" id="tktOverlay">
   <div class="modal">
-    <div class="mhead"><h2 id="tktTitle">Claim Your Place — Free</h2><button class="mclose" onclick="closeOverlay('tktOverlay')">✕</button></div>
+    <div class="mhead"><h2 id="tktTitle">Claim Your Place</h2><button class="mclose" onclick="closeOverlay('tktOverlay')">✕</button></div>
     <div class="mbody" id="tktBody"></div>
   </div>
 </div>
@@ -2897,6 +2929,11 @@ const LOCAL_ARTISTS=[
 const VENUES=[
   {id:31,name:"Sacred Garden",      city:"Hanoi", area:"Tay Ho",        type:"Garden Bar", capacity:150,  genres:["House","Afrobeats","Indie"], open:"11am",close:"12am", img:"images/sacred-garden-logo.jpg", logo:"images/sacred-garden-logo.jpg", desc:"A lush hidden garden bar in the heart of Tay Ho. Sacred Garden blends open-air greenery with craft drinks, good music and a relaxed crowd. Known for afternoon sessions that stretch into late-night vibes. Home of Saigon Cider in Hanoi."},
   {id:32,name:"Bi's Corner",        city:"Hanoi", area:"Tay Ho",        type:"Outdoor Bar", capacity:80,   genres:["House","Afrobeats","Chill"],  open:"5pm", close:"1am",  img:"images/bis-corner-logo.jpg",    logo:"images/bis-corner-logo.jpg",    desc:"Outdoor bar with a laid-back crowd, good music, and easy conversations. A small space, but always alive in the right way.", address:"2 Ng. 89 P. Tứ Liên, Hồng Hà, Hà Nội", photos:["images/bis-corner-venue.jpg"]},
+];
+
+const PROMOTERS=[
+  {id:'pr1', name:'Solea.Rhythm', city:'Hanoi', type:'DJ / Promoter', genres:['Afrobeats','House','Latin'], bio:'Bringing Afrobeats and Latin rhythms to Hanoi\'s nightlife. Known for high-energy sets at Sacred Garden and Bi\'s Corner.', instagram:'solea.rhythm', img:null},
+  {id:'pr2', name:'Tonight Collective', city:'Hanoi', type:'Event Collective', genres:['House','Electronic','Afrobeats'], bio:'Curating Hanoi\'s best nights — from intimate garden sessions to full-scale events. The team behind Tonight\'s featured events.', instagram:'tonight.vietnam', img:null},
 ];
 
 const MAGAZINE_ARTICLES=[
@@ -3319,6 +3356,44 @@ function setVenueCity(c){_venueCityFilter=c;renderVenues();}
 
 // ── ARTISTS PAGE ──
 let _artistGenreFilter='';
+function renderPromotersPage(){
+  const followed=JSON.parse(localStorage.getItem('tn_followed_promoters')||'[]');
+  document.getElementById('promoterList').innerHTML=PROMOTERS.map(p=>{
+    const isF=followed.includes(p.id);
+    const avatar=p.img
+      ?`<img src="${p.img}" alt="${p.name}" loading="lazy"/>`
+      :`<span style="font-size:26px">🎧</span>`;
+    return`<div class="promoter-card">
+      <div class="promoter-avatar">${avatar}</div>
+      <div class="promoter-info">
+        <div class="promoter-name">${p.name}</div>
+        <div class="promoter-meta">${p.type} · ${p.city}</div>
+        <div class="promoter-bio">${p.bio}</div>
+        <div class="promoter-genres">${p.genres.map(g=>`<span class="promoter-genre-tag">${g}</span>`).join('')}</div>
+        <div class="promoter-actions">
+          <button class="promoter-btn promoter-btn-follow ${isF?'following':''}" onclick="toggleFollowPromoter('${p.id}',this)">${isF?'✓ Following':'+ Follow'}</button>
+          ${p.instagram?`<button class="promoter-btn promoter-btn-ig" onclick="window.open('https://instagram.com/${p.instagram}','_blank')">Instagram ↗</button>`:''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleFollowPromoter(id,btn){
+  let followed=JSON.parse(localStorage.getItem('tn_followed_promoters')||'[]');
+  if(followed.includes(id)){
+    followed=followed.filter(f=>f!==id);
+    btn.textContent='+ Follow';
+    btn.classList.remove('following');
+  } else {
+    followed.push(id);
+    btn.textContent='✓ Following';
+    btn.classList.add('following');
+    toast('Following — you\'ll see their events first','ok');
+  }
+  localStorage.setItem('tn_followed_promoters',JSON.stringify(followed));
+}
+
 function renderArtistsPage(){
   const allArtists=[...ARTISTS, ...LOCAL_ARTISTS];
   const genres=['', ...[...new Set(allArtists.map(a=>a.genre))]];
@@ -3572,15 +3647,17 @@ function switchCat(cat,el){
   document.getElementById('venuesPage').style.display      = cat==='venues'?'':'none';
   document.getElementById('artistsPage').style.display     = cat==='artists'?'':'none';
   document.getElementById('magazinePage').style.display    = cat==='magazine'?'':'none';
+  document.getElementById('promotersPage').style.display   = cat==='promoters'?'':'none';
   if(cat==='events'||cat==='festivals') renderBrowse();
   if(cat==='calendar') initCalendar();
   if(cat==='venues')   renderVenues();
   if(cat==='artists')  renderArtistsPage();
   if(cat==='magazine') renderMagazine();
+  if(cat==='promoters') renderPromotersPage();
   window.scrollTo({top:0,behavior:'smooth'});
   // sync bottom tab bar
   document.querySelectorAll('.btab').forEach(b=>b.classList.remove('active'));
-  const btabMap={home:'btab-home',events:'btab-home',festivals:'btab-home',calendar:'btab-calendar'};
+  const btabMap={home:'btab-home',events:'btab-home',festivals:'btab-home',calendar:'btab-calendar',promoters:'btab-promoters'};
   const btEl=document.getElementById(btabMap[cat]);
   if(btEl) btEl.classList.add('active');
 }
@@ -3865,7 +3942,7 @@ function openEvent(id){
       <button class="btn btn-ghost" style="padding:9px 14px" onclick="toggleFav(${ev.id})">♥</button>
     </div>
     <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:11px;color:var(--text3);line-height:1.6">
-      ℹ️ Tonight is a free discovery platform. We do not sell tickets or guarantee entry. Joining the guestlist is a request — entry is subject to venue confirmation.
+      ℹ️ Tonight is a discovery platform. We do not sell tickets or guarantee entry. Claiming your place registers you on the guestlist — admission is subject to organiser confirmation.
     </div>
     <div class="share-row">
       <span style="font-size:11px;color:var(--text3);align-self:center">Share:</span>
@@ -3944,7 +4021,7 @@ function openTicket(id){ openTktModal(id); }
 function openTktModal(id){
   activeEv = EVENTS.find(e=>e.id===id) || activeEv;
   tStep=1; tQty=1; tBookType='guestlist';
-  document.getElementById('tktTitle').textContent = 'Claim Your Place — Free';
+  document.getElementById('tktTitle').textContent = 'Claim Your Place';
   renderTkt();
   // Pre-fill from saved profile after DOM renders
   try{
@@ -4002,7 +4079,7 @@ function _tktDoneBlock(tk){
     </div>
     <div class="qr-ticket-barcode">
       <div class="bar-ref">${tk.ref}</div>
-      <div class="bar-sub">Show at venue entry · Tonight App · Free guestlist request</div>
+      <div class="bar-sub">Show to organiser at entry · They will confirm your spot</div>
     </div>
   </div>
   <button class="fsub" style="background:#f5c842;color:#000;margin-bottom:10px" onclick="sendTicketEmail('${tk.ref}');this.textContent='📧 QR resent to ${tk.buyerEmail} ✓';this.disabled=true">📧 Resend QR to ${tk.buyerEmail}</button>
@@ -4014,7 +4091,7 @@ function _tktDoneBlock(tk){
         <button class="fsub" style="margin:0;background:linear-gradient(135deg,#fff,#f0f0f0);color:#000;font-weight:700" onclick="closeOverlay('tktOverlay');openGateway()">Sign In / Create Account →</button>
       </div>`
   }
-  <p style="font-size:10px;color:rgba(255,255,255,.25);text-align:center;margin-top:8px;line-height:1.6">This is a free guestlist request, not a paid ticket. Entry is subject to venue confirmation. Tonight does not charge for guestlist requests.</p>`;
+  <p style="font-size:10px;color:rgba(255,255,255,.25);text-align:center;margin-top:8px;line-height:1.6">This QR is your guestlist registration. Show it to the organiser at the door — entry is confirmed by them, not by Tonight.</p>`;
 }
 
 function renderTkt(){
@@ -4029,8 +4106,8 @@ function renderTkt(){
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;background:rgba(0,208,132,.07);border:1px solid rgba(0,208,132,.18);border-radius:8px;padding:10px 12px">
       <span style="font-size:18px">🎟</span>
       <div>
-        <div style="font-size:13px;font-weight:600;color:#fff">Free Entry — Claim Your Place</div>
-        <div style="font-size:11px;color:var(--text3);font-weight:300">Fill in your details — organisers will contact you to confirm.</div>
+        <div style="font-size:13px;font-weight:600;color:#fff">Register for the Guestlist</div>
+        <div style="font-size:11px;color:var(--text3);font-weight:300">Fill in your details — show your QR to the organiser at the door to get confirmed.</div>
       </div>
     </div>
     <div class="fg"><label>Your Name *</label><input class="fi" type="text" id="tf_name" placeholder="First and last name" autocomplete="name"/></div>
@@ -4045,7 +4122,7 @@ function renderTkt(){
       </div>
     </div>
     <button class="fsub" style="margin-top:8px" onclick="confirmBooking()">Claim My Place →</button>
-    <p style="font-size:11px;color:var(--text3);text-align:center;margin-top:6px;line-height:1.5">Organisers will contact you to confirm your spot.</p>`;
+    <p style="font-size:11px;color:var(--text3);text-align:center;margin-top:6px;line-height:1.5">Show your QR to the organiser at the door — they will confirm your spot.</p>`;
   }
   if(tStep===2){
     b+=_tktDoneBlock(lastTicket);
@@ -6745,11 +6822,11 @@ window.addEventListener('online', retryQueue);
       </div>
       <span>Calendar</span>
     </div>
-    <div class="btab" id="btab-qr" onclick="openQROverlay()" role="tab" aria-label="QR Scanner" aria-selected="false">
+    <div class="btab" id="btab-promoters" onclick="switchCat('promoters',document.querySelector('.cat-tab:last-child'))" role="tab" aria-label="Promoters" aria-selected="false">
       <div class="btab-icon">
-        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="3" height="3"/><rect x="18" y="18" width="3" height="3"/><rect x="14" y="18" width="3" height="3" style="display:none"/><path d="M18 14h3M14 18v3"/></svg>
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       </div>
-      <span>Scan</span>
+      <span>Promoters</span>
     </div>
     <div class="btab" id="btab-menu" onclick="toggleMob()" role="tab" aria-label="Menu" aria-selected="false">
       <div class="btab-icon">
