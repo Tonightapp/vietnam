@@ -2957,9 +2957,9 @@ function payLogos(size='sm'){
 
 // ── DATA ──
 // IDs in the order they appear in the banner carousel
-const BANNER_IDS=[44,45];
+let BANNER_IDS=[44,45];
 
-const EVENTS=[
+let EVENTS=[
   {id:45,title:"Afro Kulture Festival Vietnam", artist:"G.O.A.T Entertainment", genre:"Afrobeats", city:"Hanoi", area:"Tay Ho", venue:"Sala Nature Garden → Maya Fusion Bar → Vox Westlake Club", lat:21.0521,lng:105.8190, date:"2026-05-30", price:0, img:"images/afro-kulture-banner.jpg", imgDetail:"images/afro-kulture-vertical.jpg", emoji:"🌍", grad:"grad-gold", desc:"G.O.A.T Entertainment presents Afro Kulture Festival Vietnam — a full-day celebration of African culture, pool vibes and Afrobeats music across three iconic Tay Ho venues.\n\n1PM–7PM: Sala Nature Garden (9/154 D De Quai, Tu Lien, Tay Ho)\n9PM–Late: Maya Fusion Bar (27/52 To Ngoc Van, Tay Ho)\n11PM–Late: Vox Westlake Club (27/52 To Ngoc Van, Tay Ho)\n\nOfficial Partners: Hanoi Luxe, VOX Social Club, Maya, Afrobeats Vietnam.\n\nTickets & info: www.hanoiluxe.com/afrokulturefest", featured:true, soldOut:false, attendees:250, isNew:true, organizer:"G.O.A.T Entertainment", ticketUrl:"https://www.hanoiluxe.com/afrokulturefest"},
   {id:44,title:"Excursion x Wet Dynasty",  artist:"Rachel RM, Winnie Wakanda, Arixo + more", genre:"Themed Party", city:"Hanoi", area:"Red River", venue:"Red River Cruise, Hanoi", lat:21.0450,lng:105.8412, date:"2026-06-06", price:0, img:"images/excursion-wet-dynasty.jpg", emoji:"🛥",grad:"grad-pink", desc:"Electric Bazaar presents a river cruise party like no other — Excursion x Wet Dynasty sets sail on the Red River. Featuring DJ sets from Rachel RM, Winnie Wakanda, Arixo, Useph, Psyboost & Lamont, plus a spectacular Drag Show by Wet Dynasty. Hanoi's wildest night on the water.", featured:true, soldOut:false, attendees:150, isNew:true, lineup:["Rachel RM","Winnie Wakanda","Arixo","Useph","Psyboost","Lamont"], specialActs:"Drag Show by Wet Dynasty", organizer:"Electric Bazaar"},
 ];
@@ -3072,14 +3072,14 @@ const _wideErr="var c=this.closest('.evt-wide');if(c)c.remove();";
 const _top10Err="var c=this.closest('.top10-card');if(c)c.remove();";
 
 function portCard(ev){
-  const f=favs.includes(ev.id);
-  return`<div class="evt-card" onclick="openEvent(${ev.id})">
+  const f=favs.some(x=>String(x)===String(ev.id));
+  return`<div class="evt-card" onclick="openEvent('${ev.id}')">
     ${ev.img?`<img src="${ev.img}" style="position:absolute;width:0;height:0;opacity:0;pointer-events:none" loading="lazy" onerror="${_imgErr}"/>`:''}
     <div class="evt-card-img-wrap">
       <div class="evt-card-img" style="${imgStyle(ev)}">${ev.img?'':ev.emoji}</div>
       <div class="evt-card-overlay"></div>
       ${ev.soldOut?'<div class="evt-card-badges"><span class="badge-sold">Sold Out</span></div>':ev.isNew?'<div class="evt-card-badges"><span class="badge-new">New</span></div>':''}
-      <div class="evt-card-fav ${f?'favd':''}" onclick="event.stopPropagation();toggleFav(${ev.id})">♥</div>
+      <div class="evt-card-fav ${f?'favd':''}" onclick="event.stopPropagation();toggleFav('${ev.id}')">♥</div>
     </div>
     <div class="evt-card-title">${ev.title}</div>
     <div class="evt-card-sub">${fmt(ev.date)} · ${ev.venue}</div>
@@ -3088,14 +3088,14 @@ function portCard(ev){
 }
 
 function wideCard(ev){
-  const f=favs.includes(ev.id);
-  return`<div class="evt-wide" onclick="openEvent(${ev.id})">
+  const f=favs.some(x=>String(x)===String(ev.id));
+  return`<div class="evt-wide" onclick="openEvent('${ev.id}')">
     ${ev.img?`<img src="${ev.img}" style="position:absolute;width:0;height:0;opacity:0;pointer-events:none" loading="lazy" onerror="${_wideErr}"/>`:''}
     <div class="evt-wide-img-wrap">
       <div class="evt-wide-img" style="${imgStyle(ev)}">${ev.img?'':ev.emoji}</div>
       <div class="evt-wide-overlay"></div>
       ${ev.soldOut?'<div class="evt-wide-badges"><span class="badge-sold">Sold Out</span></div>':ev.isNew?'<div class="evt-wide-badges"><span class="badge-new">New</span></div>':''}
-      <div class="evt-wide-fav ${f?'favd':''}" onclick="event.stopPropagation();toggleFav(${ev.id})">♥</div>
+      <div class="evt-wide-fav ${f?'favd':''}" onclick="event.stopPropagation();toggleFav('${ev.id}')">♥</div>
     </div>
     <div class="evt-wide-title">${ev.title}</div>
     <div class="evt-wide-sub">${fmt(ev.date)} · ${ev.venue}</div>
@@ -3112,9 +3112,7 @@ function renderHeroDots(){
 let heroIdx=0;
 function featuredEvents(){
   const base=filterCity?EVENTS.filter(e=>e.city===filterCity):EVENTS;
-  const feat=base.filter(e=>e.featured).length ? base.filter(e=>e.featured) : base.slice(0,4);
-  const pin=feat.find(e=>e.id===44);
-  return pin ? [pin,...feat.filter(e=>e.id!==44)] : feat;
+  return base.filter(e=>e.featured).length ? base.filter(e=>e.featured) : base.slice(0,4);
 }
 function setHero(i){
   const feat=featuredEvents();
@@ -3200,7 +3198,7 @@ function renderTop10(){
   const section=document.querySelector('.home-section');
   if(section) section.style.display=list.length?'':'none';
   document.getElementById('top10Grid').innerHTML=list.length ? list.map((ev,i)=>`
-    <div class="top10-card" onclick="openEvent(${ev.id})">
+    <div class="top10-card" onclick="openEvent('${ev.id}')">
       ${ev.img?`<img src="${ev.img}" style="position:absolute;width:0;height:0;opacity:0;pointer-events:none" loading="lazy" onerror="${_top10Err}"/>`:''}
       <div class="top10-img ${ev.grad}" style="${ev.img?`background:url('${ev.img}') center/cover no-repeat`:''}">${ev.img?'':ev.emoji}</div>
       <div class="top10-info">
@@ -3324,7 +3322,7 @@ function renderSpotlight(){
       <div id="spotSlides" style="display:flex;transition:transform .5s cubic-bezier(.4,0,.2,1)">
         ${featured.map(ev=>{
           const lineupHtml=(ev.lineup||[]).map(a=>`<span style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:100px;padding:3px 12px;font-size:11px;font-weight:700;color:#fff;white-space:nowrap">${a}</span>`).join('');
-          return`<div class="spot-slide" onclick="openEvent(${ev.id})" style="min-width:100%;position:relative;flex-shrink:0">
+          return`<div class="spot-slide" onclick="openEvent('${ev.id}')" style="min-width:100%;position:relative;flex-shrink:0">
             <img src="${ev.img}" alt="${ev.title}" style="width:100%;display:block;object-fit:cover;max-height:480px;opacity:.92"/>
             <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.88) 0%,rgba(0,0,0,.1) 55%,transparent 100%)"></div>
             <div style="position:absolute;top:14px;left:14px;display:flex;gap:8px;align-items:center">
@@ -3339,7 +3337,7 @@ function renderSpotlight(){
               </div>
               ${lineupHtml?`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px">${lineupHtml}</div>`:''}
               ${ev.specialActs?`<div style="font-size:12px;color:var(--green);font-weight:700;margin-bottom:16px">✨ ${ev.specialActs}</div>`:''}
-              <button onclick="event.stopPropagation();openEvent(${ev.id})" style="background:#fff;color:#000;font-weight:800;font-size:14px;border:none;border-radius:100px;padding:12px 28px;cursor:pointer;letter-spacing:-.2px">Explore Event →</button>
+              <button onclick="event.stopPropagation();openEvent('${ev.id}')" style="background:#fff;color:#000;font-weight:800;font-size:14px;border:none;border-radius:100px;padding:12px 28px;cursor:pointer;letter-spacing:-.2px">Explore Event →</button>
             </div>
           </div>`;
         }).join('')}
@@ -3764,7 +3762,7 @@ function goToday(){
 function eventsOnDate(dateStr){
   let list=EVENTS.filter(ev=>ev.date===dateStr);
   if(calCityFilter) list=list.filter(ev=>ev.city===calCityFilter);
-  if(calFavOnly)    list=list.filter(ev=>favs.includes(ev.id));
+  if(calFavOnly)    list=list.filter(ev=>favs.some(f=>String(f)===String(ev.id)));
   return list;
 }
 
@@ -3801,13 +3799,13 @@ function renderCalGrid(){
     const isSel=calSelDate===dateStr;
     const evs=evMap[d]||[];
     const hasEvs=evs.length>0;
-    const hasFav=evs.some(e=>favs.includes(e.id));
+    const hasFav=evs.some(e=>favs.some(f=>String(f)===String(e.id)));
     let cls='cal-day';
     if(isToday) cls+=' cal-today';
     if(isSel)   cls+=' cal-selected';
     if(hasEvs)  cls+=' cal-has-events';
     // dots: up to 3 (fav = orange, regular = green)
-    const dots=evs.slice(0,3).map(e=>`<div class="cal-dot ${favs.includes(e.id)?'is-fav':''}"></div>`).join('');
+    const dots=evs.slice(0,3).map(e=>`<div class="cal-dot ${favs.some(f=>String(f)===String(e.id))?'is-fav':''}"></div>`).join('');
     const moreDot=evs.length>3?`<div class="cal-dot more"></div>`:'';
     html+=`<div class="${cls}" onclick="${hasEvs?`selectCalDay('${dateStr}')`:''}" title="${hasEvs?evs.length+' event'+(evs.length>1?'s':''):''}">
       <div class="cal-day-num">${d}</div>
@@ -3850,7 +3848,7 @@ function showCalDay(dateStr){
   document.getElementById('calPanel').style.display='block';
   document.getElementById('calPanelCount').textContent=evs.length+' event'+(evs.length>1?'s':'')+' tonight'+(calCityFilter?' in '+calCityFilter:'');
   document.getElementById('calEventList').innerHTML=evs.map(ev=>`
-    <div class="cal-event-row" onclick="openEvent(${ev.id})">
+    <div class="cal-event-row" onclick="openEvent('${ev.id}')">
       <div class="cal-event-time">${EVENT_TIMES[ev.id]||'21:00'}</div>
       <div class="cal-event-img" style="${ev.img?`background-image:url('${ev.img}')`:''}">${ev.img?'':ev.emoji}</div>
       <div class="cal-event-info">
@@ -3859,8 +3857,8 @@ function showCalDay(dateStr){
         <p style="margin-top:2px">${genreTag(ev.genre)}</p>
       </div>
       <div class="cal-event-right">
-        ${favs.includes(ev.id)?'<span class="cal-event-fav">♥</span>':''}
-        <button class="cal-buy-btn" onclick="event.stopPropagation();openEvent(${ev.id})">View</button>
+        ${favs.some(x=>String(x)===String(ev.id))?'<span class="cal-event-fav">♥</span>':''}
+        <button class="cal-buy-btn" onclick="event.stopPropagation();openEvent('${ev.id}')">View</button>
       </div>
     </div>`).join('');
 }
@@ -3894,9 +3892,10 @@ function toggleFollow(name,btn){
 }
 
 function toggleFav(id){
-  const i=favs.indexOf(id);
+  const sid=String(id);
+  const i=favs.findIndex(f=>String(f)===sid);
   if(i>-1){favs.splice(i,1);toast('Removed from saved','ok');}
-  else{favs.push(id);toast('Saved ♥','ok');}
+  else{favs.push(sid);toast('Saved ♥','ok');}
   localStorage.setItem('tn_favs',JSON.stringify(favs));
   renderRows(); renderTop10();
 }
@@ -3949,7 +3948,7 @@ function _evtReviewsHtml(evId){
   return html;
 }
 function openEvent(id){
-  activeEv=EVENTS.find(e=>e.id===id);
+  activeEv=EVENTS.find(e=>String(e.id)===String(id));
   const ev=activeEv;
   _reviewStarSel=0;
   document.getElementById('evtTitle').textContent=ev.title;
@@ -3985,7 +3984,7 @@ function openEvent(id){
         ? `<button class="btn btn-ghost" style="flex:1;min-width:140px;border-color:rgba(245,200,66,.3);color:#f5c842" onclick="openWaitlist(${ev.id})">📋 Join Waitlist</button>`
         : `<button class="btn btn-white" style="flex:1;min-width:140px" onclick="openTktModal(${ev.id})">🎟 Claim Your Place</button>`}
       <button class="btn btn-ghost" style="flex:1;min-width:120px" onclick="window.open('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(ev.venue+', '+ev.city+', Vietnam'),'_blank')">📍 Directions</button>
-      <button class="btn btn-ghost" style="padding:9px 14px" onclick="toggleFav(${ev.id})">♥</button>
+      <button class="btn btn-ghost" style="padding:9px 14px" onclick="toggleFav('${ev.id}')">♥</button>
     </div>
     <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:11px;color:var(--text3);line-height:1.6">
       ℹ️ Tonight is a discovery platform. We do not sell tickets or guarantee entry. Claiming your place registers you on the guestlist — admission is subject to organiser confirmation.
@@ -4065,7 +4064,7 @@ function submitWaitlist(evId){
 // ── TICKETS ──
 function openTicket(id){ openTktModal(id); }
 function openTktModal(id){
-  activeEv = EVENTS.find(e=>e.id===id) || activeEv;
+  activeEv = EVENTS.find(e=>String(e.id)===String(id)) || activeEv;
   tStep=1; tQty=1; tBookType='guestlist';
   document.getElementById('tktTitle').textContent = 'Claim Your Place';
   renderTkt();
@@ -5669,15 +5668,15 @@ function showUTab(tab,el){
     <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;display:flex;align-items:center;gap:12px">
       <div style="width:40px;height:40px;border-radius:6px;background:url('${e.img||''}') center/cover no-repeat;background-color:var(--card2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${e.img?'':e.emoji}</div>
       <div style="flex:1"><div style="font-weight:400;font-size:13px">${e.title}</div><div style="font-size:11px;color:var(--text3)">${fmt(e.date)} · ${e.venue}</div></div>
-      <button class="btn btn-ghost" style="font-size:11px;padding:6px 12px" onclick="closeUserDash();openTktModal(${e.id})">Claim Your Place</button>
+      <button class="btn btn-ghost" style="font-size:11px;padding:6px 12px" onclick="closeUserDash();openTktModal('${e.id}')">Claim Your Place</button>
     </div>`).join('')}</div>`;}
   if(tab==='favorites'){
-    const fe=EVENTS.filter(e=>favs.includes(e.id));
+    const fe=EVENTS.filter(e=>favs.some(f=>String(f)===String(e.id)));
     c.innerHTML=`<h3 style="font-weight:400;font-size:15px;margin-bottom:14px">Saved Events (${fe.length})</h3>${fe.length?fe.map(e=>`
       <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;display:flex;align-items:center;gap:12px;margin-bottom:8px">
         <div style="width:40px;height:40px;border-radius:6px;background:url('${e.img||''}') center/cover no-repeat;background-color:var(--card2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${e.img?'':e.emoji}</div>
         <div style="flex:1"><div style="font-weight:400;font-size:13px">${e.title}</div><div style="font-size:11px;color:var(--text3)">${fmt(e.date)} · ${e.venue}</div></div>
-        <button class="btn btn-ghost" style="font-size:11px;padding:6px 12px" onclick="closeUserDash();openTktModal(${e.id})">Claim Your Place</button>
+        <button class="btn btn-ghost" style="font-size:11px;padding:6px 12px" onclick="closeUserDash();openTktModal('${e.id}')">Claim Your Place</button>
       </div>`).join(''):'<p style="color:var(--text3);text-align:center;padding:32px 0;font-weight:300">No saved events yet.</p>'}`;}
   if(tab==='profile'){
     const u=curUser||{};
@@ -6087,46 +6086,49 @@ function _initApp(){
   _idle(()=>{ try{ startLiveCounters(); }catch(_){} });
   _idle(()=>{ try{ startGeofencing(); }catch(_){} });
 
-  // ── LIVE EVENTS: load approved venue events from Firestore in background ──
-  // Runs silently — hardcoded events always display immediately above
+  // ── LIVE EVENTS: real-time Firestore subscription — admin has full control ──
+  // When Firestore has approved events they fully replace the hardcoded fallback.
+  // If Firestore is empty or unreachable the hardcoded events stay visible.
   (async()=>{
     try{
-      const {collection,getDocs,query,where,orderBy}=await import(_FB_CDN+'/firebase-firestore.js');
+      const {collection,onSnapshot,query,where,orderBy}=await import(_FB_CDN+'/firebase-firestore.js');
       const db=await _getDb();
       const q=query(collection(db,'events'),where('status','==','approved'),orderBy('date','asc'));
-      const snap=await getDocs(q);
-      const _normTitle=s=>s.toLowerCase().replace(/[^a-z0-9]/g,'');
-      const existingIds=new Set(EVENTS.map(e=>e.id));
-      const existingTitles=new Set(EVENTS.map(e=>(e.title||'').toLowerCase().trim()));
-      const existingNorm=new Set(EVENTS.map(e=>_normTitle(e.title||'')));
-      let added=0;
-      snap.docs.forEach((d,i)=>{
-        const ev=d.data();
-        const id=1000+i;
-        if(existingIds.has(id)) return;
-        // Skip events without an image — every listed event must have a flyer
-        if(!ev.img&&!ev.imageUrl) return;
-        // Skip if a hardcoded event with the same (or normalized-matching) title already exists
-        const titleKey=(ev.title||'').toLowerCase().trim();
-        const normKey=_normTitle(ev.title||'');
-        if(titleKey&&existingTitles.has(titleKey)) return;
-        if(normKey&&existingNorm.has(normKey)) return;
-        const _gGrad={Techno:'grad-purple',House:'grad-teal','DJ Night':'grad-purple',Electronic:'grad-orange',EDM:'grad-orange','Live Music':'grad-blue',Jazz:'grad-cyan','Hip-Hop':'grad-orange','Themed Party':'grad-gold'};
-        EVENTS.push({
-          id, title:ev.title||'', artist:ev.venueName||ev.contactName||'Various Artists',
-          genre:ev.genre||'House', city:ev.city||'', area:ev.area||'', venue:ev.venueName||'',
-          lat:0, lng:0, date:ev.date||'', price:parseInt(ev.price)||0,
-          img:ev.img||ev.imageUrl||'', emoji:ev.emoji||'🎵', grad:_gGrad[ev.genre]||'grad-purple',
-          desc:ev.description||ev.desc||'', featured:false, soldOut:false,
-          attendees:parseInt(ev.capacity)||ev.attendees||0, isNew:ev.isNew!==false, source:'firestore',
-          _firestoreId:d.id
+      const _gGrad={Techno:'grad-purple',House:'grad-teal','DJ Night':'grad-purple',Electronic:'grad-orange',EDM:'grad-orange','Live Music':'grad-blue',Jazz:'grad-cyan','Hip-Hop':'grad-orange','Themed Party':'grad-gold'};
+      onSnapshot(q, snap=>{
+        if(snap.empty) return; // keep hardcoded fallback when no approved events
+        const mapped=snap.docs.map(d=>{
+          const ev=d.data();
+          return{
+            id:d.id,
+            title:ev.title||'',
+            artist:ev.venueName||ev.contactName||'Various Artists',
+            genre:ev.genre||'House',
+            city:ev.city||'Hanoi',
+            area:ev.area||'',
+            venue:ev.venueName||'',
+            lat:0, lng:0,
+            date:ev.date||'',
+            time:ev.time||'',
+            price:parseInt(ev.price)||0,
+            img:ev.img||ev.imageUrl||'',
+            emoji:ev.emoji||'🎵',
+            grad:_gGrad[ev.genre]||'grad-purple',
+            desc:ev.description||ev.desc||'',
+            featured:!!ev.featured,
+            soldOut:!!ev.soldOut,
+            attendees:parseInt(ev.capacity)||ev.attendees||0,
+            isNew:ev.isNew!==false,
+            lineup:ev.lineup||[],
+            specialActs:ev.specialActs||'',
+            organizer:ev.organizer||ev.venueName||'',
+            ticketUrl:ev.ticketUrl||''
+          };
         });
-        existingIds.add(id);
-        if(titleKey) existingTitles.add(titleKey);
-        if(normKey) existingNorm.add(normKey);
-        added++;
-      });
-      if(added>0) renderAll();
+        EVENTS=mapped;
+        BANNER_IDS=mapped.filter(e=>e.featured).map(e=>e.id);
+        renderAll();
+      }, err=>{ console.warn('[Tonight Firebase events]',err.message); });
     }catch(err){ console.warn('[Tonight Firebase events]',err.message); }
   })();
 }
