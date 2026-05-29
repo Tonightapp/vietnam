@@ -575,7 +575,6 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
   .nav-search,.nav-loc{display:none;}
   .hamburger{display:none;}
   .nav-top{height:52px;}
-  .nav-logo-main{font-size:26px;}
 
   /* ── BOTTOM TAB BAR ── */
   .bottom-tab-bar{display:block;}
@@ -1394,23 +1393,32 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
     padding:0;
   }
   .nav-top{
-    height:56px;
+    height:62px;
     padding:0 16px;
   }
   /* Hide desktop nav elements */
   .nav-search,.live-pill,.nav-loc,.hamburger{display:none!important;}
-  /* Logo: big, bold, white, no italic */
+  /* Logo: Bebas Neue gold + subtitle — matches brand */
   .nav-logo{text-decoration:none;}
   .nav-logo-main{
-    font-family:'Plus Jakarta Sans',sans-serif;
-    font-size:22px;
-    font-weight:900;
-    letter-spacing:-.5px;
-    color:#fff;
+    font-family:'Bebas Neue',sans-serif;
+    font-size:34px;
+    font-weight:400;
+    letter-spacing:3px;
+    color:#f5c842;
+    line-height:1;
     font-style:normal;
     text-transform:uppercase;
   }
-  .nav-logo-sub{display:none;}
+  .nav-logo-sub{
+    display:block;
+    font-size:6.5px;
+    font-weight:700;
+    letter-spacing:4.5px;
+    color:rgba(255,255,255,0.38);
+    text-transform:uppercase;
+    margin-top:3px;
+  }
   /* Nav right: auth + icons */
   .nav-actions{display:flex;align-items:center;gap:6px;margin-left:auto;}
 
@@ -1432,6 +1440,20 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
     background-size:contain;background-repeat:no-repeat;
   }
   .nav-signin-btn:active{transform:scale(0.95);background:rgba(245,200,66,0.18);}
+
+  /* ── Mobile Sign Up pill ── */
+  .nav-mob-signup{
+    display:flex;align-items:center;
+    background:rgba(245,200,66,0.1);
+    border:1px solid rgba(245,200,66,0.4);
+    color:#f5c842;
+    height:34px;padding:0 14px;
+    border-radius:50px;
+    font-size:12px;font-weight:700;letter-spacing:.2px;
+    font-family:inherit;white-space:nowrap;flex-shrink:0;
+    transition:.15s;
+  }
+  .nav-mob-signup:active{transform:scale(.95);background:rgba(245,200,66,.18);}
 
   /* ── Signed-in: compact avatar pill ── */
   .nav-auth .btn,.nav-auth .btn-white{display:none;}
@@ -1737,18 +1759,10 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
         <div class="nav-auth" id="navAuth">
           <button class="btn btn-white" onclick="openGateway()">Get Started</button>
         </div>
-        <!-- Mobile-only: 3 quick-access icons -->
+        <!-- Mobile-only: Sign Up + Portal -->
         <div class="nav-mobile-icons" id="navMobileIcons">
-          <!-- Community / Membership -->
-          <button class="nav-icon-btn icon-community" onclick="openCommunity()" title="Join Community">
-            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          </button>
-          <!-- Venues / Business -->
-          <button class="nav-icon-btn icon-venues" onclick="openProSignup()" title="List a Venue">
-            <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          </button>
-          <!-- Portal -->
-          <button class="nav-icon-btn icon-portal" onclick="openOverlay('portalChoiceOverlay')" title="Portal Access">
+          <button class="nav-mob-signup" id="navMobSignup" onclick="openGateway()">Sign Up</button>
+          <button class="nav-icon-btn icon-portal" onclick="openOverlay('portalChoiceOverlay')" title="Portal Access" style="min-width:44px;min-height:44px">
             <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
           </button>
         </div>
@@ -4494,8 +4508,10 @@ function finishLogin(name,prov,profile){
     </div>`;
   const bell=document.getElementById('notifBell');
   const sibBtn=document.getElementById('navSignInBtn');
+  const mobSignup=document.getElementById('navMobSignup');
   if(bell) bell.style.display='flex';
   if(sibBtn) sibBtn.style.display='none';
+  if(mobSignup) mobSignup.style.display='none';
   if(curRole==='pro'){
     toast(`Welcome, ${name.split(' ')[0]}! Taking you to your business overview…`,'ok');
     setTimeout(()=>openPro(),400);
@@ -4519,8 +4535,10 @@ function signOut(){
     <button class="btn btn-white" onclick="openGateway()">Get Started</button>`;
   const bell=document.getElementById('notifBell');
   const sibBtn=document.getElementById('navSignInBtn');
+  const mobSignup=document.getElementById('navMobSignup');
   if(bell) bell.style.display='none';
   if(sibBtn) sibBtn.style.display=''; // CSS hides on desktop; shows on mobile only
+  if(mobSignup) mobSignup.style.display='';
   toast('Signed out','ok');
 }
 // ── RESTORE SESSION ON LOAD ──
@@ -4540,8 +4558,10 @@ function signOut(){
         </div>`;
       const bell=document.getElementById('notifBell');
       const sibBtn=document.getElementById('navSignInBtn');
+      const mobSignup=document.getElementById('navMobSignup');
       if(bell) bell.style.display='flex';
       if(sibBtn) sibBtn.style.display='none';
+      if(mobSignup) mobSignup.style.display='none';
     }catch(_){}
   };
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',_restore,{once:true});
@@ -6826,8 +6846,10 @@ async function submitCommunity(e){
       </div>`;
     const bell=document.getElementById('notifBell');
     const sibBtn=document.getElementById('navSignInBtn');
+    const mobSignup=document.getElementById('navMobSignup');
     if(bell) bell.style.display='flex';
     if(sibBtn) sibBtn.style.display='none';
+    if(mobSignup) mobSignup.style.display='none';
   }catch(_){}
 
   // Success UI
