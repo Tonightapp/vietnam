@@ -288,6 +288,7 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
 .status-pending{background:rgba(249,115,22,0.1);color:var(--orange)}
 .status-approved{background:rgba(34,197,94,0.1);color:var(--green)}
 .status-rejected{background:rgba(239,68,68,0.1);color:var(--red)}
+.status-review{background:rgba(59,130,246,0.1);color:var(--blue)}
 
 /* Avatar initials */
 .av{
@@ -429,9 +430,10 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
   .icon-btn{width:36px;height:36px}
   #mobile-signout{display:flex!important}
 
-  /* Bottom tab bar — 5-column grid */
-  .mobile-tabbar{display:grid!important;grid-template-columns:repeat(5,1fr)}
-  .mobile-tabbar button{font-size:8px;font-weight:700;padding:8px 0;letter-spacing:.1px;min-width:0;width:100%;overflow:hidden}
+  /* Bottom tab bar — scrollable flex */
+  .mobile-tabbar{display:flex!important;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .mobile-tabbar::-webkit-scrollbar{display:none}
+  .mobile-tabbar button{flex:0 0 20%;min-width:64px;font-size:8px;font-weight:700;padding:8px 0;letter-spacing:.1px;overflow:hidden}
   .mobile-tabbar button svg{width:19px;height:19px}
   /* Topbar — prevent right actions overflow */
   .topbar-actions{flex-shrink:0;gap:4px}
@@ -919,10 +921,12 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
             </div>
             <div class="filter-tabs" id="member-filter-tabs" style="margin-left:auto"></div>
           </div>
+          <div style="overflow-x:auto">
           <table class="data-table">
             <thead><tr><th>Member</th><th>Email</th><th>Role</th><th>Source</th><th>Joined</th><th>Actions</th></tr></thead>
             <tbody id="members-body"></tbody>
           </table>
+          </div>
         </div>
       </div>
 
@@ -1409,13 +1413,38 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
         Venues
         <div class="mtab-badge hide" id="m-venue-badge"></div>
       </button>
-      <button onclick="nav('events',this)">
+      <button onclick="nav('events',this)" id="m-events-btn">
         <svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.07-.44.18-.88.18-1.35C18 2.99 16.01 1 13.65 1c-1.3 0-2.48.56-3.33 1.44l-.65.72-.65-.72C8.15 1.56 6.96 1 5.67 1 3.31 1 1.32 2.99 1.32 5.35c0 .46.08.9.17 1.3L0 8v2l2 1v9c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V11l2-1V8l-4-2z"/></svg>
         Events
+        <div class="mtab-badge hide" id="m-events-badge"></div>
       </button>
       <button onclick="nav('artists',this)">
         <svg viewBox="0 0 24 24"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6zm-2 16a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></svg>
         Artists
+      </button>
+      <button onclick="nav('leads',this)">
+        <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+        Leads
+      </button>
+      <button onclick="nav('guestlist',this)">
+        <svg viewBox="0 0 24 24"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+        Guestlist
+      </button>
+      <button onclick="nav('deals',this)">
+        <svg viewBox="0 0 24 24"><path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z"/></svg>
+        Deals
+      </button>
+      <button onclick="nav('inquiries',this)">
+        <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z"/></svg>
+        Inquiries
+      </button>
+      <button onclick="nav('magazine',this)">
+        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+        Magazine
+      </button>
+      <button onclick="nav('banner',this)">
+        <svg viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14z"/></svg>
+        Banner
       </button>
     </div>
   </div><!-- /main -->
@@ -1609,7 +1638,7 @@ import { getAuth, signInWithEmailAndPassword,
 import { getFirestore, collection, doc,
          query, orderBy, where, limit,
          onSnapshot, updateDoc, addDoc, setDoc, deleteDoc,
-         getDoc, serverTimestamp }                 from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+         getDoc, serverTimestamp, writeBatch }     from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 // ── 🔧 PASTE YOUR FIREBASE CONFIG HERE ───────────────────
 const FIREBASE_CONFIG = {
@@ -1715,7 +1744,8 @@ window.doLogin = async function() {
 };
 
 window.doResetPassword = async function() {
-  const email = document.getElementById('login-email').value.trim() || ADMIN_EMAIL;
+  const email = document.getElementById('login-email').value.trim();
+  if (!email) { showErr('Enter your email address first.'); return; }
   try {
     await sendPasswordResetEmail(auth, email);
     showErr(`✓ Reset link sent to ${email} — check your inbox`);
@@ -2199,6 +2229,7 @@ function renderMembersTable(q='') {
 
 function memberRow(m, compact=false) {
   const name  = esc(m.name||'Unknown');
+  const safeName = escQ(m.name||'Unknown');
   const email = esc(m.email||'—');
   const role  = m.role||'user';
   const srcBadge = m.source==='app'
@@ -2212,9 +2243,9 @@ function memberRow(m, compact=false) {
     <td class="td-muted">${timeAgo(m.createdAt)}</td>
   </tr>`;
   const blockBtn = m.blocked
-    ? `<button class="ea-btn ea-unblock" onclick="unblockMember('${m.id}','${m.collection}','${name}')">Unblock</button>`
-    : `<button class="ea-btn ea-reject"  onclick="blockMember('${m.id}','${m.collection}','${name}')">Block</button>`;
-  const delBtn = `<button class="ea-btn ea-del" onclick="deleteMember('${m.id}','${m.collection}','${name}')">🗑</button>`;
+    ? `<button class="ea-btn ea-unblock" onclick="unblockMember('${m.id}','${m.collection}','${safeName}')">Unblock</button>`
+    : `<button class="ea-btn ea-reject"  onclick="blockMember('${m.id}','${m.collection}','${safeName}')">Block</button>`;
+  const delBtn = `<button class="ea-btn ea-del" onclick="deleteMember('${m.id}','${m.collection}','${safeName}')">🗑</button>`;
   return `<tr style="${m.blocked?'opacity:.55':''}">
     <td><div class="name-cell"><div class="av av-${role}">${name[0].toUpperCase()}</div><span class="td-name">${name}${blockedTag}</span></div></td>
     <td class="td-mono">${email}</td>
@@ -2256,22 +2287,23 @@ function renderVenueList() {
 
 function venueRow(r) {
   const name  = esc(r.fullName || r.full_name || '—');
+  const safeName = escQ(r.fullName || r.full_name || '—');
   const venue = esc(r.venueName || r.venue_name || '—');
   let actions = '';
   if (r.status === 'pending') {
     actions = `<div class="action-cell">
-      <button class="btn btn-reject"  onclick="rejectVenue('${r.id}','${name}')">Reject</button>
-      <button class="btn btn-approve" onclick="approveVenue('${r.id}','${r.userId||r.user_id||''}','${name}')">Approve</button>
+      <button class="btn btn-reject"  onclick="rejectVenue('${r.id}','${safeName}')">Reject</button>
+      <button class="btn btn-approve" onclick="approveVenue('${r.id}','${r.userId||r.user_id||''}','${safeName}')">Approve</button>
     </div>`;
   } else if (r.status === 'rejected') {
     actions = `<div class="action-cell">
-      <button class="btn" style="background:rgba(59,130,246,.1);color:var(--blue);border:1px solid rgba(59,130,246,.2);padding:6px 12px;font-size:12px" onclick="reOpenVenue('${r.id}','${name}')">Re-open</button>
-      <button class="btn btn-reject" style="font-size:11px" onclick="deleteVenueRequest('${r.id}','${name}')">Delete</button>
+      <button class="btn" style="background:rgba(59,130,246,.1);color:var(--blue);border:1px solid rgba(59,130,246,.2);padding:6px 12px;font-size:12px" onclick="reOpenVenue('${r.id}','${safeName}')">Re-open</button>
+      <button class="btn btn-reject" style="font-size:11px" onclick="deleteVenueRequest('${r.id}','${safeName}')">Delete</button>
     </div>`;
   } else {
     actions = `<div class="action-cell">
       <span class="td-muted">${timeAgo(r.reviewedAt)}</span>
-      <button class="btn btn-reject" style="font-size:11px;padding:5px 8px" onclick="deleteVenueRequest('${r.id}','${name}')">Delete</button>
+      <button class="btn btn-reject" style="font-size:11px;padding:5px 8px" onclick="deleteVenueRequest('${r.id}','${safeName}')">Delete</button>
     </div>`;
   }
   return `<tr>
@@ -2484,6 +2516,7 @@ function renderEventsTable() {
 function eventCard(e) {
   const status      = e.status || 'pending';
   const title       = esc(e.title || '—');
+  const safeTitle   = escQ(e.title || '—');
   const venue       = esc(e.venueName || e.venue || '—');
   const city        = esc(e.city || '');
   const area        = e.area || '';
@@ -2502,8 +2535,8 @@ function eventCard(e) {
     : `<span class="evt-thumb-emoji">${e.emoji||'🎵'}</span>`;
 
   // Approve / Reject depending on current status
-  const approveBtn = `<button class="ea-btn ea-approve" onclick="approveEvent('${e.id}','${title}')">✓ Approve</button>`;
-  const rejectBtn  = `<button class="ea-btn ea-reject"  onclick="rejectEvent('${e.id}','${title}')">✕ Reject</button>`;
+  const approveBtn = `<button class="ea-btn ea-approve" onclick="approveEvent('${e.id}','${safeTitle}')">✓ Approve</button>`;
+  const rejectBtn  = `<button class="ea-btn ea-reject"  onclick="rejectEvent('${e.id}','${safeTitle}')">✕ Reject</button>`;
   const statusBtns = isPending  ? rejectBtn + approveBtn
                    : isRejected ? approveBtn
                    : isApproved ? rejectBtn
@@ -2544,9 +2577,9 @@ function eventCard(e) {
       ${statusBtns}
       ${areaSelect}
       <button class="ea-btn ea-edit" onclick="openEditEvent('${e.id}')" title="Edit event">✏ Edit</button>
-      <button class="ea-btn ea-feat${isFeat?' on':''}" onclick="toggleFeatured('${e.id}',${isFeat})" title="${isFeat?'Remove from banner':'Pin to banner'}">⭐</button>
+      <button class="ea-btn ea-feat${isFeat?' on':''}" onclick="toggleFeatured('${e.id}',${!isFeat})" title="${isFeat?'Remove from banner':'Pin to banner'}">⭐</button>
       ${hideBtn}
-      <button class="ea-btn ${delClass}" onclick="deleteEvent('${e.id}','${title}')" style="margin-left:auto">${delLabel}</button>
+      <button class="ea-btn ${delClass}" onclick="deleteEvent('${e.id}','${safeTitle}')" style="margin-left:auto">${delLabel}</button>
     </div>
   </div>`;
 }
@@ -2554,6 +2587,7 @@ function eventCard(e) {
 function eventRow(e) {
   const status     = e.status || 'pending';
   const title      = esc(e.title || '—');
+  const safeTitle  = escQ(e.title || '—');
   const venue      = esc(e.venueName || e.venue || '—');
   const area       = e.area || '';
   const genre      = esc(e.genre || '');
@@ -2570,8 +2604,8 @@ function eventRow(e) {
     ? `<img src="${esc(e.img)}" loading="lazy" alt=""/>`
     : (e.emoji || '🎵');
 
-  const approveBtn = `<button class="ib ib-approve" title="Approve" onclick="approveEvent('${e.id}','${title}')">✓</button>`;
-  const rejectBtn  = `<button class="ib ib-reject"  title="Reject"  onclick="rejectEvent('${e.id}','${title}')">✕</button>`;
+  const approveBtn = `<button class="ib ib-approve" title="Approve" onclick="approveEvent('${e.id}','${safeTitle}')">✓</button>`;
+  const rejectBtn  = `<button class="ib ib-reject"  title="Reject"  onclick="rejectEvent('${e.id}','${safeTitle}')">✕</button>`;
   const statusBtns = isPending ? approveBtn + rejectBtn : isRejected ? approveBtn : isApproved ? rejectBtn : '';
 
   const areaSelect = `<select class="area-quick-select" title="Move to area" onchange="moveArea('${e.id}',this.value)" style="padding:3px 6px;font-size:10px">
@@ -2583,14 +2617,14 @@ function eventRow(e) {
     <option value="Other"       ${area==='Other'?'selected':''}>Other</option>
   </select>`;
 
-  const featBtn  = `<button class="ib${isFeat?' ib-on':''}" title="${isFeat?'Unfeature':'Pin to banner'}" onclick="toggleFeatured('${e.id}',${isFeat})">⭐</button>`;
+  const featBtn  = `<button class="ib${isFeat?' ib-on':''}" title="${isFeat?'Unfeature':'Pin to banner'}" onclick="toggleFeatured('${e.id}',${!isFeat})">⭐</button>`;
   const hideBtn  = isHidden
     ? `<button class="ib ib-green" title="Show on site"    onclick="toggleHidden('${e.id}',true)">👁</button>`
     : `<button class="ib"          title="Hide from site"  onclick="toggleHidden('${e.id}',false)">🙈</button>`;
   const editBtn  = `<button class="ib" title="Edit"  onclick="openEditEvent('${e.id}')">✏</button>`;
   const cloneBtn = `<button class="ib" title="Clone" onclick="cloneEvent('${e.id}')">⧉</button>`;
   const isDelConf = deleteConfirm.has(e.id);
-  const delBtn   = `<button class="ib ib-del${isDelConf?' ib-confirm':''}" title="Delete" onclick="deleteEventRow('${e.id}','${title}')">${isDelConf?'?':'🗑'}</button>`;
+  const delBtn   = `<button class="ib ib-del${isDelConf?' ib-confirm':''}" title="Delete" onclick="deleteEventRow('${e.id}','${safeTitle}')">${isDelConf?'?':'🗑'}</button>`;
 
   const hiddenBadge = isHidden ? `<span style="font-size:9px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:3px;padding:1px 5px;margin-left:4px;color:var(--text3)">HIDDEN</span>` : '';
 
@@ -2615,9 +2649,10 @@ window.evtLoadMore = function() { evtPage++; renderEventsTable(); };
 window.approveEvent = async function(eventId, title) {
   try {
     await updateDoc(doc(db,'events',eventId), {
-      status:     'approved',
-      approvedAt: serverTimestamp(),
-      approvedBy: auth.currentUser?.email || 'staff',
+      status:        'approved',
+      approvedAt:    serverTimestamp(),
+      approvedBy:    auth.currentUser?.email || 'staff',
+      reminderSent:  false,
     });
     toast(`✅ "${title}" is LIVE — community will be emailed`);
   } catch(e) { toast(`Error: ${e.message}`); }
@@ -2630,13 +2665,6 @@ window.rejectEvent = async function(eventId, title) {
       rejectedAt: serverTimestamp(),
     });
     toast(`"${title}" rejected`);
-  } catch(e) { toast(`Error: ${e.message}`); }
-};
-
-window.toggleFeatured = async function(eventId, current) {
-  try {
-    await updateDoc(doc(db,'events',eventId), { featured: !current });
-    toast(current ? 'Removed from featured' : '⭐ Event pinned to banner!');
   } catch(e) { toast(`Error: ${e.message}`); }
 };
 
@@ -2707,6 +2735,7 @@ window.aeFlyerUpload = function(input) {
       canvas.height = Math.round(img.height * scale);
       canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
       const b64 = canvas.toDataURL('image/jpeg', 0.78);
+      if (b64.length > 700000) { toast('Flyer too large after compression — use a smaller image or link a URL instead'); input.value = ''; return; }
       document.getElementById('ae-img').value     = b64;
       document.getElementById('ae-img-url').value = '';
       _aeFlyerShow(b64);
@@ -2950,11 +2979,12 @@ function renderArtistsPanel() {
 function artistRow(a) {
   const isHidden = !!a.hidden;
   const name     = esc(a.name || '—');
+  const safeName = escQ(a.name || '—');
   const thumb    = a.img
     ? `<img src="${esc(a.img)}" loading="lazy" alt="${name}" onerror="this.style.display='none'"/>`
     : '🎵';
   const isDelConf = deleteConfirm.has(a.id);
-  const delBtn    = `<button class="ib ib-del${isDelConf?' ib-confirm':''}" title="Delete" onclick="deleteArtistRow('${a.id}','${name}')">${isDelConf?'?':'🗑'}</button>`;
+  const delBtn    = `<button class="ib ib-del${isDelConf?' ib-confirm':''}" title="Delete" onclick="deleteArtistRow('${a.id}','${safeName}')">${isDelConf?'?':'🗑'}</button>`;
   const hiddenBadge = isHidden ? `<span style="font-size:9px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:3px;padding:1px 5px;margin-left:4px;color:var(--text3)">HIDDEN</span>` : '';
   return `<tr class="art-tr${isHidden?' art-tr-hidden':''}" id="arow-${a.id}">
     <td><div class="art-mini-photo">${thumb}</div></td>
@@ -2976,6 +3006,7 @@ function artistRow(a) {
 function artistCard(a) {
   const isHidden = !!a.hidden;
   const name     = esc(a.name || '—');
+  const safeName = escQ(a.name || '—');
   const delClass = deleteConfirm.has(a.id) ? 'ea-del confirm' : 'ea-del';
   const delLabel = deleteConfirm.has(a.id) ? 'Sure?' : '🗑';
   const thumb    = a.img
@@ -2993,7 +3024,7 @@ function artistCard(a) {
       ${a.instagram?`<a href="${esc(a.instagram)}" target="_blank" class="ea-btn ea-edit" style="text-decoration:none">IG</a>`:''}
       <button class="ea-btn ea-edit" onclick="openEditArtist('${a.id}')">✏ Edit</button>
       <button class="ea-btn ${isHidden?'ea-show':'ea-hide'}" onclick="toggleArtistHidden('${a.id}',${isHidden})">${isHidden?'👁 Show':'🙈 Hide'}</button>
-      <button class="ea-btn ${delClass}" onclick="deleteArtist('${a.id}','${name}')" style="margin-left:auto">${delLabel}</button>
+      <button class="ea-btn ${delClass}" onclick="deleteArtist('${a.id}','${safeName}')" style="margin-left:auto">${delLabel}</button>
     </div>
   </div>`;
 }
@@ -3270,7 +3301,7 @@ function renderMagazinePanel() {
           <div style="font-size:12px;color:var(--text2);margin-bottom:12px;line-height:1.4">${esc((a.excerpt||'').slice(0,120))}${(a.excerpt||'').length>120?'…':''}</div>
           <div style="display:flex;gap:8px">
             <button class="ib ib-edit" onclick="openEditArticle('${a.id}')" style="flex:1;justify-content:center">Edit</button>
-            <button class="ib ib-reject" onclick="deleteArticle('${a.id}','${esc(a.title||'')}')">✕</button>
+            <button class="ib ib-reject" onclick="deleteArticle('${a.id}','${escQ(a.title||'')}')">✕</button>
           </div>
         </div>
       </div>
@@ -3309,6 +3340,12 @@ window.openEditArticle = function(id) {
 
 window.closeAddArticle = function() {
   document.getElementById('add-article-modal').style.display = 'none';
+  editingArticleId = null;
+  ['art-title','art-author','art-excerpt','art-img','art-body','art-date'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('art-read').value = '5';
+  document.getElementById('art-cat').selectedIndex = 0;
+  document.getElementById('art-modal-title').textContent = 'Add Article';
+  document.getElementById('art-submit-btn').textContent = 'Save Article →';
 };
 
 window.submitArticle = async function(e) {
@@ -3367,7 +3404,7 @@ function renderPromotersPanel() {
           ${p.bio?`<div style="font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.4">${esc(p.bio.slice(0,100))}${p.bio.length>100?'…':''}</div>`:''}
           <div style="display:flex;gap:8px">
             <button class="ib ib-edit" onclick="openEditPromoter('${p.id}')" style="flex:1;justify-content:center">Edit</button>
-            <button class="ib ib-reject" onclick="deletePromoter('${p.id}','${esc(p.name||'')}')">✕</button>
+            <button class="ib ib-reject" onclick="deletePromoter('${p.id}','${escQ(p.name||'')}')">✕</button>
           </div>
         </div>
       </div>
@@ -3400,6 +3437,10 @@ window.openEditPromoter = function(id) {
 
 window.closeAddPromoter = function() {
   document.getElementById('add-promoter-modal').style.display = 'none';
+  editingPromoterId = null;
+  ['promo-name','promo-city','promo-genre','promo-ig','promo-img','promo-bio'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('promo-modal-title').textContent = 'Add Promoter';
+  document.getElementById('promo-submit-btn').textContent = 'Save Promoter →';
 };
 
 window.submitPromoter = async function(e) {
@@ -3499,26 +3540,30 @@ window.toggleFeatured = async function(id, featured) {
 };
 
 window.moveBannerUp = async function(id) {
-  const featured = allEvents.filter(e => e.featured).sort((a,b) => (a.featuredOrder||999)-(b.featuredOrder||999));
+  const featured = allEvents.filter(e => e.featured).sort((a,b) => (a.featuredOrder??999)-(b.featuredOrder??999));
   const idx = featured.findIndex(e => e.id === id);
   if (idx <= 0) return;
   const prev = featured[idx-1];
   const curr = featured[idx];
   try {
-    await updateDoc(doc(db,'events',prev.id), { featuredOrder: curr.featuredOrder||idx });
-    await updateDoc(doc(db,'events',curr.id), { featuredOrder: prev.featuredOrder||(idx-1) });
+    const batch = writeBatch(db);
+    batch.update(doc(db,'events',prev.id), { featuredOrder: curr.featuredOrder ?? idx });
+    batch.update(doc(db,'events',curr.id), { featuredOrder: prev.featuredOrder ?? (idx-1) });
+    await batch.commit();
   } catch(e) { toast('Error: '+e.message); }
 };
 
 window.moveBannerDown = async function(id) {
-  const featured = allEvents.filter(e => e.featured).sort((a,b) => (a.featuredOrder||999)-(b.featuredOrder||999));
+  const featured = allEvents.filter(e => e.featured).sort((a,b) => (a.featuredOrder??999)-(b.featuredOrder??999));
   const idx = featured.findIndex(e => e.id === id);
   if (idx < 0 || idx >= featured.length-1) return;
   const next = featured[idx+1];
   const curr = featured[idx];
   try {
-    await updateDoc(doc(db,'events',next.id), { featuredOrder: curr.featuredOrder||idx });
-    await updateDoc(doc(db,'events',curr.id), { featuredOrder: next.featuredOrder||(idx+1) });
+    const batch = writeBatch(db);
+    batch.update(doc(db,'events',next.id), { featuredOrder: curr.featuredOrder ?? idx });
+    batch.update(doc(db,'events',curr.id), { featuredOrder: next.featuredOrder ?? (idx+1) });
+    await batch.commit();
   } catch(e) { toast('Error: '+e.message); }
 };
 
@@ -3585,11 +3630,24 @@ function timeAgo(ts) {
 
 function shortDate(d) {
   if (!d) return '—';
-  return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  let date;
+  if (typeof d.toDate === 'function') {
+    date = d.toDate();
+  } else if (typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d)) {
+    const [y, m, day] = d.split('-').map(Number);
+    date = new Date(y, m - 1, day);
+  } else {
+    date = new Date(d);
+  }
+  if (isNaN(date)) return '—';
+  return date.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
 }
 
 function esc(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escQ(s) {
+  return String(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 function emptyRow(msg, emoji='📭') {

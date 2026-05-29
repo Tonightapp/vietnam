@@ -36,11 +36,17 @@ service cloud.firestore {
 
       allow read: if isOwner(uid) || isStaff();
 
+      // Only 'user' and 'guest' roles can be self-assigned.
+      // 'venue_owner' and 'admin' are assigned exclusively by Cloud Functions / staff.
       allow create: if isOwner(uid)
-                    && request.resource.data.role in ['user', 'venue_owner', 'guest']
+                    && request.resource.data.role in ['user', 'guest']
                     && request.resource.data.keys().hasAll(['email', 'fullName', 'role', 'createdAt']);
 
-      allow update: if (isOwner(uid) && request.resource.data.role == resource.data.role)
+      // Owners can update their own profile fields but cannot change their role.
+      allow update: if (isOwner(uid)
+                        && request.resource.data.role == resource.data.role
+                        && request.resource.data.diff(resource.data).affectedKeys()
+                             .hasOnly(['fullName', 'phone', 'city', 'updatedAt']))
                     || isStaff();
 
       allow delete: if isStaff();
@@ -49,8 +55,12 @@ service cloud.firestore {
     // ── venue_requests/{id} ────────────────────────────────────────────────────
     match /venue_requests/{requestId} {
 
-      allow create: if request.resource.data.keys().hasAll(['email', 'venueName', 'status', 'createdAt'])
-                    && request.resource.data.status == 'pending';
+      // Require authentication to prevent anonymous spam of the admin queue.
+      allow create: if isAuthenticated()
+                    && request.resource.data.keys().hasAll(['email', 'venueName', 'status', 'createdAt'])
+                    && request.resource.data.status == 'pending'
+                    && request.resource.data.venueName is string
+                    && request.resource.data.venueName.size() <= 200;
 
       allow read: if isStaff()
                   || (isAuthenticated() && (resource.data.userId == request.auth.uid
@@ -64,16 +74,20 @@ service cloud.firestore {
 
       allow read: if true;
 
-      // Authenticated venue owners (portal) OR unauthenticated app submissions
-      // Either way: status MUST be 'pending' on create — admin approves before going live
+      // Authenticated venue owners (portal) OR unauthenticated app submissions.
+      // Status MUST be 'pending' — admin approves before going live.
       allow create: if (request.resource.data.status == 'pending'
                     && request.resource.data.keys().hasAll(['title','venueName','date','city','status'])
+                    && request.resource.data.title.size() <= 200
+                    && request.resource.data.venueName.size() <= 200
                     && (isVenueOwner() || request.auth == null))
                     || (isAuthenticated() && request.auth.token.email == 'app.tonight1@gmail.com');
 
+      // Venue owners can update only their own events and cannot change the status.
       allow update: if (isVenueOwner()
                         && resource.data.publishedBy == request.auth.uid
-                        && request.resource.data.publishedBy == request.auth.uid)
+                        && request.resource.data.publishedBy == request.auth.uid
+                        && request.resource.data.status == resource.data.status)
                     || isStaff();
 
       allow delete: if (isVenueOwner() && resource.data.publishedBy == request.auth.uid)
@@ -85,7 +99,9 @@ service cloud.firestore {
     match /community_signups/{id} {
       allow create: if request.resource.data.keys().hasAll(['fullName','email'])
                     && request.resource.data.email is string
-                    && request.resource.data.email.size() <= 254;
+                    && request.resource.data.email.size() <= 254
+                    && request.resource.data.fullName is string
+                    && request.resource.data.fullName.size() <= 100;
       allow read, update, delete: if isStaff();
     }
 
@@ -93,15 +109,26 @@ service cloud.firestore {
     // Open write: anyone joining a guestlist (no auth required)
     match /guestlist/{id} {
       allow create: if request.resource.data.keys().hasAll(['ref','buyerEmail','eventTitle'])
-                    && request.resource.data.buyerEmail is string;
-      allow read: if isStaff() || isVenueOwner();
+                    && request.resource.data.buyerEmail is string
+                    && request.resource.data.buyerEmail.size() <= 254
+                    && request.resource.data.ref is string
+                    && request.resource.data.ref.size() <= 50
+                    && request.resource.data.eventTitle is string
+                    && request.resource.data.eventTitle.size() <= 200;
+      // Venue owners can only read guestlist entries for their own events.
+      allow read: if isStaff()
+                  || (isVenueOwner() && resource.data.venueOwnerId == request.auth.uid);
       allow update, delete: if isStaff();
     }
 
     // ── deals/{id} ────────────────────────────────────────────────────────────
     // Open write: anyone claiming a deal
     match /deals/{id} {
-      allow create: if request.resource.data.keys().hasAll(['code','dealTitle']);
+      allow create: if request.resource.data.keys().hasAll(['code','dealTitle'])
+                    && request.resource.data.code is string
+                    && request.resource.data.code.size() <= 50
+                    && request.resource.data.dealTitle is string
+                    && request.resource.data.dealTitle.size() <= 200;
       allow read, update, delete: if isStaff();
     }
 
@@ -109,7 +136,10 @@ service cloud.firestore {
     // Open write: business owners signing up
     match /pro_signups/{id} {
       allow create: if request.resource.data.keys().hasAll(['name','email'])
-                    && request.resource.data.email is string;
+                    && request.resource.data.email is string
+                    && request.resource.data.email.size() <= 254
+                    && request.resource.data.name is string
+                    && request.resource.data.name.size() <= 200;
       allow read, update, delete: if isStaff();
     }
 

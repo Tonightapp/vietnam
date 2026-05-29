@@ -44,8 +44,10 @@ function makeTransporter(user, pass) {
 // ── Helper: get community subscribers for a city ──────────────────────────────
 // Reads community_signups (app sign-ups) — city match or no city set
 async function getUsersForCity(city) {
+  // Deduplicate to avoid Firestore error when city is already '' or undefined
+  const cities = city ? [...new Set([city, ''])] : [''];
   const snap = await db.collection('community_signups')
-    .where('city', 'in', [city, ''])
+    .where('city', 'in', cities)
     .limit(500)
     .get();
   return snap.docs.map(d => {
@@ -382,17 +384,22 @@ exports.onGuestlistCreate = onDocumentCreated(
   },
   async (event) => {
     const tk = event.data.data();
-    if (!tk.buyerEmail) return;
+    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!tk.buyerEmail || !emailRe.test(tk.buyerEmail)) return;
+    if (tk.emailSent) return;
 
     const transporter = makeTransporter(EMAIL_USER.value(), EMAIL_PASS.value());
     const fromLabel   = EMAIL_FROM.value() || `Tonight Vietnam <${EMAIL_USER.value()}>`;
     const ref         = tk.ref || 'TN-XXXX-XXXX';
-    const qrUrl       = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&color=000000&bgcolor=ffffff&data=${encodeURIComponent('TONIGHT:' + ref)}`;
     const firstName   = (tk.buyerName || 'Guest').split(' ')[0];
 
     const dateFormatted = tk.date
       ? new Date(tk.date).toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' })
       : '';
+
+    // Generate QR code server-side as base64 data URI (no external dependency)
+    const QRCode = require('qrcode');
+    const qrDataUrl = await QRCode.toDataURL('TONIGHT:' + ref, { width: 200, margin: 1 });
 
     const html = `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"/></head>
@@ -418,7 +425,7 @@ exports.onGuestlistCreate = onDocumentCreated(
   </td></tr>
   <tr><td style="padding:0 32px 24px;text-align:center">
     <div style="background:#fff;border-radius:12px;padding:20px;display:inline-block">
-      <img src="${qrUrl}" width="200" height="200" alt="QR Code" style="display:block;border-radius:4px"/>
+      <img src="${qrDataUrl}" width="200" height="200" alt="QR Code" style="display:block;border-radius:4px"/>
       <div style="margin-top:8px;font-size:10px;font-weight:700;letter-spacing:1.5px;color:#333;font-family:monospace">${escHtml(ref)}</div>
     </div>
     <div style="font-size:12px;color:rgba(255,255,255,0.35);margin-top:10px">Show this QR at venue entry · Staff scans to check you in</div>
@@ -431,16 +438,18 @@ exports.onGuestlistCreate = onDocumentCreated(
 </td></tr></table>
 </body></html>`;
 
-    await transporter.sendMail({
-      from:    fromLabel,
-      to:      tk.buyerEmail,
-      subject: `🎫 Your Tonight Ticket — ${tk.eventTitle || 'Guestlist Confirmed'}`,
-      html,
-    });
-
-    // Mark email sent
-    await event.data.ref.update({ emailSent: true, emailSentAt: Timestamp.now() });
-    console.log(`[onGuestlistCreate] QR ticket sent to ${tk.buyerEmail} ref=${ref}`);
+    try {
+      await transporter.sendMail({
+        from:    fromLabel,
+        to:      tk.buyerEmail,
+        subject: `🎫 Your Tonight Ticket — ${tk.eventTitle || 'Guestlist Confirmed'}`,
+        html,
+      });
+      await event.data.ref.update({ emailSent: true, emailSentAt: Timestamp.now() });
+      console.log(`[onGuestlistCreate] QR ticket sent to ${tk.buyerEmail} ref=${ref}`);
+    } catch (err) {
+      console.error(`[onGuestlistCreate] Email failed for ${tk.buyerEmail}:`, err.message);
+    }
   }
 );
 
@@ -455,13 +464,16 @@ exports.onDealCreate = onDocumentCreated(
   },
   async (event) => {
     const dl = event.data.data();
-    if (!dl.guestEmail) return;
+    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!dl.guestEmail || !emailRe.test(dl.guestEmail)) return;
+    if (dl.emailSent) return;
 
     const transporter = makeTransporter(EMAIL_USER.value(), EMAIL_PASS.value());
     const fromLabel   = EMAIL_FROM.value() || `Tonight Vietnam <${EMAIL_USER.value()}>`;
     const code        = dl.code || '';
     const qrData      = dl.qrData || ('TONIGHT-DEAL:' + code);
-    const qrUrl       = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&color=000000&bgcolor=ffffff&data=${encodeURIComponent(qrData)}`;
+    const QRCode      = require('qrcode');
+    const qrDataUrl   = await QRCode.toDataURL(qrData, { width: 200, margin: 1 });
     const firstName   = (dl.guestName || 'Guest').split(' ')[0];
     const window_     = (dl.startTime && dl.endTime) ? `${dl.startTime}–${dl.endTime}` : 'tonight';
 
@@ -489,7 +501,7 @@ exports.onDealCreate = onDocumentCreated(
   </td></tr>
   <tr><td style="padding:0 32px 24px;text-align:center">
     <div style="background:#fff;border-radius:12px;padding:20px;display:inline-block">
-      <img src="${qrUrl}" width="200" height="200" alt="QR Code" style="display:block;border-radius:4px"/>
+      <img src="${qrDataUrl}" width="200" height="200" alt="QR Code" style="display:block;border-radius:4px"/>
       <div style="margin-top:8px;font-size:10px;font-weight:700;letter-spacing:1.5px;color:#333;font-family:monospace">${escHtml(code)}</div>
     </div>
     <div style="font-size:12px;color:rgba(255,255,255,0.35);margin-top:10px">Show this QR at the venue · Staff scans to unlock your deal</div>
@@ -502,15 +514,18 @@ exports.onDealCreate = onDocumentCreated(
 </td></tr></table>
 </body></html>`;
 
-    await transporter.sendMail({
-      from:    fromLabel,
-      to:      dl.guestEmail,
-      subject: `🎫 Your Tonight Deal — ${dl.dealTitle || 'Deal Confirmed'} at ${dl.venueName || ''}`,
-      html,
-    });
-
-    await event.data.ref.update({ emailSent: true, emailSentAt: Timestamp.now() });
-    console.log(`[onDealCreate] Deal voucher sent to ${dl.guestEmail} code=${code}`);
+    try {
+      await transporter.sendMail({
+        from:    fromLabel,
+        to:      dl.guestEmail,
+        subject: `🎫 Your Tonight Deal — ${dl.dealTitle || 'Deal Confirmed'} at ${dl.venueName || ''}`,
+        html,
+      });
+      await event.data.ref.update({ emailSent: true, emailSentAt: Timestamp.now() });
+      console.log(`[onDealCreate] Deal voucher sent to ${dl.guestEmail} code=${code}`);
+    } catch (err) {
+      console.error(`[onDealCreate] Email failed for ${dl.guestEmail}:`, err.message);
+    }
   }
 );
 
@@ -533,6 +548,7 @@ exports.onVenueApproved = onDocumentUpdated(
 
     // Only run when status flips to 'approved'
     if (before.status === 'approved' || after.status !== 'approved') return;
+    if (after.authCreated) return;
 
     const email     = after.email;
     const venueName = after.venueName || after.venue_name || 'Your Venue';

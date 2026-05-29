@@ -4,7 +4,18 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Join Tonight Vietnam — List Your Venue</title>
+<meta name="description" content="List your bar, club or venue on Tonight Vietnam. Free listing, reviewed within 24 hours. Reach nightlife seekers across Ho Chi Minh City, Hanoi and Da Nang."/>
+<meta property="og:title" content="List Your Venue on Tonight Vietnam"/>
+<meta property="og:description" content="Free venue listing. Reach thousands of nightlife seekers across Vietnam. Reviewed within 24 hours."/>
+<meta property="og:image" content="https://tonightvietnam.com/images/og-cover.jpg"/>
+<meta property="og:url" content="https://tonightvietnam.com/portal/join.html"/>
+<meta property="og:type" content="website"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="theme-color" content="#080810"/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌙</text></svg>"/>
+<link rel="canonical" href="https://tonightvietnam.com/portal/join.html"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -24,7 +35,7 @@
   --text2:    #94a3b8;
   --text3:    #475569;
 }
-html,body{min-height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+html,body{min-height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden}
 
 /* ── NAV ── */
 nav{
@@ -107,6 +118,7 @@ nav{
 .form-grid{display:grid;gap:20px}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media(max-width:540px){.form-row{grid-template-columns:1fr}}
+@media(max-width:480px){.form-card{padding:20px 16px}}
 
 .field-label{display:block;font-size:11px;font-weight:700;color:var(--text2);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:8px}
 .field-label .opt{font-weight:400;color:var(--text3);text-transform:none;letter-spacing:0}
@@ -190,7 +202,6 @@ footer a:hover{color:var(--text2)}
   </a>
   <div class="nav-links">
     <a href="./landing.html">Home</a>
-    <a href="./index.html">Staff Portal</a>
   </div>
 </nav>
 
@@ -360,7 +371,7 @@ footer a:hover{color:var(--text2)}
           </div>
         </div>
 
-        <button type="submit" class="submit-btn" id="submit-btn" onclick="submitForm()">
+        <button type="submit" class="submit-btn" id="submit-btn">
           Submit Application
         </button>
 
@@ -382,7 +393,7 @@ footer a:hover{color:var(--text2)}
 </div>
 
 <footer>
-  <p>© 2025 Tonight Vietnam. All rights reserved. &nbsp;·&nbsp; <a href="#">Privacy</a> &nbsp;·&nbsp; <a href="#">Contact</a></p>
+  <p>© 2026 Tonight Vietnam. All rights reserved. &nbsp;·&nbsp; <a href="#">Privacy</a> &nbsp;·&nbsp; <a href="#">Contact</a></p>
 </footer>
 
 <script type="module">
@@ -398,10 +409,10 @@ const FIREBASE_CONFIG = {
 };
 
 const CDN = 'https://www.gstatic.com/firebasejs/10.12.0';
-const { initializeApp } = await import(`${CDN}/firebase-app.js`);
+const { initializeApp, getApps } = await import(`${CDN}/firebase-app.js`);
 const { getFirestore, collection, addDoc, serverTimestamp } = await import(`${CDN}/firebase-firestore.js`);
 
-const app = initializeApp(FIREBASE_CONFIG);
+const app = getApps().length ? getApps()[0] : initializeApp(FIREBASE_CONFIG);
 const db  = getFirestore(app);
 
 // ── CHAR COUNTER ───────────────────────────────────────────────────────────────
@@ -433,11 +444,20 @@ function validate() {
 }
 
 // ── SUBMIT ─────────────────────────────────────────────────────────────────────
-window.submitForm = async function() {
+let _submitted = false;
+
+async function submitForm() {
+  if (_submitted) return;
   if (!validate()) return;
+  _submitted = true;
   const btn = document.getElementById('submit-btn');
   btn.disabled = true;
   btn.innerHTML = '<div class="spinner"></div> Submitting...';
+
+  const ig  = document.getElementById('f-ig').value.trim();
+  let   web = document.getElementById('f-web').value.trim();
+  if (web && !/^https?:\/\//i.test(web)) web = 'https://' + web;
+
   try {
     await addDoc(collection(db, 'venue_requests'), {
       fullName:    document.getElementById('f-name').value.trim(),
@@ -447,21 +467,26 @@ window.submitForm = async function() {
       city:        document.getElementById('f-city').value,
       venueType:   document.getElementById('f-type').value,
       description: document.getElementById('f-desc').value.trim(),
-      instagram:   document.getElementById('f-ig').value.trim(),
-      website:     document.getElementById('f-web').value.trim(),
-      status:      'pending',
-      createdAt:   serverTimestamp(),
+      ...(ig  ? { instagram: ig  } : {}),
+      ...(web ? { website:   web } : {}),
+      status:    'pending',
+      createdAt: serverTimestamp(),
     });
     document.getElementById('main').style.display = 'none';
     document.getElementById('success').classList.add('on');
     window.scrollTo({top: 0, behavior: 'smooth'});
   } catch(err) {
     console.error(err);
+    _submitted = false;
     btn.disabled = false;
     btn.innerHTML = 'Submit Application';
-    alert('Something went wrong. Please try again or contact us directly.');
+    const errEl = document.getElementById('e-desc');
+    errEl.textContent = 'Something went wrong. Please try again.';
+    errEl.classList.add('on');
   }
-};
+}
+
+document.getElementById('join-form').addEventListener('submit', e => { e.preventDefault(); submitForm(); });
 </script>
 </body>
 </html>

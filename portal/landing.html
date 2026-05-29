@@ -3,8 +3,22 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Tonight Vietnam — Discover Events & Nightlife</title>
+<title>Tonight Vietnam — Discover Events & Nightlife in Vietnam</title>
+<meta name="description" content="Tonight Vietnam is your guide to the best events, bars and nightlife in Ho Chi Minh City, Hanoi and Da Nang. Join free."/>
+<meta property="og:title" content="Tonight Vietnam — Discover Events & Nightlife"/>
+<meta property="og:description" content="Curated events, rooftop bars, beach clubs and DJ nights across Vietnam. Free to join."/>
+<meta property="og:image" content="https://tonightvietnam.com/images/og-cover.jpg"/>
+<meta property="og:url" content="https://tonightvietnam.com"/>
+<meta property="og:type" content="website"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="Tonight Vietnam — Discover Events & Nightlife"/>
+<meta name="twitter:description" content="Curated events, rooftop bars, beach clubs and DJ nights across Vietnam."/>
+<meta name="twitter:image" content="https://tonightvietnam.com/images/og-cover.jpg"/>
+<link rel="canonical" href="https://tonightvietnam.com"/>
+<meta name="theme-color" content="#080810"/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌙</text></svg>"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -396,11 +410,15 @@ footer{
       <form class="signup-form" id="signup-form" novalidate onsubmit="return false">
         <div class="s-input">
           <svg viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
-          <input type="text" id="s-name" placeholder="Your name" required/>
+          <input type="text" id="s-name" placeholder="Your name" required autocomplete="name"/>
         </div>
         <div class="s-input">
           <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-          <input type="email" id="s-email" placeholder="your@email.com" required/>
+          <input type="email" id="s-email" placeholder="your@email.com" required autocomplete="email"/>
+        </div>
+        <div class="s-input">
+          <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+          <input type="tel" id="s-phone" placeholder="Phone number (optional)" autocomplete="tel"/>
         </div>
         <div class="s-input">
           <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
@@ -414,7 +432,8 @@ footer{
             <option>Other in Vietnam</option>
           </select>
         </div>
-        <button type="submit" class="s-submit" id="s-btn" onclick="signupSubmit()">
+        <div id="s-err" style="display:none;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);border-radius:8px;padding:10px 14px;font-size:13px;color:#ef4444;text-align:left"></div>
+        <button type="submit" class="s-submit" id="s-btn">
           Join Tonight — It's Free 🎉
         </button>
       </form>
@@ -464,7 +483,7 @@ footer{
     </div>
   </div>
   <div class="footer-bottom">
-    <span>© 2025 Tonight Vietnam. All rights reserved.</span>
+    <span>© 2026 Tonight Vietnam. All rights reserved.</span>
     <span>Built for the nightlife of Vietnam 🇻🇳</span>
   </div>
 </footer>
@@ -481,9 +500,9 @@ const FIREBASE_CONFIG = {
   appId:             "1:838063793192:web:595f6ff8fc1a71b474c11d",
 };
 const CDN = 'https://www.gstatic.com/firebasejs/10.12.0';
-const { initializeApp } = await import(`${CDN}/firebase-app.js`);
+const { initializeApp, getApps } = await import(`${CDN}/firebase-app.js`);
 const { getFirestore, collection, addDoc, query, where, orderBy, limit, getDocs, serverTimestamp } = await import(`${CDN}/firebase-firestore.js`);
-const app = initializeApp(FIREBASE_CONFIG);
+const app = getApps().length ? getApps()[0] : initializeApp(FIREBASE_CONFIG);
 const db  = getFirestore(app);
 
 // ── LOAD APPROVED EVENTS ───────────────────────────────────────────────────────
@@ -505,9 +524,9 @@ function renderEvents(events) {
   const grid = document.getElementById('live-events-grid');
   const now  = new Date();
   grid.innerHTML = events.map(e => {
-    const eDate = new Date(e.date);
+    const eDate = e.date?.toDate ? e.date.toDate() : new Date(e.date);
     const isPast = eDate < now;
-    const dateStr = eDate.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+    const dateStr = isNaN(eDate) ? 'TBA' : eDate.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
     const priceStr = (!e.price || e.price === 0) ? 'Free' : Number(e.price).toLocaleString()+' VND';
     return `
     <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;${isPast?'opacity:0.5':''}">
@@ -533,14 +552,21 @@ function esc(s) {
 }
 
 // ── SIGN-UP ────────────────────────────────────────────────────────────────────
-window.signupSubmit = async function() {
+function showSignupErr(msg) {
+  const el = document.getElementById('s-err');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+async function signupSubmit() {
   const name  = document.getElementById('s-name').value.trim();
   const email = document.getElementById('s-email').value.trim();
+  const phone = document.getElementById('s-phone').value.trim();
   const city  = document.getElementById('s-city').value;
-  if (!name || !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    alert('Please fill in your name and a valid email address.');
-    return;
-  }
+  document.getElementById('s-err').style.display = 'none';
+  if (!name) { showSignupErr('Please enter your name.'); return; }
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showSignupErr('Please enter a valid email address.'); return; }
+  if (!city) { showSignupErr('Please select your city.'); return; }
   const btn = document.getElementById('s-btn');
   btn.disabled = true;
   btn.innerHTML = '<div class="spinner"></div> Joining...';
@@ -548,6 +574,7 @@ window.signupSubmit = async function() {
     await addDoc(collection(db, 'community_signups'), {
       fullName:  name,
       email:     email.toLowerCase(),
+      phone:     phone,
       city:      city,
       role:      'user',
       createdAt: serverTimestamp(),
@@ -558,9 +585,11 @@ window.signupSubmit = async function() {
     console.error(err);
     btn.disabled = false;
     btn.innerHTML = 'Join Tonight — It\'s Free 🎉';
-    alert('Something went wrong. Please try again.');
+    showSignupErr('Something went wrong. Please try again.');
   }
-};
+}
+
+document.getElementById('signup-form').addEventListener('submit', e => { e.preventDefault(); signupSubmit(); });
 
 // ── MOBILE MENU ────────────────────────────────────────────────────────────────
 window.toggleMenu = function() {
