@@ -969,15 +969,15 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
             <div id="aa-modal-title" style="font-size:18px;font-weight:800;color:#fff">Add Artist</div>
             <button onclick="closeAddArtist()" style="background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer">✕</button>
           </div>
-          <form id="add-artist-form" onsubmit="submitArtist(event)" style="display:flex;flex-direction:column;gap:14px">
+          <form id="add-artist-form" onsubmit="submitArtist(event)" novalidate style="display:flex;flex-direction:column;gap:14px">
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
               <div>
                 <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Name *</label>
-                <input id="aa-name" type="text" placeholder="e.g. DJ Useph" required style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/>
+                <input id="aa-name" type="text" placeholder="e.g. DJ Useph" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/>
               </div>
               <div>
                 <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Genre *</label>
-                <input id="aa-genre" type="text" placeholder="e.g. House / Afrobeats" required style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/>
+                <input id="aa-genre" type="text" placeholder="e.g. House / Afrobeats" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/>
               </div>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
@@ -1018,21 +1018,21 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
             <div id="ae-modal-title" style="font-size:18px;font-weight:800;color:#fff">Add Event</div>
             <button onclick="closeAddEvent()" style="background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer">✕</button>
           </div>
-          <form id="add-event-form" onsubmit="submitAddEvent(event)" style="display:flex;flex-direction:column;gap:14px">
+          <form id="add-event-form" onsubmit="submitAddEvent(event)" novalidate style="display:flex;flex-direction:column;gap:14px">
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
               <div>
                 <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Event Title *</label>
-                <input id="ae-title" type="text" placeholder="e.g. Saturday Night Techno" required style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/>
+                <input id="ae-title" type="text" placeholder="e.g. Saturday Night Techno" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/>
               </div>
               <div>
                 <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Venue Name *</label>
-                <input id="ae-venue" type="text" placeholder="e.g. Broma Not A Bar" required style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/>
+                <input id="ae-venue" type="text" placeholder="e.g. Broma Not A Bar" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/>
               </div>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
               <div>
                 <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">City *</label>
-                <select id="ae-city" required style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit">
+                <select id="ae-city" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit">
                   <option value="">Select city...</option>
                   <option>Hanoi</option>
                   <option>Ho Chi Minh City</option>
@@ -1047,14 +1047,16 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
                 <select id="ae-genre" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit">
                   <option>House</option><option>Techno</option><option>DJ Night</option>
                   <option>Live Music</option><option>Electronic</option><option>Hip-Hop</option>
-                  <option>Jazz</option><option>EDM</option><option>Themed Party</option><option>Other</option>
+                  <option>Afrobeats</option><option>R&amp;B</option><option>Jazz</option>
+                  <option>EDM</option><option>Latin</option><option>Themed Party</option>
+                  <option>Happy Hour</option><option>Other</option>
                 </select>
               </div>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
               <div>
                 <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Date *</label>
-                <input id="ae-date" type="date" required style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/>
+                <input id="ae-date" type="date" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/>
               </div>
               <div>
                 <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Doors Open</label>
@@ -2120,6 +2122,14 @@ window.openEditEvent = function(eventId) {
 window.submitAddEvent = async function(e) {
   e.preventDefault();
   const btn = document.getElementById('ae-submit-btn');
+  const title = document.getElementById('ae-title').value.trim();
+  const venue = document.getElementById('ae-venue').value.trim();
+  const city  = document.getElementById('ae-city').value;
+  const date  = document.getElementById('ae-date').value;
+  if (!title)  { toast('⚠️ Event title is required'); return; }
+  if (!venue)  { toast('⚠️ Venue name is required'); return; }
+  if (!city)   { toast('⚠️ Please select a city'); return; }
+  if (!date)   { toast('⚠️ Date is required'); return; }
   btn.disabled = true; btn.textContent = editingEventId ? 'Saving…' : 'Publishing…';
   const data = {
     title:       document.getElementById('ae-title').value.trim(),
@@ -2278,6 +2288,10 @@ window.openEditArtist = function(artistId) {
 window.submitArtist = async function(e) {
   e.preventDefault();
   const btn = document.getElementById('aa-submit-btn');
+  const name  = document.getElementById('aa-name').value.trim();
+  const genre = document.getElementById('aa-genre').value.trim();
+  if (!name)  { toast('⚠️ Artist name is required'); return; }
+  if (!genre) { toast('⚠️ Genre is required'); return; }
   btn.disabled = true; btn.textContent = 'Saving…';
   const data = {
     name:      document.getElementById('aa-name').value.trim(),
