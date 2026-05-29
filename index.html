@@ -2972,13 +2972,9 @@ let BANNER_IDS=[];
 let EVENTS=[];
 const STATIC_EVENTS=[]; // no hardcoded fallback — portal manages everything
 
-const ARTISTS=[];
-
-const LOCAL_ARTISTS=[
-  {name:"DJ Useph",        genre:"House / Afrobeats",  city:"Hanoi",       img:"images/djuseph.jpg",    instagram:"https://www.instagram.com/useph0/"},
-  {name:"DJ Psyboost",     genre:"House / Electronic", city:"Hanoi",       img:"images/djpsyboost.jpg", instagram:"https://www.instagram.com/djpsyboost/", bio:"Born in Namibia, raised in South Africa, and chasing a mystical dream across Vietnam, DJ PsyBoost is a sonic storyteller whose journey transcends borders and genres. From the age of 7, music became his native language — mastering the violin and cello, performing in symphony orchestras across Germany, conducting full choirs, and teaching music long before he commanded a DJ booth. With over two decades of musical mastery, PsyBoost's sets are a seamless fusion of precision, passion, and pure dancefloor energy.\n\nA true multi-genre maestro, PsyBoost moves effortlessly from House, Afro House, and Techno to Trance and his signature Psytrance. His electrifying mashups and genre-bending flow have made him a crowd favorite, with every performance crafted to lift spirits, move bodies, and ignite hearts."},
-  {name:"Solea",           genre:"R&B / House / Techno", city:"Hanoi",      img:"images/solea.jpg",      instagram:"https://www.instagram.com/solea.rhythm/", bio:"Where R&B melts into House & Techno. Golden hours. Deep grooves. Afro fire in motion. Born in Vietnam — Moving worldwide."},
-];
+// Artists are managed from the admin portal — populated by Firestore subscription below
+let ARTISTS=[];
+let LOCAL_ARTISTS=[];
 
 const VENUES=[
   {id:31,name:"Sacred Garden",      city:"Hanoi", area:"Tay Ho",        type:"Garden Bar", capacity:150,  genres:["House","Afrobeats","Indie"], open:"11am",close:"12am", img:"images/sacred-garden-logo.jpg", logo:"images/sacred-garden-logo.jpg", desc:"A lush hidden garden bar in the heart of Tay Ho. Sacred Garden blends open-air greenery with craft drinks, good music and a relaxed crowd. Known for afternoon sessions that stretch into late-night vibes. Home of Saigon Cider in Hanoi."},
@@ -6145,6 +6141,24 @@ function _initApp(){
         renderAll();
       }, err=>{ console.warn('[Tonight Firebase events]',err.message); });
     }catch(err){ console.warn('[Tonight Firebase events]',err.message); }
+  })();
+
+  // ── LIVE ARTISTS: real-time Firestore subscription ──
+  (async()=>{
+    try{
+      const {collection,onSnapshot,query,orderBy}=await import(_FB_CDN+'/firebase-firestore.js');
+      const db=await _getDb();
+      onSnapshot(query(collection(db,'artists'),orderBy('name','asc')), snap=>{
+        const all=snap.docs.map(d=>{
+          const a=d.data();
+          return{id:d.id,name:a.name||'',genre:a.genre||'',city:a.city||'Hanoi',
+                 img:a.img||'',instagram:a.instagram||'',bio:a.bio||''};
+        }).filter(a=>!a.hidden);
+        LOCAL_ARTISTS=all;
+        ARTISTS=all;
+        try{ renderRows(); }catch(_){}
+      });
+    }catch(e){ console.warn('[Tonight artists]',e.message); }
   })();
 }
 // Guard: run immediately if DOM is ready, else wait
