@@ -519,6 +519,79 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
 .area-quick-select{background:var(--bg);border:1px solid var(--border2);color:var(--text2);border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;font-family:inherit;outline:none}
 .area-quick-select:focus{border-color:var(--blue)}
 
+/* ─── ICON BUTTONS (compact row actions) ────────────────── */
+.ib{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:28px;padding:0 6px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--text3);cursor:pointer;font-size:12px;transition:all .1s;flex-shrink:0;font-family:inherit;white-space:nowrap;gap:3px}
+.ib:hover{background:var(--card2);color:var(--text);border-color:var(--border2)}
+.ib.ib-approve:hover{background:rgba(34,197,94,.12);color:var(--green);border-color:rgba(34,197,94,.3)}
+.ib.ib-reject:hover{background:rgba(239,68,68,.12);color:var(--red);border-color:rgba(239,68,68,.3)}
+.ib.ib-del:hover{background:rgba(239,68,68,.1);color:var(--red);border-color:rgba(239,68,68,.25)}
+.ib.ib-on{background:rgba(245,200,66,.1);color:var(--gold);border-color:rgba(245,200,66,.3)}
+.ib.ib-green{background:rgba(34,197,94,.08);color:var(--green);border-color:rgba(34,197,94,.2)}
+.ib.ib-confirm{background:rgba(239,68,68,.12);color:var(--red);border-color:rgba(239,68,68,.3);animation:pulse-red .4s}
+@keyframes pulse-red{0%,100%{opacity:1}50%{opacity:.6}}
+
+/* ─── STATUS BADGES ─────────────────────────────────────── */
+.s-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;padding:3px 8px;border-radius:5px;white-space:nowrap}
+.s-badge::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.7;flex-shrink:0}
+.s-badge.s-approved{background:rgba(34,197,94,.1);color:var(--green)}
+.s-badge.s-pending{background:rgba(249,115,22,.1);color:var(--orange)}
+.s-badge.s-rejected{background:rgba(239,68,68,.1);color:var(--red)}
+
+/* ─── EVENTS TABLE ──────────────────────────────────────── */
+.evt-table{width:100%;border-collapse:collapse}
+.evt-table thead th{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;padding:9px 12px;text-align:left;background:var(--bg);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:2;white-space:nowrap}
+.evt-table thead th:first-child{padding-left:16px}
+.evt-tr{border-bottom:1px solid var(--border);transition:background .1s}
+.evt-tr:hover{background:rgba(255,255,255,.018)}
+.evt-tr.evt-tr-pending{border-left:3px solid var(--orange)}
+.evt-tr.evt-tr-approved{border-left:3px solid var(--green)}
+.evt-tr.evt-tr-rejected{border-left:3px solid var(--red)}
+.evt-tr.evt-tr-hidden{opacity:.55}
+.evt-tr td{padding:10px 12px;vertical-align:middle;font-size:13px;color:var(--text2)}
+.evt-tr td:first-child{padding-left:16px}
+.evt-mini-thumb{width:44px;height:44px;border-radius:7px;overflow:hidden;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.evt-mini-thumb img{width:100%;height:100%;object-fit:cover}
+.evt-tr-title{font-size:13px;font-weight:700;color:var(--text);line-height:1.3;margin-bottom:2px}
+.evt-tr-sub{font-size:11px;color:var(--text3);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.evt-mini-tag{font-size:10px;font-weight:600;background:var(--card2);color:var(--text3);border-radius:4px;padding:1px 5px}
+.evt-row-actions{display:flex;gap:3px;align-items:center;flex-wrap:nowrap}
+
+/* ─── BULK BAR ──────────────────────────────────────────── */
+.bulk-bar{display:none;align-items:center;gap:10px;padding:10px 18px;background:rgba(59,130,246,.07);border-bottom:1px solid rgba(59,130,246,.18);font-size:13px;color:var(--blue);font-weight:600}
+.bulk-bar.visible{display:flex}
+.bulk-bar .btn{font-size:11px;padding:5px 12px;border-radius:6px;border:1px solid transparent;cursor:pointer;font-weight:700;font-family:inherit;display:inline-flex;align-items:center;gap:5px}
+.bulk-bar .b-approve{background:rgba(34,197,94,.12);color:var(--green);border-color:rgba(34,197,94,.25)}
+.bulk-bar .b-reject{background:rgba(239,68,68,.1);color:var(--red);border-color:rgba(239,68,68,.2)}
+.bulk-bar .b-del{background:rgba(239,68,68,.08);color:var(--red);border-color:rgba(239,68,68,.15)}
+.bulk-bar .b-clear{background:none;color:var(--text3);border-color:var(--border)}
+input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
+
+/* ─── ATTENTION WIDGET ──────────────────────────────────── */
+.attn-card{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;overflow:hidden}
+.attn-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border)}
+.attn-head-left{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.attn-empty{padding:20px 16px;font-size:13px;color:var(--text3);display:flex;align-items:center;gap:8px}
+.attn-row{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border);gap:12px}
+.attn-row:last-child{border-bottom:none}
+.attn-info{flex:1;min-width:0}
+.attn-name{font-size:13px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.attn-sub{font-size:11px;color:var(--text3);margin-top:1px}
+.attn-acts{display:flex;gap:4px;flex-shrink:0}
+
+/* ─── STAT CARDS CLICKABLE ──────────────────────────────── */
+.stat-card{cursor:pointer;transition:border-color .15s,transform .1s}
+.stat-card:hover{border-color:var(--border2);transform:translateY(-1px)}
+
+/* ─── ARTIST TABLE VIEW ─────────────────────────────────── */
+.art-table{width:100%;border-collapse:collapse}
+.art-table thead th{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;padding:9px 16px;text-align:left;background:var(--bg);border-bottom:1px solid var(--border);white-space:nowrap}
+.art-tr{border-bottom:1px solid var(--border);transition:background .1s}
+.art-tr:hover{background:rgba(255,255,255,.018)}
+.art-tr.art-tr-hidden{opacity:.5}
+.art-tr td{padding:10px 16px;vertical-align:middle;font-size:13px;color:var(--text2)}
+.art-mini-photo{width:40px;height:40px;border-radius:50%;overflow:hidden;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.art-mini-photo img{width:100%;height:100%;object-fit:cover;object-position:top}
+
 /* ─── ARTIST CARDS ──────────────────────────────────────── */
 .art-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;padding:18px}
 .art-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;transition:border-color .15s}
@@ -718,7 +791,7 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
       <!-- ── OVERVIEW ── -->
       <div class="panel active" id="panel-overview">
         <div class="stats-row">
-          <div class="stat-card">
+          <div class="stat-card" onclick="navTo('members')" title="View all members">
             <div class="stat-top">
               <div class="stat-icon" style="background:rgba(168,85,247,0.1)">
                 <svg viewBox="0 0 24 24" style="fill:#a855f7"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
@@ -739,7 +812,7 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
             <div class="stat-label">New Sign-Ups</div>
             <div class="stat-note">last 7 days</div>
           </div>
-          <div class="stat-card">
+          <div class="stat-card" onclick="navTo('events')" title="View all events">
             <div class="stat-top">
               <div class="stat-icon" style="background:rgba(59,130,246,0.1)">
                 <svg viewBox="0 0 24 24" style="fill:#3b82f6"><path d="M20 6h-2.18c.07-.44.18-.88.18-1.35C18 2.99 16.01 1 13.65 1c-1.3 0-2.48.56-3.33 1.44l-.65.72-.65-.72C8.15 1.56 6.96 1 5.67 1 3.31 1 1.32 2.99 1.32 5.35c0 .46.08.9.17 1.3L0 8v2l2 1v9c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V11l2-1V8l-4-2z"/></svg>
@@ -749,7 +822,7 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
             <div class="stat-label">Live Events</div>
             <div class="stat-note">published in app</div>
           </div>
-          <div class="stat-card alert" id="s-pending-card">
+          <div class="stat-card alert" id="s-pending-card" onclick="navTo('venues')" title="View venue applications">
             <div class="stat-top">
               <div class="stat-icon" style="background:rgba(249,115,22,0.1)">
                 <svg viewBox="0 0 24 24" style="fill:#f97316"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
@@ -759,6 +832,18 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
             <div class="stat-label">Pending Reviews</div>
             <div class="stat-note">venue applications</div>
           </div>
+        </div>
+
+        <!-- Needs Attention -->
+        <div class="attn-card" id="attn-section">
+          <div class="attn-head">
+            <div class="attn-head-left">
+              <span style="font-size:16px">⚡</span>
+              Needs Attention
+            </div>
+            <div class="count-pill" id="attn-count">0</div>
+          </div>
+          <div id="attn-widget"><div class="attn-empty">✅ Nothing needs attention right now</div></div>
         </div>
 
         <!-- New Bars -->
@@ -841,7 +926,15 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
           </div>
           <!-- Genre chips (auto-built from data) -->
           <div class="genre-chips" id="genre-chips"></div>
-          <!-- Cards -->
+          <!-- Bulk Action Bar -->
+          <div class="bulk-bar" id="evt-bulk-bar">
+            <span id="evt-bulk-count">0 selected</span>
+            <button class="btn b-approve" onclick="bulkApprove()">✓ Approve</button>
+            <button class="btn b-reject" onclick="bulkReject()">✕ Reject</button>
+            <button class="btn b-del" onclick="bulkDelete()">🗑 Delete</button>
+            <button class="btn b-clear" onclick="clearEvtSelection()" style="margin-left:auto">Clear</button>
+          </div>
+          <!-- Event List -->
           <div id="event-list"></div>
         </div>
       </div>
@@ -1216,12 +1309,14 @@ function subscribeAll() {
       renderBars();
       renderVenueFilters();
       renderVenueList();
+      renderAttentionWidget();
     }),
     onSnapshot(query(collection(db,'events'), orderBy('createdAt','desc')), snap => {
       allEvents = snap.docs.map(d => ({id:d.id,...d.data()}));
       if (allEvents.length === 0) seedDefaultEvents();
       renderStats();
       renderEventsTable();
+      renderAttentionWidget();
     }),
     onSnapshot(query(collection(db,'artists'), orderBy('name','asc')), snap => {
       allArtists = snap.docs.map(d => ({id:d.id,...d.data()}));
@@ -1509,7 +1604,8 @@ window.deleteMember = async function(id, coll, name) {
 let eventFilter  = 'all';
 let genreFilter  = 'all';
 let evtSearchQ   = '';
-const deleteConfirm = new Set(); // ids pending 2nd-click confirm
+const deleteConfirm = new Set();
+let evtSelected  = new Set();
 let _seeded = false;
 
 // Seeds the two hardcoded banner events into Firestore the first time Firestore is empty.
@@ -1618,12 +1714,26 @@ function renderEventsTable() {
     return (a.date||'') < (b.date||'') ? -1 : 1;
   });
 
+  // Keep selection state in sync after re-render
+  evtSelected = new Set([...evtSelected].filter(id => filtered.some(e => e.id === id)));
+  _updateBulkBar();
+
   const el = document.getElementById('event-list');
   if (!filtered.length) {
     el.innerHTML = `<div class="empty"><div class="empty-icon">🎫</div><div class="empty-title">No events match</div><div class="empty-sub">Try a different filter or genre</div></div>`;
     return;
   }
-  el.innerHTML = `<div class="evt-grid">${filtered.map(e => eventCard(e)).join('')}</div>`;
+  el.innerHTML = `<div style="overflow-x:auto"><table class="evt-table">
+    <thead><tr>
+      <th style="width:36px"><input type="checkbox" id="evt-chk-all" onchange="evtSelAll(this.checked)" title="Select all"/></th>
+      <th style="width:54px"></th>
+      <th>Event</th>
+      <th style="white-space:nowrap">Date</th>
+      <th>Status</th>
+      <th style="min-width:220px">Actions</th>
+    </tr></thead>
+    <tbody>${filtered.map(e => eventRow(e)).join('')}</tbody>
+  </table></div>`;
 }
 
 function eventCard(e) {
@@ -1696,6 +1806,62 @@ function eventCard(e) {
   </div>`;
 }
 
+function eventRow(e) {
+  const status     = e.status || 'pending';
+  const title      = esc(e.title || '—');
+  const venue      = esc(e.venueName || e.venue || '—');
+  const area       = e.area || '';
+  const genre      = esc(e.genre || '');
+  const dateStr    = shortDate(e.date);
+  const isFeat     = !!e.featured;
+  const isHidden   = !!e.hidden;
+  const isApproved = status === 'approved';
+  const isPending  = status === 'pending';
+  const isRejected = status === 'rejected';
+  const checked    = evtSelected.has(e.id) ? 'checked' : '';
+  const statusLabel = isApproved ? 'Live' : isPending ? 'Pending' : 'Rejected';
+
+  const thumbInner = e.img
+    ? `<img src="${esc(e.img)}" loading="lazy" alt=""/>`
+    : (e.emoji || '🎵');
+
+  const approveBtn = `<button class="ib ib-approve" title="Approve" onclick="approveEvent('${e.id}','${title}')">✓</button>`;
+  const rejectBtn  = `<button class="ib ib-reject"  title="Reject"  onclick="rejectEvent('${e.id}','${title}')">✕</button>`;
+  const statusBtns = isPending ? approveBtn + rejectBtn : isRejected ? approveBtn : isApproved ? rejectBtn : '';
+
+  const areaSelect = `<select class="area-quick-select" title="Move to area" onchange="moveArea('${e.id}',this.value)" style="padding:3px 6px;font-size:10px">
+    <option value="" ${!area?'selected':''}>📍</option>
+    <option value="Old Quarter" ${area==='Old Quarter'?'selected':''}>Old Quarter</option>
+    <option value="Tay Ho"      ${area==='Tay Ho'?'selected':''}>Tay Ho</option>
+    <option value="Ba Dinh"     ${area==='Ba Dinh'?'selected':''}>Ba Dinh</option>
+    <option value="Red River"   ${area==='Red River'?'selected':''}>Red River</option>
+    <option value="Other"       ${area==='Other'?'selected':''}>Other</option>
+  </select>`;
+
+  const featBtn  = `<button class="ib${isFeat?' ib-on':''}" title="${isFeat?'Unfeature':'Pin to banner'}" onclick="toggleFeatured('${e.id}',${isFeat})">⭐</button>`;
+  const hideBtn  = isHidden
+    ? `<button class="ib ib-green" title="Show on site"    onclick="toggleHidden('${e.id}',true)">👁</button>`
+    : `<button class="ib"          title="Hide from site"  onclick="toggleHidden('${e.id}',false)">🙈</button>`;
+  const editBtn  = `<button class="ib" title="Edit"  onclick="openEditEvent('${e.id}')">✏</button>`;
+  const cloneBtn = `<button class="ib" title="Clone" onclick="cloneEvent('${e.id}')">⧉</button>`;
+  const isDelConf = deleteConfirm.has(e.id);
+  const delBtn   = `<button class="ib ib-del${isDelConf?' ib-confirm':''}" title="Delete" onclick="deleteEventRow('${e.id}','${title}')">${isDelConf?'?':'🗑'}</button>`;
+
+  const hiddenBadge = isHidden ? `<span style="font-size:9px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:3px;padding:1px 5px;margin-left:4px;color:var(--text3)">HIDDEN</span>` : '';
+
+  return `<tr class="evt-tr evt-tr-${status}${isHidden?' evt-tr-hidden':''}" id="etr-${e.id}">
+    <td><input type="checkbox" id="echk-${e.id}" ${checked} onchange="evtSelChanged('${e.id}')"/></td>
+    <td><div class="evt-mini-thumb">${thumbInner}</div></td>
+    <td style="min-width:160px">
+      <div class="evt-tr-title">${title}${isFeat?' ⭐':''}${hiddenBadge}</div>
+      <div class="evt-tr-sub"><span>${venue}</span>${area?`<span class="evt-mini-tag">${esc(area)}</span>`:''}${genre?`<span class="evt-mini-tag">${genre}</span>`:''}</div>
+    </td>
+    <td class="td-muted" style="white-space:nowrap;font-size:12px">${dateStr}${e.time?`<br><span style="font-size:10px">${esc(e.time)}</span>`:''}</td>
+    <td><span class="s-badge s-${status}">${statusLabel}</span></td>
+    <td><div class="evt-row-actions">${statusBtns}${areaSelect}${editBtn}${featBtn}${hideBtn}${cloneBtn}${delBtn}</div></td>
+  </tr>`;
+}
+
 window.setEF = function(f) { eventFilter = f; genreFilter = 'all'; renderEventsTable(); };
 window.setGF = function(g) { genreFilter = g; renderEventsTable(); };
 window.evtSearch = function(q) { evtSearchQ = q.trim(); renderEventsTable(); };
@@ -1743,27 +1909,26 @@ window.moveArea = async function(eventId, area) {
   } catch(e) { toast(`Error: ${e.message}`); }
 };
 
-window.deleteEvent = async function(eventId, title) {
+window.deleteEventRow = async function(eventId, title) {
   if (!deleteConfirm.has(eventId)) {
     deleteConfirm.add(eventId);
-    const card = document.getElementById('ecard-'+eventId);
-    if (card) {
-      const btn = card.querySelector('.ea-del');
-      if (btn) { btn.textContent = 'Sure?'; btn.classList.add('confirm'); }
-    }
+    const row = document.getElementById('etr-'+eventId);
+    if (row) { const b = row.querySelector('.ib-del'); if(b){b.textContent='?';b.classList.add('ib-confirm');} }
     setTimeout(() => {
       deleteConfirm.delete(eventId);
-      const c = document.getElementById('ecard-'+eventId);
-      if (c) { const b = c.querySelector('.ea-del'); if(b){b.textContent='🗑';b.classList.remove('confirm');} }
+      const r = document.getElementById('etr-'+eventId);
+      if (r) { const b = r.querySelector('.ib-del'); if(b){b.textContent='🗑';b.classList.remove('ib-confirm');} }
     }, 3000);
     return;
   }
   deleteConfirm.delete(eventId);
+  evtSelected.delete(eventId);
   try {
     await deleteDoc(doc(db,'events',eventId));
     toast(`"${title}" deleted`);
   } catch(e) { toast(`Error: ${e.message}`); }
 };
+window.deleteEvent = window.deleteEventRow;
 
 // ── FLYER UPLOAD HELPERS ──────────────────────────────────
 function _aeFlyerShow(src) {
@@ -1818,6 +1983,92 @@ window.aeFlyerClear = function() {
   document.getElementById('ae-img-url').value = '';
   document.getElementById('ae-img-file').value = '';
   _aeFlyerShow('');
+};
+
+// ── BULK SELECTION ────────────────────────────────────────
+function _updateBulkBar() {
+  const bar    = document.getElementById('evt-bulk-bar');
+  const cnt    = document.getElementById('evt-bulk-count');
+  const chkAll = document.getElementById('evt-chk-all');
+  const n      = evtSelected.size;
+  if (bar) bar.classList.toggle('visible', n > 0);
+  if (cnt) cnt.textContent = `${n} selected`;
+  if (chkAll) {
+    const rows = document.querySelectorAll('#event-list .evt-tr');
+    chkAll.checked = rows.length > 0 && n >= rows.length;
+    chkAll.indeterminate = n > 0 && n < rows.length;
+  }
+}
+
+window.evtSelChanged = function(id) {
+  const chk = document.getElementById('echk-'+id);
+  chk && chk.checked ? evtSelected.add(id) : evtSelected.delete(id);
+  _updateBulkBar();
+};
+
+window.evtSelAll = function(checked) {
+  document.querySelectorAll('#event-list .evt-tr').forEach(tr => {
+    const id  = tr.id.replace('etr-','');
+    const chk = document.getElementById('echk-'+id);
+    if (chk) { chk.checked = checked; checked ? evtSelected.add(id) : evtSelected.delete(id); }
+  });
+  _updateBulkBar();
+};
+
+window.clearEvtSelection = function() {
+  evtSelected.clear();
+  document.querySelectorAll('#event-list input[type=checkbox]').forEach(c => c.checked = false);
+  _updateBulkBar();
+};
+
+window.bulkApprove = async function() {
+  const ids = [...evtSelected];
+  if (!ids.length) return;
+  if (!confirm(`Approve ${ids.length} event(s)?`)) return;
+  try {
+    for (const id of ids) await updateDoc(doc(db,'events',id), { status:'approved', approvedAt:serverTimestamp(), approvedBy:auth.currentUser?.email||'staff' });
+    toast(`✅ ${ids.length} event(s) approved`);
+    clearEvtSelection();
+  } catch(e) { toast(`Error: ${e.message}`); }
+};
+
+window.bulkReject = async function() {
+  const ids = [...evtSelected];
+  if (!ids.length) return;
+  if (!confirm(`Reject ${ids.length} event(s)?`)) return;
+  try {
+    for (const id of ids) await updateDoc(doc(db,'events',id), { status:'rejected', rejectedAt:serverTimestamp() });
+    toast(`${ids.length} event(s) rejected`);
+    clearEvtSelection();
+  } catch(e) { toast(`Error: ${e.message}`); }
+};
+
+window.bulkDelete = async function() {
+  const ids = [...evtSelected];
+  if (!ids.length) return;
+  if (!confirm(`Permanently delete ${ids.length} event(s)? This cannot be undone.`)) return;
+  try {
+    for (const id of ids) await deleteDoc(doc(db,'events',id));
+    toast(`🗑 ${ids.length} event(s) deleted`);
+    clearEvtSelection();
+  } catch(e) { toast(`Error: ${e.message}`); }
+};
+
+window.cloneEvent = async function(eventId) {
+  const ev = allEvents.find(e => e.id === eventId);
+  if (!ev) return;
+  try {
+    const { id, createdAt, approvedAt, updatedAt, ...data } = ev;
+    await addDoc(collection(db,'events'), {
+      ...data,
+      title: (data.title||'Event') + ' (Copy)',
+      status: 'pending',
+      emailSent: false, reminderSent: false,
+      isNew: true, source: 'cloned',
+      createdAt: serverTimestamp(),
+    });
+    toast('📋 Cloned as pending — edit & approve it');
+  } catch(err) { toast(`Error: ${err.message}`); }
 };
 
 // ── ADD / EDIT EVENT ──────────────────────────────────────
@@ -1936,7 +2187,36 @@ function renderArtistsPanel() {
     el.innerHTML = `<div class="empty"><div class="empty-icon">🎵</div><div class="empty-title">${allArtists.length ? 'No artists match' : 'No artists yet'}</div><div class="empty-sub">${allArtists.length ? 'Try a different search' : 'Click + Add Artist to get started'}</div></div>`;
     return;
   }
-  el.innerHTML = `<div class="art-grid">${filtered.map(a => artistCard(a)).join('')}</div>`;
+  el.innerHTML = `<div style="overflow-x:auto"><table class="art-table">
+    <thead><tr><th style="width:54px"></th><th>Artist</th><th>City</th><th>Actions</th></tr></thead>
+    <tbody>${filtered.map(a => artistRow(a)).join('')}</tbody>
+  </table></div>`;
+}
+
+function artistRow(a) {
+  const isHidden = !!a.hidden;
+  const name     = esc(a.name || '—');
+  const thumb    = a.img
+    ? `<img src="${esc(a.img)}" loading="lazy" alt="${name}" onerror="this.style.display='none'"/>`
+    : '🎵';
+  const isDelConf = deleteConfirm.has(a.id);
+  const delBtn    = `<button class="ib ib-del${isDelConf?' ib-confirm':''}" title="Delete" onclick="deleteArtistRow('${a.id}','${name}')">${isDelConf?'?':'🗑'}</button>`;
+  const hiddenBadge = isHidden ? `<span style="font-size:9px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:3px;padding:1px 5px;margin-left:4px;color:var(--text3)">HIDDEN</span>` : '';
+  return `<tr class="art-tr${isHidden?' art-tr-hidden':''}" id="arow-${a.id}">
+    <td><div class="art-mini-photo">${thumb}</div></td>
+    <td>
+      <div style="font-size:13px;font-weight:700;color:var(--text)">${name}${hiddenBadge}</div>
+      <div style="font-size:11px;color:var(--gold);font-weight:600;margin-top:1px">${esc(a.genre||'')}</div>
+      ${a.bio?`<div style="font-size:11px;color:var(--text3);margin-top:2px;max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(a.bio)}</div>`:''}
+    </td>
+    <td class="td-muted">📍 ${esc(a.city||'')}</td>
+    <td><div style="display:flex;gap:4px;align-items:center;flex-wrap:nowrap">
+      ${a.instagram?`<a href="${esc(a.instagram)}" target="_blank" class="ib" title="Instagram" style="text-decoration:none;font-size:11px">IG</a>`:''}
+      <button class="ib" title="Edit" onclick="openEditArtist('${a.id}')">✏</button>
+      <button class="ib${isHidden?' ib-green':''}" title="${isHidden?'Show':'Hide'}" onclick="toggleArtistHidden('${a.id}',${isHidden})">${isHidden?'👁':'🙈'}</button>
+      ${delBtn}
+    </div></td>
+  </tr>`;
 }
 
 function artistCard(a) {
@@ -2029,15 +2309,15 @@ window.toggleArtistHidden = async function(artistId, current) {
   } catch(e) { toast(`Error: ${e.message}`); }
 };
 
-window.deleteArtist = async function(artistId, name) {
+window.deleteArtistRow = async function(artistId, name) {
   if (!deleteConfirm.has(artistId)) {
     deleteConfirm.add(artistId);
-    const card = document.getElementById('acard-'+artistId);
-    if (card) { const btn = card.querySelector('.ea-del'); if(btn){btn.textContent='Sure?';btn.classList.add('confirm');} }
+    const row = document.getElementById('arow-'+artistId);
+    if (row) { const b = row.querySelector('.ib-del'); if(b){b.textContent='?';b.classList.add('ib-confirm');} }
     setTimeout(() => {
       deleteConfirm.delete(artistId);
-      const c = document.getElementById('acard-'+artistId);
-      if (c) { const b = c.querySelector('.ea-del'); if(b){b.textContent='🗑';b.classList.remove('confirm');} }
+      const r = document.getElementById('arow-'+artistId);
+      if (r) { const b = r.querySelector('.ib-del'); if(b){b.textContent='🗑';b.classList.remove('ib-confirm');} }
     }, 3000);
     return;
   }
@@ -2047,9 +2327,58 @@ window.deleteArtist = async function(artistId, name) {
     toast(`"${name}" deleted`);
   } catch(e) { toast(`Error: ${e.message}`); }
 };
+window.deleteArtist = window.deleteArtistRow;
+
+// ── ATTENTION WIDGET ──────────────────────────────────────
+function renderAttentionWidget() {
+  const el = document.getElementById('attn-widget');
+  if (!el) return;
+  const pendingEvts  = allEvents.filter(e => !e.status || e.status === 'pending').slice(0, 5);
+  const pendingVnqs  = allRequests.filter(r => r.status === 'pending').slice(0, 3);
+  const total        = pendingEvts.length + pendingVnqs.length;
+  document.getElementById('attn-count').textContent = total || '0';
+  if (!total) {
+    el.innerHTML = `<div class="attn-empty">✅ Nothing needs attention right now</div>`;
+    return;
+  }
+  let rows = '';
+  pendingEvts.forEach(e => {
+    const t = esc(e.title || '—');
+    rows += `<div class="attn-row">
+      <div class="attn-info">
+        <div class="attn-name">${t}</div>
+        <div class="attn-sub">Event · ${shortDate(e.date)} · ${esc(e.city||'')}</div>
+      </div>
+      <div class="attn-acts">
+        <button class="ib ib-reject"  title="Reject"  onclick="rejectEvent('${e.id}','${t}')">✕</button>
+        <button class="ib ib-approve" title="Approve" onclick="approveEvent('${e.id}','${t}')">✓ Approve</button>
+      </div>
+    </div>`;
+  });
+  pendingVnqs.forEach(r => {
+    const vn = esc(r.venueName || r.venue_name || '—');
+    const nm = esc(r.fullName  || r.full_name  || '—');
+    rows += `<div class="attn-row">
+      <div class="attn-info">
+        <div class="attn-name">${vn}</div>
+        <div class="attn-sub">Venue Application · ${nm} · ${esc(r.city||'')}</div>
+      </div>
+      <div class="attn-acts">
+        <button class="ib ib-reject"  title="Reject"  onclick="rejectVenue('${r.id}','${nm}')">✕</button>
+        <button class="ib ib-approve" title="Approve" onclick="approveVenue('${r.id}','','${nm}')">✓ Approve</button>
+      </div>
+    </div>`;
+  });
+  el.innerHTML = rows;
+}
 
 // ── NAV ───────────────────────────────────────────────────
 const TITLES = { overview:'Overview', members:'Members', venues:'Venue Applications', events:'Event Approvals', artists:'Artists' };
+window.navTo = function(page) {
+  const btn = document.querySelector(`.nav-item[onclick="nav('${page}',this)"]`) ||
+              document.querySelector(`.mobile-tabbar button[onclick="nav('${page}',this)"]`);
+  if (btn) nav(page, btn);
+};
 window.nav = function(page, btn) {
   document.querySelectorAll('.nav-item,.mobile-tabbar button').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
