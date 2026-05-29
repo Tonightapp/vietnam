@@ -969,7 +969,7 @@ import { getAuth, signInWithEmailAndPassword,
          sendPasswordResetEmail }                  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { getFirestore, collection, doc,
          query, orderBy, where, limit,
-         onSnapshot, updateDoc, addDoc, deleteDoc,
+         onSnapshot, updateDoc, addDoc, setDoc, deleteDoc,
          serverTimestamp }                         from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 // ── 🔧 PASTE YOUR FIREBASE CONFIG HERE ───────────────────
@@ -1103,6 +1103,7 @@ function subscribeAll() {
     }),
     onSnapshot(query(collection(db,'events'), orderBy('createdAt','desc')), snap => {
       allEvents = snap.docs.map(d => ({id:d.id,...d.data()}));
+      if (allEvents.length === 0) seedDefaultEvents();
       renderStats();
       renderEventsTable();
     })
@@ -1387,6 +1388,54 @@ let eventFilter  = 'all';
 let genreFilter  = 'all';
 let evtSearchQ   = '';
 const deleteConfirm = new Set(); // ids pending 2nd-click confirm
+let _seeded = false;
+
+// Seeds the two hardcoded banner events into Firestore the first time Firestore is empty.
+// Uses fixed doc IDs "44"/"45" so the main app merge deduplicates them correctly.
+async function seedDefaultEvents() {
+  if (_seeded) return;
+  _seeded = true;
+  const defaults = [
+    {
+      _id: '45',
+      title: 'Afro Kulture Festival Vietnam',
+      venueName: 'Sala Nature Garden → Maya Fusion Bar → Vox Westlake Club',
+      organizer: 'G.O.A.T Entertainment',
+      genre: 'Afrobeats', city: 'Hanoi', area: 'Tay Ho',
+      date: '2026-05-30', time: '13:00', price: 0,
+      img: 'images/afro-kulture-banner.jpg',
+      imgDetail: 'images/afro-kulture-vertical.jpg',
+      emoji: '🌍', description: "G.O.A.T Entertainment presents Afro Kulture Festival Vietnam — a full-day celebration of African culture, pool vibes and Afrobeats music across three iconic Tay Ho venues.\n\n1PM–7PM: Sala Nature Garden\n9PM–Late: Maya Fusion Bar\n11PM–Late: Vox Westlake Club",
+      featured: true, soldOut: false, isNew: true,
+      ticketUrl: 'https://www.hanoiluxe.com/afrokulturefest',
+      lineup: [], specialActs: '', attendees: 250,
+    },
+    {
+      _id: '44',
+      title: 'Excursion x Wet Dynasty',
+      venueName: 'Red River Cruise, Hanoi',
+      organizer: 'Electric Bazaar',
+      genre: 'Themed Party', city: 'Hanoi', area: 'Red River',
+      date: '2026-06-06', time: '20:00', price: 0,
+      img: 'images/excursion-wet-dynasty.jpg',
+      emoji: '🛥', description: "Electric Bazaar presents a river cruise party like no other — Excursion x Wet Dynasty sets sail on the Red River. Featuring DJ sets from Rachel RM, Winnie Wakanda, Arixo, Useph, Psyboost & Lamont, plus a spectacular Drag Show by Wet Dynasty.",
+      featured: true, soldOut: false, isNew: true,
+      lineup: ['Rachel RM','Winnie Wakanda','Arixo','Useph','Psyboost','Lamont'],
+      specialActs: 'Drag Show by Wet Dynasty', attendees: 150,
+    },
+  ];
+  try {
+    for (const ev of defaults) {
+      const { _id, ...data } = ev;
+      await setDoc(doc(db, 'events', _id), {
+        ...data,
+        status: 'approved', emailSent: false, reminderSent: false,
+        source: 'seeded', createdAt: serverTimestamp(), approvedAt: serverTimestamp(),
+      });
+    }
+    toast('✅ Default events seeded to Firestore');
+  } catch(err) { console.warn('Seed error:', err.message); }
+}
 
 function renderEventsTable() {
   const pending  = allEvents.filter(e => !e.status || e.status === 'pending').length;
