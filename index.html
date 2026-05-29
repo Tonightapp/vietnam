@@ -2523,6 +2523,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
       <form onsubmit="submitProSignup(event)">
         <div class="fg"><label>Your Name <span class="cm-req">*</span></label><input class="fi" id="psName" type="text" placeholder="Full name" required autocomplete="name"/></div>
         <div class="fg"><label>Business / Venue Name <span class="cm-req">*</span></label><input class="fi" id="psBiz" type="text" placeholder="e.g. Sacred Garden, Kater Blau Hanoi" required/></div>
+        <div class="fg"><label>Phone Number <span class="cm-req">*</span></label><input class="fi" id="psPhone" type="tel" placeholder="+84 9XX XXX XXX" required autocomplete="tel"/></div>
         <div class="fg"><label>Email <span class="cm-req">*</span></label><input class="fi" id="psEmail" type="email" placeholder="you@yourvenue.com" required autocomplete="email"/></div>
         <div class="fg"><label>Password <span class="cm-req">*</span></label>
           <div style="position:relative">
@@ -2567,6 +2568,10 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
       <div class="cm-field">
         <label>Email <span class="cm-req">*</span></label>
         <input type="email" id="cmEmail" placeholder="your@email.com" required autocomplete="email"/>
+      </div>
+      <div class="cm-field">
+        <label>Phone Number <span style="color:var(--text3);font-weight:400;font-size:11px">(optional — for exclusive deals)</span></label>
+        <input type="tel" id="cmPhone" placeholder="+84 9XX XXX XXX" autocomplete="tel"/>
       </div>
       <div class="cm-field">
         <label>Password <span class="cm-req">*</span></label>
@@ -6610,6 +6615,7 @@ async function submitProSignup(e){
   const btn   = document.getElementById('psSubmitBtn');
   const name  = document.getElementById('psName').value.trim();
   const biz   = document.getElementById('psBiz').value.trim();
+  const phone = document.getElementById('psPhone').value.trim();
   const email = document.getElementById('psEmail').value.trim().toLowerCase();
   const pass  = document.getElementById('psPassword').value;
 
@@ -6632,7 +6638,7 @@ async function submitProSignup(e){
 
     // 2. Create venue_requests doc (status: pending — staff must approve)
     await _saveToFirestore('venue_requests',{
-      email, contactName:name, venueName:biz,
+      email, contactName:name, venueName:biz, phone,
       uid,
       status:'pending',
       source:'main-app-signup',
@@ -6778,6 +6784,7 @@ async function submitCommunity(e){
 
   const name     = document.getElementById('cmName').value.trim();
   const email    = document.getElementById('cmEmail').value.trim().toLowerCase();
+  const phone    = (document.getElementById('cmPhone')||{}).value.trim()||'';
   const password = (document.getElementById('cmPassword')||{}).value||'';
 
   // Save locally first (resilient — never lose a lead)
@@ -6812,7 +6819,7 @@ async function submitCommunity(e){
       }
       if(fbUid){
         await setDoc(doc(fbDb,'users',fbUid),{
-          uid:fbUid, email, fullName:name, role:'user', createdAt:serverTimestamp()
+          uid:fbUid, email, fullName:name, phone, role:'user', createdAt:serverTimestamp()
         },{merge:true});
       }
     }catch(_){}  // Firebase errors never block the community sign-up flow
@@ -6820,7 +6827,7 @@ async function submitCommunity(e){
 
   // Save to Firestore community_signups — Cloud Functions use this for email blasts
   await _saveToFirestore('community_signups',{
-    fullName:name, email, city:filterCity||'',
+    fullName:name, email, phone, city:filterCity||'',
     genres:[...document.querySelectorAll('.cm-genre-chip.selected')].map(c=>c.textContent.trim()),
     source:'tonight-app', userAgent:navigator.userAgent
   });
