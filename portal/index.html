@@ -979,8 +979,25 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
               </div>
             </div>
             <div>
-              <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Image URL (optional)</label>
-              <input id="ae-img" type="url" placeholder="https://..." style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/>
+              <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Event Flyer</label>
+              <!-- Preview -->
+              <div id="ae-flyer-wrap" style="width:100%;height:160px;background:var(--bg);border:1px solid var(--border2);border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;margin-bottom:8px;position:relative">
+                <img id="ae-flyer-preview" src="" alt="Flyer preview" style="display:none;width:100%;height:100%;object-fit:cover"/>
+                <div id="ae-flyer-placeholder" style="display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--text3)">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+                  <span style="font-size:12px">No flyer</span>
+                </div>
+                <button type="button" id="ae-flyer-clear" onclick="aeFlyerClear()" style="display:none;position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);border:none;color:#fff;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:14px;line-height:1">✕</button>
+              </div>
+              <!-- Upload or URL -->
+              <div style="display:flex;gap:8px;align-items:center">
+                <label style="flex:0 0 auto;padding:8px 14px;background:var(--card2);border:1px solid var(--border2);border-radius:8px;font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;white-space:nowrap">
+                  📁 Upload Flyer
+                  <input type="file" id="ae-img-file" accept="image/*" style="display:none" onchange="aeFlyerUpload(this)"/>
+                </label>
+                <input id="ae-img-url" type="text" placeholder="…or paste image URL" oninput="aeFlyerUrl(this.value)" style="flex:1;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;color:#fff;font-size:13px;font-family:inherit"/>
+              </div>
+              <input type="hidden" id="ae-img"/>
             </div>
             <div>
               <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Description</label>
@@ -1748,17 +1765,74 @@ window.deleteEvent = async function(eventId, title) {
   } catch(e) { toast(`Error: ${e.message}`); }
 };
 
+// ── FLYER UPLOAD HELPERS ──────────────────────────────────
+function _aeFlyerShow(src) {
+  const prev = document.getElementById('ae-flyer-preview');
+  const ph   = document.getElementById('ae-flyer-placeholder');
+  const clr  = document.getElementById('ae-flyer-clear');
+  if (src) {
+    prev.src = src; prev.style.display = 'block';
+    if (ph)  ph.style.display  = 'none';
+    if (clr) clr.style.display = 'block';
+  } else {
+    prev.style.display = 'none'; prev.src = '';
+    if (ph)  ph.style.display  = 'flex';
+    if (clr) clr.style.display = 'none';
+  }
+}
+
+window.aeFlyerUpload = function(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 10 * 1024 * 1024) { toast('Image must be under 10 MB'); input.value = ''; return; }
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      const maxW = 900;
+      const scale = img.width > maxW ? maxW / img.width : 1;
+      const canvas = document.createElement('canvas');
+      canvas.width  = Math.round(img.width  * scale);
+      canvas.height = Math.round(img.height * scale);
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      const b64 = canvas.toDataURL('image/jpeg', 0.78);
+      document.getElementById('ae-img').value     = b64;
+      document.getElementById('ae-img-url').value = '';
+      _aeFlyerShow(b64);
+      const kb = Math.round(b64.length * 0.75 / 1024);
+      toast(`✅ Flyer compressed — ${kb} KB`);
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+};
+
+window.aeFlyerUrl = function(url) {
+  document.getElementById('ae-img').value = url;
+  document.getElementById('ae-img-file').value = '';
+  _aeFlyerShow(url);
+};
+
+window.aeFlyerClear = function() {
+  document.getElementById('ae-img').value     = '';
+  document.getElementById('ae-img-url').value = '';
+  document.getElementById('ae-img-file').value = '';
+  _aeFlyerShow('');
+};
+
 // ── ADD / EDIT EVENT ──────────────────────────────────────
 window.openAddEvent = function() {
   editingEventId = null;
   document.getElementById('ae-modal-title').textContent = 'Add Event';
   document.getElementById('ae-submit-btn').textContent = 'Publish Event →';
   document.getElementById('add-event-form').reset();
+  _aeFlyerShow('');
   document.getElementById('add-event-modal').style.display = 'block';
 };
 window.closeAddEvent = function() {
   document.getElementById('add-event-modal').style.display = 'none';
   document.getElementById('add-event-form').reset();
+  _aeFlyerShow('');
   editingEventId = null;
 };
 
@@ -1774,7 +1848,11 @@ window.openEditEvent = function(eventId) {
   document.getElementById('ae-time').value      = ev.time||'';
   document.getElementById('ae-price').value     = ev.price||0;
   document.getElementById('ae-emoji').value     = ev.emoji||'🎵';
-  document.getElementById('ae-img').value       = ev.img||'';
+  const _evImg = ev.img||'';
+  document.getElementById('ae-img').value       = _evImg;
+  document.getElementById('ae-img-url').value   = _evImg.startsWith('data:') ? '' : _evImg;
+  document.getElementById('ae-img-file').value  = '';
+  _aeFlyerShow(_evImg);
   document.getElementById('ae-desc').value      = ev.description||ev.desc||'';
   document.getElementById('ae-lineup').value    = (ev.lineup||[]).join('\n');
   document.getElementById('ae-special').value   = ev.specialActs||'';
