@@ -132,6 +132,18 @@ service cloud.firestore {
       allow create, update, delete: if isStaff();
     }
 
+    // ── magazine/{id} ─────────────────────────────────────────────────────────
+    match /magazine/{articleId} {
+      allow read: if true;
+      allow create, update, delete: if isStaff();
+    }
+
+    // ── promoters/{id} ────────────────────────────────────────────────────────
+    match /promoters/{promoterId} {
+      allow read: if true;
+      allow create, update, delete: if isStaff();
+    }
+
     // ── Deny everything else ───────────────────────────────────────────────────
     match /{document=**} {
       allow read, write: if false;

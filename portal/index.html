@@ -740,6 +740,43 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
         <svg viewBox="0 0 24 24"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6zm-2 16a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></svg>
         Artists
       </button>
+
+      <div class="nav-label" style="margin-top:10px">Leads &amp; Data</div>
+      <button class="nav-item" onclick="nav('leads',this)">
+        <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
+        Leads
+        <span class="nav-badge hide" id="leads-badge">0</span>
+      </button>
+      <button class="nav-item" onclick="nav('guestlist',this)">
+        <svg viewBox="0 0 24 24"><path d="M20 12c0-1.1-.9-2-2-2V7c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-3c1.1 0 2-.9 2-2zm-4 5H4V7h12v10z"/></svg>
+        Guestlist
+        <span class="nav-badge hide" id="guestlist-badge">0</span>
+      </button>
+      <button class="nav-item" onclick="nav('deals',this)">
+        <svg viewBox="0 0 24 24"><path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41s-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z"/></svg>
+        Deals
+      </button>
+      <button class="nav-item" onclick="nav('inquiries',this)">
+        <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+        Inquiries
+        <span class="nav-badge hide" id="inquiries-badge">0</span>
+      </button>
+
+      <div class="nav-label" style="margin-top:10px">Content</div>
+      <button class="nav-item" onclick="nav('magazine',this)">
+        <svg viewBox="0 0 24 24"><path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/></svg>
+        Magazine
+      </button>
+      <button class="nav-item" onclick="nav('promoters',this)">
+        <svg viewBox="0 0 24 24"><path d="M13 2.05v2.02c3.95.49 7 3.85 7 7.93 0 3.21-1.81 6-4.72 7.72L13 18v5h5l-1.22-1.22C19.91 19.07 22 15.76 22 12c0-5.18-3.95-9.45-9-9.95zM11 2.05C5.95 2.55 2 6.82 2 12c0 3.76 2.09 7.07 5.22 8.78L6 22h5V2.05z"/></svg>
+        Promoters
+      </button>
+
+      <div class="nav-label" style="margin-top:10px">Display</div>
+      <button class="nav-item" onclick="nav('banner',this)">
+        <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"/></svg>
+        Banner Order
+      </button>
     </nav>
 
     <div class="sidebar-footer">
@@ -1135,6 +1172,226 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
         </div>
       </div>
 
+      <!-- ── LEADS ── -->
+      <div class="panel" id="panel-leads">
+        <div class="section-card">
+          <div class="section-head">
+            <div>
+              <div class="section-title">Community Leads</div>
+              <div style="font-size:12px;color:var(--text3);margin-top:2px">Name · Email · Phone — ready for email campaigns</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="count-pill" id="leads-count">—</div>
+              <button class="btn btn-approve" style="padding:8px 16px;font-size:13px" onclick="exportLeadsCSV()">⬇ Export CSV</button>
+            </div>
+          </div>
+          <div class="toolbar">
+            <div class="search-wrap" style="max-width:260px">
+              <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+              <input type="text" placeholder="Search name, email, phone…" oninput="leadsSearch(this.value)" id="leads-search"/>
+            </div>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="data-table">
+              <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>City</th><th>Source</th><th>Joined</th><th></th></tr></thead>
+              <tbody id="leads-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── GUESTLIST ── -->
+      <div class="panel" id="panel-guestlist">
+        <div class="section-card">
+          <div class="section-head">
+            <div>
+              <div class="section-title">Guestlist Sign-Ups</div>
+              <div style="font-size:12px;color:var(--text3);margin-top:2px">All guestlist reservations across events</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="count-pill" id="guestlist-count">—</div>
+              <button class="btn btn-approve" style="padding:8px 16px;font-size:13px" onclick="exportGuestlistCSV()">⬇ Export CSV</button>
+            </div>
+          </div>
+          <div class="toolbar">
+            <div class="search-wrap" style="max-width:260px">
+              <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+              <input type="text" placeholder="Search name, email, event…" oninput="guestlistSearch(this.value)" id="guestlist-search"/>
+            </div>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="data-table">
+              <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Event</th><th>Ref</th><th>Date</th><th></th></tr></thead>
+              <tbody id="guestlist-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── DEALS ── -->
+      <div class="panel" id="panel-deals">
+        <div class="section-card">
+          <div class="section-head">
+            <div>
+              <div class="section-title">Claimed Deals</div>
+              <div style="font-size:12px;color:var(--text3);margin-top:2px">All deal vouchers claimed by users</div>
+            </div>
+            <div class="count-pill" id="deals-count">—</div>
+          </div>
+          <div class="toolbar">
+            <div class="search-wrap" style="max-width:260px">
+              <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+              <input type="text" placeholder="Search deal, venue, email…" oninput="dealsSearch(this.value)" id="deals-search"/>
+            </div>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="data-table">
+              <thead><tr><th>Deal</th><th>Venue</th><th>Guest Email</th><th>Code</th><th>Claimed</th><th></th></tr></thead>
+              <tbody id="deals-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── INQUIRIES ── -->
+      <div class="panel" id="panel-inquiries">
+        <div class="section-card">
+          <div class="section-head">
+            <div>
+              <div class="section-title">Inquiries</div>
+              <div style="font-size:12px;color:var(--text3);margin-top:2px">Contact form submissions from the app</div>
+            </div>
+            <div class="count-pill" id="inquiries-count">—</div>
+          </div>
+          <div id="inquiries-list"></div>
+        </div>
+      </div>
+
+      <!-- ── MAGAZINE ── -->
+      <div class="panel" id="panel-magazine">
+        <div class="section-card">
+          <div class="section-head">
+            <div>
+              <div class="section-title">Magazine Articles</div>
+              <div style="font-size:12px;color:var(--text3);margin-top:2px">Add · edit · delete articles shown in the Magazine tab</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="count-pill" id="magazine-count">—</div>
+              <button class="btn btn-approve" style="padding:8px 16px;font-size:13px" onclick="openAddArticle()">+ Add Article</button>
+            </div>
+          </div>
+          <div id="magazine-list"></div>
+        </div>
+      </div>
+
+      <!-- ADD/EDIT ARTICLE MODAL -->
+      <div id="add-article-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;overflow-y:auto;padding:24px 16px">
+        <div style="max-width:560px;margin:0 auto;background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:28px 24px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+            <div id="art-modal-title" style="font-size:18px;font-weight:800;color:#fff">Add Article</div>
+            <button onclick="closeAddArticle()" style="background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer">✕</button>
+          </div>
+          <form onsubmit="submitArticle(event)" novalidate style="display:flex;flex-direction:column;gap:14px">
+            <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Title *</label>
+              <input id="art-title" type="text" placeholder="Article headline" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Category</label>
+                <select id="art-cat" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit">
+                  <option>Tips</option><option>Guide</option><option>Culture</option>
+                  <option>Interview</option><option>News</option><option>Review</option>
+                </select></div>
+              <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Author</label>
+                <input id="art-author" type="text" placeholder="e.g. Tonight Editorial" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
+            </div>
+            <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Excerpt</label>
+              <textarea id="art-excerpt" rows="2" placeholder="Short teaser text shown on the magazine grid…" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;resize:vertical"></textarea></div>
+            <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Cover Image URL</label>
+              <input id="art-img" type="url" placeholder="https://..." style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
+            <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Full Article (HTML or plain text)</label>
+              <textarea id="art-body" rows="6" placeholder="Full article content…" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;resize:vertical"></textarea></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Date</label>
+                <input id="art-date" type="date" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
+              <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Read Time (min)</label>
+                <input id="art-read" type="number" placeholder="5" min="1" value="5" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
+            </div>
+            <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px">
+              <button type="button" onclick="closeAddArticle()" style="padding:10px 20px;border-radius:8px;border:1px solid var(--border2);background:none;color:var(--text2);font-size:13px;font-weight:600;cursor:pointer">Cancel</button>
+              <button type="submit" id="art-submit-btn" style="padding:10px 24px;border-radius:8px;border:none;background:var(--gold);color:#000;font-size:13px;font-weight:800;cursor:pointer">Save Article →</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- ── PROMOTERS ── -->
+      <div class="panel" id="panel-promoters">
+        <div class="section-card">
+          <div class="section-head">
+            <div>
+              <div class="section-title">Promoters</div>
+              <div style="font-size:12px;color:var(--text3);margin-top:2px">DJ & event promoter profiles shown on the Promoters page</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="count-pill" id="promoters-count">—</div>
+              <button class="btn btn-approve" style="padding:8px 16px;font-size:13px" onclick="openAddPromoter()">+ Add Promoter</button>
+            </div>
+          </div>
+          <div id="promoters-list"></div>
+        </div>
+      </div>
+
+      <!-- ADD/EDIT PROMOTER MODAL -->
+      <div id="add-promoter-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;overflow-y:auto;padding:24px 16px">
+        <div style="max-width:520px;margin:0 auto;background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:28px 24px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+            <div id="promo-modal-title" style="font-size:18px;font-weight:800;color:#fff">Add Promoter</div>
+            <button onclick="closeAddPromoter()" style="background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer">✕</button>
+          </div>
+          <form onsubmit="submitPromoter(event)" novalidate style="display:flex;flex-direction:column;gap:14px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Name *</label>
+                <input id="promo-name" type="text" placeholder="e.g. Solea.Rhythm" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
+              <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Type</label>
+                <input id="promo-type" type="text" placeholder="DJ / Promoter / Collective" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">City</label>
+                <input id="promo-city" type="text" placeholder="Hanoi" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
+              <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Instagram</label>
+                <input id="promo-ig" type="text" placeholder="handle (no @)" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
+            </div>
+            <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Genres (comma separated)</label>
+              <input id="promo-genres" type="text" placeholder="e.g. Afrobeats, House, Latin" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
+            <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Photo URL</label>
+              <input id="promo-img" type="url" placeholder="https://..." style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
+            <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Bio</label>
+              <textarea id="promo-bio" rows="3" placeholder="Short bio…" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;resize:vertical"></textarea></div>
+            <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px">
+              <button type="button" onclick="closeAddPromoter()" style="padding:10px 20px;border-radius:8px;border:1px solid var(--border2);background:none;color:var(--text2);font-size:13px;font-weight:600;cursor:pointer">Cancel</button>
+              <button type="submit" id="promo-submit-btn" style="padding:10px 24px;border-radius:8px;border:none;background:var(--gold);color:#000;font-size:13px;font-weight:800;cursor:pointer">Save Promoter →</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- ── BANNER ORDER ── -->
+      <div class="panel" id="panel-banner">
+        <div class="section-card">
+          <div class="section-head">
+            <div>
+              <div class="section-title">Hero Banner Order</div>
+              <div style="font-size:12px;color:var(--text3);margin-top:2px">Drag or use ↑↓ to set which event appears first in the hero banner</div>
+            </div>
+            <div class="count-pill" id="banner-count">—</div>
+          </div>
+          <div id="banner-featured-list"></div>
+          <div style="margin-top:20px">
+            <div class="section-title" style="font-size:13px;color:var(--text3);margin-bottom:12px">Not featured — click ⭐ to add to banner</div>
+            <div id="banner-unfeatured-list"></div>
+          </div>
+        </div>
+      </div>
+
     </div><!-- /content -->
 
     <!-- Mobile Tab Bar -->
@@ -1220,6 +1477,16 @@ let editingArtistId = null;
 let _artistSeeded   = false;
 let unsubs          = [];
 
+// New-panel state
+let allLeads        = [];
+let allGuestlist    = [];
+let allDeals        = [];
+let allInquiries    = [];
+let allMagazine     = [];
+let allPromoters    = [];
+let editingArticleId  = null;
+let editingPromoterId = null;
+
 // ── AUTH ──────────────────────────────────────────────────
 onAuthStateChanged(auth, async user => {
   document.getElementById('loading').classList.add('hide');
@@ -1298,6 +1565,7 @@ function subscribeAll() {
       renderStats();
       renderNewSignups();
       renderMembersTable(document.getElementById('member-search')?.value || '');
+      rebuildLeads();
     }),
     onSnapshot(query(collection(db,'users'), orderBy('createdAt','desc')), snap => {
       allUsers = snap.docs.map(d => ({id:d.id,...d.data()}));
@@ -1319,14 +1587,66 @@ function subscribeAll() {
       renderStats();
       renderEventsTable();
       renderAttentionWidget();
+      renderBannerPanel();
     }),
     onSnapshot(query(collection(db,'artists'), orderBy('name','asc')), snap => {
       allArtists = snap.docs.map(d => ({id:d.id,...d.data()}));
       if (allArtists.length === 0 && !_artistSeeded) seedDefaultArtists();
       document.getElementById('artists-count').textContent = allArtists.length;
       renderArtistsPanel();
+    }),
+    onSnapshot(query(collection(db,'guestlist'), orderBy('createdAt','desc')), snap => {
+      allGuestlist = snap.docs.map(d => ({id:d.id,...d.data()}));
+      renderGuestlistPanel();
+      updateBadge('guestlist-badge', allGuestlist.length);
+    }),
+    onSnapshot(query(collection(db,'deals'), orderBy('claimedAt','desc')), snap => {
+      allDeals = snap.docs.map(d => ({id:d.id,...d.data()}));
+      renderDealsPanel();
+    }),
+    onSnapshot(query(collection(db,'inquiries'), orderBy('createdAt','desc')), snap => {
+      allInquiries = snap.docs.map(d => ({id:d.id,...d.data()}));
+      renderInquiriesPanel();
+      updateBadge('inquiries-badge', allInquiries.filter(i=>!i.read).length);
+    }),
+    onSnapshot(query(collection(db,'magazine'), orderBy('date','desc')), snap => {
+      allMagazine = snap.docs.map(d => ({id:d.id,...d.data()}));
+      renderMagazinePanel();
+    }),
+    onSnapshot(query(collection(db,'promoters'), orderBy('name','asc')), snap => {
+      allPromoters = snap.docs.map(d => ({id:d.id,...d.data()}));
+      renderPromotersPanel();
     })
   );
+  let _proLeads = [];
+  // Leads = community_signups + pro_signups combined
+  unsubs.push(
+    onSnapshot(query(collection(db,'pro_signups'), orderBy('createdAt','desc')), snap => {
+      _proLeads = snap.docs.map(d => ({id:d.id,...d.data(), _source:'Pro Signup'}));
+      rebuildLeads(_proLeads);
+      updateBadge('leads-badge', _proLeads.filter(p=>!p._seen).length);
+    })
+  );
+
+  function rebuildLeads(proLeads) {
+    const pl = proLeads !== undefined ? proLeads : (_proLeads || []);
+    allLeads = [
+      ...allMembers.map(m => ({...m, _source: m.role === 'venue_owner' ? 'Venue Owner' : 'Community'})),
+      ...pl
+    ].sort((a,b) => {
+      const ta = a.createdAt?.toMillis?.() || a.createdAt?.seconds*1000 || 0;
+      const tb = b.createdAt?.toMillis?.() || b.createdAt?.seconds*1000 || 0;
+      return tb - ta;
+    });
+    renderLeadsPanel();
+  }
+}
+
+function updateBadge(id, count) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (count > 0) { el.textContent = count > 99 ? '99+' : count; el.classList.remove('hide'); }
+  else el.classList.add('hide');
 }
 
 // ── STATS ─────────────────────────────────────────────────
@@ -2392,8 +2712,410 @@ function renderAttentionWidget() {
   el.innerHTML = rows;
 }
 
+// ── LEADS PANEL ───────────────────────────────────────────
+function renderLeadsPanel(q = '') {
+  const lq = q.toLowerCase();
+  const rows = allLeads.filter(l =>
+    !lq || (l.fullName||l.name||'').toLowerCase().includes(lq) ||
+    (l.email||'').toLowerCase().includes(lq) || (l.phone||'').includes(lq)
+  );
+  document.getElementById('leads-count').textContent = rows.length;
+  const tbody = document.getElementById('leads-body');
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="7">${emptyRow('No leads yet','📋')}</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = rows.map(l => `<tr>
+    <td>${esc(l.fullName||l.name||'—')}</td>
+    <td><a href="mailto:${esc(l.email||'')}" style="color:var(--gold)">${esc(l.email||'—')}</a></td>
+    <td>${esc(l.phone||'—')}</td>
+    <td>${esc(l.city||'—')}</td>
+    <td><span class="status-pill ${l._source==='Community'?'status-approved':l._source==='Pro Signup'?'status-pending':'status-review'}" style="font-size:10px">${esc(l._source||'—')}</span></td>
+    <td style="color:var(--text3);font-size:12px">${timeAgo(l.createdAt)}</td>
+    <td></td>
+  </tr>`).join('');
+}
+window.leadsSearch = q => { renderLeadsPanel(q); };
+window.exportLeadsCSV = function() {
+  const rows = [['Name','Email','Phone','City','Source','Joined']];
+  allLeads.forEach(l => rows.push([
+    l.fullName||l.name||'', l.email||'', l.phone||'', l.city||'',
+    l._source||'', timeAgo(l.createdAt)
+  ]));
+  downloadCSV(rows, 'tonight-leads.csv');
+};
+
+// ── GUESTLIST PANEL ───────────────────────────────────────
+function renderGuestlistPanel(q = '') {
+  const lq = (q || document.getElementById('guestlist-search')?.value || '').toLowerCase();
+  const rows = allGuestlist.filter(g =>
+    !lq || (g.buyerName||g.name||'').toLowerCase().includes(lq) ||
+    (g.buyerEmail||'').toLowerCase().includes(lq) ||
+    (g.eventTitle||'').toLowerCase().includes(lq)
+  );
+  document.getElementById('guestlist-count').textContent = rows.length;
+  const tbody = document.getElementById('guestlist-body');
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="7">${emptyRow('No guestlist sign-ups yet','🎟')}</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = rows.map(g => `<tr>
+    <td>${esc(g.buyerName||g.name||'—')}</td>
+    <td><a href="mailto:${esc(g.buyerEmail||'')}" style="color:var(--gold)">${esc(g.buyerEmail||'—')}</a></td>
+    <td>${esc(g.phone||'—')}</td>
+    <td class="truncate" style="max-width:160px">${esc(g.eventTitle||'—')}</td>
+    <td><span style="font-family:monospace;font-size:11px;color:var(--text3)">${esc(g.ref||'—')}</span></td>
+    <td style="color:var(--text3);font-size:12px">${timeAgo(g.createdAt)}</td>
+    <td></td>
+  </tr>`).join('');
+}
+window.guestlistSearch = q => { renderGuestlistPanel(q); };
+window.exportGuestlistCSV = function() {
+  const rows = [['Name','Email','Phone','Event','Ref','Joined']];
+  allGuestlist.forEach(g => rows.push([
+    g.buyerName||g.name||'', g.buyerEmail||'', g.phone||'',
+    g.eventTitle||'', g.ref||'', timeAgo(g.createdAt)
+  ]));
+  downloadCSV(rows, 'tonight-guestlist.csv');
+};
+
+// ── DEALS PANEL ───────────────────────────────────────────
+function renderDealsPanel(q = '') {
+  const lq = (q || document.getElementById('deals-search')?.value || '').toLowerCase();
+  const rows = allDeals.filter(d =>
+    !lq || (d.dealTitle||'').toLowerCase().includes(lq) ||
+    (d.venueName||'').toLowerCase().includes(lq) ||
+    (d.buyerEmail||'').toLowerCase().includes(lq)
+  );
+  document.getElementById('deals-count').textContent = rows.length;
+  const tbody = document.getElementById('deals-body');
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="6">${emptyRow('No deals claimed yet','🎁')}</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = rows.map(d => `<tr>
+    <td>${esc(d.dealTitle||'—')}</td>
+    <td>${esc(d.venueName||'—')}</td>
+    <td><a href="mailto:${esc(d.buyerEmail||d.email||'')}" style="color:var(--gold)">${esc(d.buyerEmail||d.email||'—')}</a></td>
+    <td><span style="font-family:monospace;letter-spacing:1px;font-size:12px">${esc(d.code||'—')}</span></td>
+    <td style="color:var(--text3);font-size:12px">${timeAgo(d.claimedAt||d.createdAt)}</td>
+    <td></td>
+  </tr>`).join('');
+}
+window.dealsSearch = q => { renderDealsPanel(q); };
+
+// ── INQUIRIES PANEL ───────────────────────────────────────
+function renderInquiriesPanel() {
+  const count = allInquiries.length;
+  document.getElementById('inquiries-count').textContent = count;
+  const el = document.getElementById('inquiries-list');
+  if (!count) { el.innerHTML = emptyRow('No inquiries yet','📩'); return; }
+  el.innerHTML = allInquiries.map(inq => `
+    <div class="section-card" style="margin-bottom:12px;padding:16px 20px;cursor:pointer" onclick="markInquiryRead('${inq.id}')">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            ${!inq.read ? '<span style="width:8px;height:8px;border-radius:50%;background:var(--gold);flex-shrink:0;display:inline-block"></span>' : ''}
+            <span style="font-weight:700;font-size:14px">${esc(inq.name||'—')}</span>
+            <span class="status-pill status-review" style="font-size:10px">${esc(inq.type||'general')}</span>
+          </div>
+          <div style="color:var(--gold);font-size:12px;margin-bottom:8px">
+            <a href="mailto:${esc(inq.email||'')}" style="color:var(--gold)">${esc(inq.email||'—')}</a>
+          </div>
+          <div style="color:var(--text2);font-size:13px;white-space:pre-wrap">${esc(inq.message||'')}</div>
+        </div>
+        <div style="font-size:11px;color:var(--text3);white-space:nowrap">${timeAgo(inq.createdAt)}</div>
+      </div>
+    </div>
+  `).join('');
+}
+window.markInquiryRead = async function(id) {
+  try { await updateDoc(doc(db,'inquiries',id), { read: true }); } catch(e) {}
+};
+
+// ── MAGAZINE PANEL ────────────────────────────────────────
+function renderMagazinePanel() {
+  document.getElementById('magazine-count').textContent = allMagazine.length;
+  const el = document.getElementById('magazine-list');
+  if (!allMagazine.length) { el.innerHTML = emptyRow('No articles yet — click + Add Article','📰'); return; }
+  el.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:16px">` +
+    allMagazine.map(a => `
+      <div style="background:var(--card2);border:1px solid var(--border);border-radius:12px;overflow:hidden">
+        ${a.img ? `<img src="${esc(a.img)}" style="width:100%;height:140px;object-fit:cover" loading="lazy" onerror="this.style.display='none'"/>` : `<div style="height:80px;background:var(--bg);display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:28px">📰</div>`}
+        <div style="padding:14px">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+            <span class="status-pill status-review" style="font-size:10px">${esc(a.category||'Article')}</span>
+            <span style="font-size:11px;color:var(--text3)">${esc(a.readTime||5)} min read</span>
+          </div>
+          <div style="font-weight:700;font-size:14px;margin-bottom:4px;line-height:1.3">${esc(a.title||'Untitled')}</div>
+          <div style="font-size:12px;color:var(--text3);margin-bottom:10px">${esc(a.author||'')} · ${esc(a.date||'')}</div>
+          <div style="font-size:12px;color:var(--text2);margin-bottom:12px;line-height:1.4">${esc((a.excerpt||'').slice(0,120))}${(a.excerpt||'').length>120?'…':''}</div>
+          <div style="display:flex;gap:8px">
+            <button class="ib ib-edit" onclick="openEditArticle('${a.id}')" style="flex:1;justify-content:center">Edit</button>
+            <button class="ib ib-reject" onclick="deleteArticle('${a.id}','${esc(a.title||'')}')">✕</button>
+          </div>
+        </div>
+      </div>
+    `).join('') + `</div>`;
+}
+
+window.openAddArticle = function() {
+  editingArticleId = null;
+  document.getElementById('art-modal-title').textContent = 'Add Article';
+  document.getElementById('art-submit-btn').textContent = 'Save Article →';
+  ['art-title','art-author','art-excerpt','art-img','art-body','art-date'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('art-read').value = '5';
+  document.getElementById('art-cat').selectedIndex = 0;
+  document.getElementById('add-article-modal').style.display = 'block';
+};
+
+window.openEditArticle = function(id) {
+  const a = allMagazine.find(x => x.id === id);
+  if (!a) return;
+  editingArticleId = id;
+  document.getElementById('art-modal-title').textContent = 'Edit Article';
+  document.getElementById('art-submit-btn').textContent = 'Update Article →';
+  document.getElementById('art-title').value   = a.title   || '';
+  document.getElementById('art-author').value  = a.author  || '';
+  document.getElementById('art-excerpt').value = a.excerpt || '';
+  document.getElementById('art-img').value     = a.img     || '';
+  document.getElementById('art-body').value    = a.body    || '';
+  document.getElementById('art-date').value    = a.date    || '';
+  document.getElementById('art-read').value    = a.readTime|| 5;
+  const catSel = document.getElementById('art-cat');
+  for (let i=0; i<catSel.options.length; i++) {
+    if (catSel.options[i].value === a.category) { catSel.selectedIndex = i; break; }
+  }
+  document.getElementById('add-article-modal').style.display = 'block';
+};
+
+window.closeAddArticle = function() {
+  document.getElementById('add-article-modal').style.display = 'none';
+};
+
+window.submitArticle = async function(e) {
+  e.preventDefault();
+  const title = document.getElementById('art-title').value.trim();
+  if (!title) { toast('⚠️ Article title is required'); return; }
+  const btn = document.getElementById('art-submit-btn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  const data = {
+    title,
+    category : document.getElementById('art-cat').value,
+    author   : document.getElementById('art-author').value.trim(),
+    excerpt  : document.getElementById('art-excerpt').value.trim(),
+    img      : document.getElementById('art-img').value.trim(),
+    body     : document.getElementById('art-body').value.trim(),
+    date     : document.getElementById('art-date').value,
+    readTime : parseInt(document.getElementById('art-read').value) || 5,
+    updatedAt: serverTimestamp()
+  };
+  try {
+    if (editingArticleId) {
+      await updateDoc(doc(db,'magazine',editingArticleId), data);
+      toast('Article updated');
+    } else {
+      data.createdAt = serverTimestamp();
+      await addDoc(collection(db,'magazine'), data);
+      toast('Article published');
+    }
+    window.closeAddArticle();
+  } catch(err) { toast('Error: '+err.message); }
+  btn.disabled = false; btn.textContent = editingArticleId ? 'Update Article →' : 'Save Article →';
+};
+
+window.deleteArticle = async function(id, name) {
+  if (!confirm(`Delete article "${name}"?`)) return;
+  try { await deleteDoc(doc(db,'magazine',id)); toast('Article deleted'); }
+  catch(e) { toast('Error: '+e.message); }
+};
+
+// ── PROMOTERS PANEL ───────────────────────────────────────
+function renderPromotersPanel() {
+  document.getElementById('promoters-count').textContent = allPromoters.length;
+  const el = document.getElementById('promoters-list');
+  if (!allPromoters.length) { el.innerHTML = emptyRow('No promoters yet — click + Add Promoter','🎧'); return; }
+  el.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;margin-top:16px">` +
+    allPromoters.map(p => `
+      <div style="background:var(--card2);border:1px solid var(--border);border-radius:12px;overflow:hidden">
+        ${p.img ? `<img src="${esc(p.img)}" style="width:100%;height:120px;object-fit:cover" loading="lazy" onerror="this.style.display='none'"/>` : `<div style="height:80px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:36px">🎧</div>`}
+        <div style="padding:14px">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+            <span style="font-weight:800;font-size:15px">${esc(p.name||'—')}</span>
+          </div>
+          <div style="font-size:12px;color:var(--text3);margin-bottom:4px">${esc(p.type||'')} ${p.city?'· '+esc(p.city):''}</div>
+          ${p.instagram?`<div style="font-size:12px;color:var(--gold);margin-bottom:6px">@${esc(p.instagram)}</div>`:''}
+          ${p.genres?`<div style="font-size:11px;color:var(--text2);margin-bottom:8px">${esc(p.genres)}</div>`:''}
+          ${p.bio?`<div style="font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.4">${esc(p.bio.slice(0,100))}${p.bio.length>100?'…':''}</div>`:''}
+          <div style="display:flex;gap:8px">
+            <button class="ib ib-edit" onclick="openEditPromoter('${p.id}')" style="flex:1;justify-content:center">Edit</button>
+            <button class="ib ib-reject" onclick="deletePromoter('${p.id}','${esc(p.name||'')}')">✕</button>
+          </div>
+        </div>
+      </div>
+    `).join('') + `</div>`;
+}
+
+window.openAddPromoter = function() {
+  editingPromoterId = null;
+  document.getElementById('promo-modal-title').textContent = 'Add Promoter';
+  document.getElementById('promo-submit-btn').textContent = 'Save Promoter →';
+  ['promo-name','promo-type','promo-city','promo-ig','promo-genres','promo-img','promo-bio'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('add-promoter-modal').style.display = 'block';
+};
+
+window.openEditPromoter = function(id) {
+  const p = allPromoters.find(x => x.id === id);
+  if (!p) return;
+  editingPromoterId = id;
+  document.getElementById('promo-modal-title').textContent = 'Edit Promoter';
+  document.getElementById('promo-submit-btn').textContent = 'Update Promoter →';
+  document.getElementById('promo-name').value   = p.name      || '';
+  document.getElementById('promo-type').value   = p.type      || '';
+  document.getElementById('promo-city').value   = p.city      || '';
+  document.getElementById('promo-ig').value     = p.instagram || '';
+  document.getElementById('promo-genres').value = p.genres    || '';
+  document.getElementById('promo-img').value    = p.img       || '';
+  document.getElementById('promo-bio').value    = p.bio       || '';
+  document.getElementById('add-promoter-modal').style.display = 'block';
+};
+
+window.closeAddPromoter = function() {
+  document.getElementById('add-promoter-modal').style.display = 'none';
+};
+
+window.submitPromoter = async function(e) {
+  e.preventDefault();
+  const name = document.getElementById('promo-name').value.trim();
+  if (!name) { toast('⚠️ Promoter name is required'); return; }
+  const btn = document.getElementById('promo-submit-btn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  const data = {
+    name,
+    type     : document.getElementById('promo-type').value.trim(),
+    city     : document.getElementById('promo-city').value.trim(),
+    instagram: document.getElementById('promo-ig').value.trim().replace(/^@/,''),
+    genres   : document.getElementById('promo-genres').value.trim(),
+    img      : document.getElementById('promo-img').value.trim(),
+    bio      : document.getElementById('promo-bio').value.trim(),
+    updatedAt: serverTimestamp()
+  };
+  try {
+    if (editingPromoterId) {
+      await updateDoc(doc(db,'promoters',editingPromoterId), data);
+      toast('Promoter updated');
+    } else {
+      data.createdAt = serverTimestamp();
+      await addDoc(collection(db,'promoters'), data);
+      toast('Promoter added');
+    }
+    window.closeAddPromoter();
+  } catch(err) { toast('Error: '+err.message); }
+  btn.disabled = false; btn.textContent = editingPromoterId ? 'Update Promoter →' : 'Save Promoter →';
+};
+
+window.deletePromoter = async function(id, name) {
+  if (!confirm(`Delete promoter "${name}"?`)) return;
+  try { await deleteDoc(doc(db,'promoters',id)); toast('Promoter deleted'); }
+  catch(e) { toast('Error: '+e.message); }
+};
+
+// ── BANNER ORDER PANEL ────────────────────────────────────
+function renderBannerPanel() {
+  const featured    = allEvents.filter(e => e.featured).sort((a,b) => (a.featuredOrder||999) - (b.featuredOrder||999));
+  const unfeatured  = allEvents.filter(e => !e.featured && e.status === 'approved').slice(0,30);
+  document.getElementById('banner-count').textContent = featured.length;
+
+  const fEl = document.getElementById('banner-featured-list');
+  if (!featured.length) {
+    fEl.innerHTML = emptyRow('No featured events — star an event below to add it to the banner','⭐');
+  } else {
+    fEl.innerHTML = featured.map((ev, i) => `
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)">
+        <span style="font-size:22px;min-width:32px;text-align:center;color:var(--gold);font-weight:800">${i+1}</span>
+        ${ev.img ? `<img src="${esc(ev.img)}" style="width:48px;height:48px;border-radius:8px;object-fit:cover" loading="lazy"/>` : `<div style="width:48px;height:48px;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:20px">🎉</div>`}
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:14px" class="truncate">${esc(ev.title||'—')}</div>
+          <div style="font-size:12px;color:var(--text3)">${esc(ev.venueName||'')} · ${shortDate(ev.date)}</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0">
+          <button class="ib" onclick="moveBannerUp('${ev.id}')" ${i===0?'disabled':''} title="Move up" style="padding:6px 10px;${i===0?'opacity:.3;cursor:not-allowed':''}">↑</button>
+          <button class="ib" onclick="moveBannerDown('${ev.id}')" ${i===featured.length-1?'disabled':''} title="Move down" style="padding:6px 10px;${i===featured.length-1?'opacity:.3;cursor:not-allowed':''}">↓</button>
+          <button class="ib ib-reject" onclick="toggleFeatured('${ev.id}',false)" title="Remove from banner">✕</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  const uEl = document.getElementById('banner-unfeatured-list');
+  if (!unfeatured.length) {
+    uEl.innerHTML = `<div style="color:var(--text3);font-size:13px;padding:12px 0">No approved events available</div>`;
+  } else {
+    uEl.innerHTML = unfeatured.map(ev => `
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
+        ${ev.img ? `<img src="${esc(ev.img)}" style="width:40px;height:40px;border-radius:8px;object-fit:cover" loading="lazy"/>` : `<div style="width:40px;height:40px;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:18px">🎉</div>`}
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:600;font-size:13px" class="truncate">${esc(ev.title||'—')}</div>
+          <div style="font-size:11px;color:var(--text3)">${esc(ev.venueName||'')} · ${shortDate(ev.date)}</div>
+        </div>
+        <button class="ib ib-approve" onclick="toggleFeatured('${ev.id}',true)" title="Add to banner" style="padding:6px 12px;font-size:12px">⭐ Feature</button>
+      </div>
+    `).join('');
+  }
+}
+
+window.toggleFeatured = async function(id, featured) {
+  const ev = allEvents.find(e => e.id === id);
+  if (!ev) return;
+  const data = { featured };
+  if (featured) {
+    const maxOrder = allEvents.filter(e => e.featured).reduce((m,e) => Math.max(m, e.featuredOrder||0), 0);
+    data.featuredOrder = maxOrder + 1;
+  } else {
+    data.featuredOrder = null;
+  }
+  try {
+    await updateDoc(doc(db,'events',id), data);
+    toast(featured ? `"${ev.title}" added to banner` : `"${ev.title}" removed from banner`);
+  } catch(e) { toast('Error: '+e.message); }
+};
+
+window.moveBannerUp = async function(id) {
+  const featured = allEvents.filter(e => e.featured).sort((a,b) => (a.featuredOrder||999)-(b.featuredOrder||999));
+  const idx = featured.findIndex(e => e.id === id);
+  if (idx <= 0) return;
+  const prev = featured[idx-1];
+  const curr = featured[idx];
+  try {
+    await updateDoc(doc(db,'events',prev.id), { featuredOrder: curr.featuredOrder||idx });
+    await updateDoc(doc(db,'events',curr.id), { featuredOrder: prev.featuredOrder||(idx-1) });
+  } catch(e) { toast('Error: '+e.message); }
+};
+
+window.moveBannerDown = async function(id) {
+  const featured = allEvents.filter(e => e.featured).sort((a,b) => (a.featuredOrder||999)-(b.featuredOrder||999));
+  const idx = featured.findIndex(e => e.id === id);
+  if (idx < 0 || idx >= featured.length-1) return;
+  const next = featured[idx+1];
+  const curr = featured[idx];
+  try {
+    await updateDoc(doc(db,'events',next.id), { featuredOrder: curr.featuredOrder||idx });
+    await updateDoc(doc(db,'events',curr.id), { featuredOrder: next.featuredOrder||(idx+1) });
+  } catch(e) { toast('Error: '+e.message); }
+};
+
+// ── CSV HELPER ────────────────────────────────────────────
+function downloadCSV(rows, filename) {
+  const csv = rows.map(r => r.map(c => `"${String(c||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a = Object.assign(document.createElement('a'), {
+    href: 'data:text/csv;charset=utf-8,﻿'+encodeURIComponent(csv),
+    download: filename
+  });
+  document.body.appendChild(a); a.click(); a.remove();
+}
+
 // ── NAV ───────────────────────────────────────────────────
-const TITLES = { overview:'Overview', members:'Members', venues:'Venue Applications', events:'Event Approvals', artists:'Artists' };
+const TITLES = { overview:'Overview', members:'Members', venues:'Venue Applications', events:'Event Approvals', artists:'Artists', leads:'Leads & Data', guestlist:'Guestlist', deals:'Claimed Deals', inquiries:'Inquiries', magazine:'Magazine Articles', promoters:'Promoters', banner:'Hero Banner Order' };
 window.navTo = function(page) {
   const btn = document.querySelector(`.nav-item[onclick="nav('${page}',this)"]`) ||
               document.querySelector(`.mobile-tabbar button[onclick="nav('${page}',this)"]`);
