@@ -1421,6 +1421,181 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
   </div><!-- /main -->
 </div><!-- /app -->
 
+<!-- ═══════════════════════════════════════════════════════
+     VENUE OWNER PORTAL
+════════════════════════════════════════════════════════ -->
+<div id="venue-app" style="display:none;min-height:100vh;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif">
+
+  <!-- Header -->
+  <div style="background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="width:32px;height:32px;border-radius:8px;background:var(--gold-dim);border:1px solid rgba(245,200,66,0.25);display:flex;align-items:center;justify-content:center">
+        <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:var(--gold)"><path d="M12 2L4 6v6c0 5.25 3.4 10.15 8 11.35C16.6 22.15 20 17.25 20 12V6l-8-4z"/></svg>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:800;color:var(--gold);line-height:1.2">Tonight Vietnam</div>
+        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px">Venue Portal</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px">
+      <div style="text-align:right">
+        <div id="venue-user-name" style="font-size:13px;font-weight:700;color:var(--text)"></div>
+        <div id="venue-user-email" style="font-size:11px;color:var(--text3)"></div>
+      </div>
+      <button onclick="doSignOut()" style="background:none;border:1px solid var(--border2);border-radius:8px;padding:7px 14px;color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">Sign Out</button>
+    </div>
+  </div>
+
+  <!-- Tab Bar -->
+  <div style="background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;display:flex;gap:0">
+    <button id="vtab-events" class="venue-tab-btn" onclick="venueTab('events',this)"
+      style="background:none;border:none;border-bottom:2px solid var(--gold);padding:14px 20px;color:var(--gold);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:8px">
+      My Events
+      <span id="vtab-events-count" style="background:rgba(245,200,66,0.15);color:var(--gold);border-radius:20px;padding:2px 8px;font-size:11px;font-weight:700">0</span>
+    </button>
+    <button id="vtab-guests" class="venue-tab-btn" onclick="venueTab('guestlist',this)"
+      style="background:none;border:none;border-bottom:2px solid transparent;padding:14px 20px;color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:8px">
+      My Guests
+      <span id="vtab-guests-count" style="background:var(--card2);color:var(--text3);border-radius:20px;padding:2px 8px;font-size:11px;font-weight:600">0</span>
+    </button>
+  </div>
+
+  <!-- Content -->
+  <div style="max-width:1200px;margin:0 auto;padding:24px 20px">
+
+    <!-- Events Panel -->
+    <div id="vpanel-events">
+      <!-- Stats -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px">
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 20px">
+          <div id="vs-live" style="font-size:28px;font-weight:800;color:var(--green)">0</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:4px;font-weight:500">Live Events</div>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 20px">
+          <div id="vs-pending" style="font-size:28px;font-weight:800;color:var(--gold)">0</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:4px;font-weight:500">Pending Approval</div>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 20px">
+          <div id="vs-rejected" style="font-size:28px;font-weight:800;color:var(--red)">0</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:4px;font-weight:500">Rejected</div>
+        </div>
+      </div>
+
+      <!-- Table header -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div style="font-size:16px;font-weight:700">My Events</div>
+        <button onclick="openVenueAddEvent()" style="background:var(--gold);color:#000;border:none;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit">+ Add Event</button>
+      </div>
+
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden">
+        <div style="overflow-x:auto">
+          <table class="data-table" style="margin:0">
+            <thead><tr><th>Event</th><th>Venue</th><th>Date</th><th>City</th><th>Status</th><th>Genre</th><th>Price</th><th></th></tr></thead>
+            <tbody id="venue-events-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div style="font-size:12px;color:var(--text3);margin-top:12px;padding:0 4px">
+        All new events require admin approval before going live. Approved events appear in the app immediately.
+      </div>
+    </div>
+
+    <!-- Guests Panel -->
+    <div id="vpanel-guestlist" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div style="font-size:16px;font-weight:700">My Guests</div>
+        <button onclick="exportVenueGuestsCSV()" style="background:var(--card2);color:var(--text);border:1px solid var(--border2);border-radius:8px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">⬇ Export CSV</button>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden">
+        <div style="overflow-x:auto">
+          <table class="data-table" style="margin:0">
+            <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Event</th><th>Ref</th><th>Signed Up</th></tr></thead>
+            <tbody id="venue-guests-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Venue Add/Edit Event Modal -->
+<div id="venue-event-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:300;overflow-y:auto;padding:24px 16px">
+  <div style="max-width:600px;margin:0 auto;background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:28px 24px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div id="vem-modal-title" style="font-size:18px;font-weight:800;color:#fff">Add New Event</div>
+      <button onclick="closeVenueModal()" style="background:none;border:none;color:var(--text2);font-size:22px;cursor:pointer;line-height:1;padding:0">✕</button>
+    </div>
+    <form onsubmit="submitVenueEvent(event)" novalidate style="display:flex;flex-direction:column;gap:14px">
+      <div>
+        <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Event Title *</label>
+        <input id="vem-title-inp" type="text" placeholder="e.g. Afrobeats Night at Savage" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box"/>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Venue Name *</label>
+          <input id="vem-venue" type="text" placeholder="e.g. Savage Club" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box"/>
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">City *</label>
+          <select id="vem-city" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box">
+            <option value="">Select city…</option>
+            <option value="Hanoi">Hanoi</option>
+            <option value="Ho Chi Minh City">Ho Chi Minh City</option>
+            <option value="Da Nang">Da Nang</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Date *</label>
+          <input id="vem-date" type="date" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box"/>
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Start Time</label>
+          <input id="vem-time" type="time" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box"/>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Genre</label>
+          <select id="vem-genre" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box">
+            <option value="">Select genre…</option>
+            <option>Hip-Hop / Trap</option><option>Afrobeats</option><option>R&B</option>
+            <option>Latin</option><option>House / Techno</option><option>Pop</option>
+            <option>Live Music</option><option>Happy Hour</option><option>Mixed</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Price (VND · 0 = Free)</label>
+          <input id="vem-price" type="number" min="0" placeholder="0" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box"/>
+        </div>
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Cover Image URL</label>
+        <input id="vem-img" type="url" placeholder="https://…" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box"/>
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Description</label>
+        <textarea id="vem-desc" rows="3" placeholder="Tell guests what to expect…" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box"></textarea>
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Artist(s) <span style="font-weight:400;text-transform:none;letter-spacing:0">(comma separated)</span></label>
+        <input id="vem-artists" type="text" placeholder="e.g. DJ Solea, MC Rhythm" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box"/>
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Guestlist Cap <span style="font-weight:400;text-transform:none;letter-spacing:0">(0 = unlimited)</span></label>
+        <input id="vem-cap" type="number" min="0" placeholder="0" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box"/>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px">
+        <button type="button" onclick="closeVenueModal()" style="padding:10px 20px;border-radius:8px;border:1px solid var(--border2);background:none;color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Cancel</button>
+        <button type="submit" id="vem-submit-btn" style="padding:10px 24px;border-radius:8px;border:none;background:var(--gold);color:#000;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit">Submit for Approval →</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <!-- ════════════════════════════════════════════════════════
@@ -1434,7 +1609,7 @@ import { getAuth, signInWithEmailAndPassword,
 import { getFirestore, collection, doc,
          query, orderBy, where, limit,
          onSnapshot, updateDoc, addDoc, setDoc, deleteDoc,
-         serverTimestamp }                         from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+         getDoc, serverTimestamp }                 from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 // ── 🔧 PASTE YOUR FIREBASE CONFIG HERE ───────────────────
 const FIREBASE_CONFIG = {
@@ -1487,16 +1662,33 @@ let allPromoters    = [];
 let editingArticleId  = null;
 let editingPromoterId = null;
 
+// Venue-owner portal state
+let venueUid        = null;
+let venueEvents     = [];
+let venueGuestlist  = [];
+let venueUnsubs     = [];
+let editingVenueEventId = null;
+
 // ── AUTH ──────────────────────────────────────────────────
 onAuthStateChanged(auth, async user => {
   document.getElementById('loading').classList.add('hide');
   if (!user) { showLogin(); return; }
 
-  if (user.email === ADMIN_EMAIL) {
-    showApp(user);
-  } else {
+  if (user.email === ADMIN_EMAIL) { showApp(user); return; }
+
+  try {
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    const role = snap.exists() ? snap.data().role : null;
+    if (role === 'venue_owner') { showVenueApp(user, snap.data()); }
+    else if (role === 'admin')  { showApp(user); }
+    else {
+      await signOut(auth);
+      showErr('Access denied. Use your venue owner account.');
+      showLogin();
+    }
+  } catch {
     await signOut(auth);
-    showErr('Access denied. Staff accounts only.');
+    showErr('Could not verify your account. Try again.');
     showLogin();
   }
 });
@@ -1528,8 +1720,10 @@ window.doResetPassword = async function() {
 };
 
 window.doSignOut = async function() {
-  unsubs.forEach(u => u());
+  unsubs.forEach(u => u()); unsubs = [];
+  venueUnsubs.forEach(u => u()); venueUnsubs = [];
   await signOut(auth);
+  document.getElementById('venue-app').style.display = 'none';
 };
 
 document.getElementById('login-pw').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
@@ -1556,6 +1750,216 @@ function showErr(msg) {
   document.getElementById('err-msg').textContent = msg;
   box.classList.add('on');
 }
+
+// ── VENUE OWNER PORTAL ────────────────────────────────────
+function showVenueApp(user, userData) {
+  venueUid = user.uid;
+  document.getElementById('login').classList.add('hide');
+  document.getElementById('venue-app').style.display = 'block';
+  document.getElementById('venue-user-name').textContent  = userData?.venueName || user.displayName || 'My Venue';
+  document.getElementById('venue-user-email').textContent = user.email;
+  subscribeVenue(user.uid);
+}
+
+function subscribeVenue(uid) {
+  venueUnsubs.forEach(u => u()); venueUnsubs = [];
+  venueUnsubs.push(
+    onSnapshot(query(collection(db,'events'), where('publishedBy','==',uid), orderBy('createdAt','desc')), snap => {
+      venueEvents = snap.docs.map(d => ({id:d.id,...d.data()}));
+      renderVenueStats();
+      renderVenueEvents();
+      renderVenueGuestlist();
+    }),
+    onSnapshot(query(collection(db,'guestlist'), orderBy('createdAt','desc')), snap => {
+      const all = snap.docs.map(d => ({id:d.id,...d.data()}));
+      const myTitles = new Set(venueEvents.map(e => e.title));
+      venueGuestlist = all.filter(g => myTitles.has(g.eventTitle) || (g.publishedBy === uid));
+      document.getElementById('vtab-guests-count').textContent = venueGuestlist.length;
+      if (document.getElementById('vpanel-guestlist').style.display !== 'none') renderVenueGuestlist();
+    })
+  );
+}
+
+function renderVenueStats() {
+  document.getElementById('vs-live').textContent    = venueEvents.filter(e => e.status === 'approved').length;
+  document.getElementById('vs-pending').textContent = venueEvents.filter(e => !e.status || e.status === 'pending').length;
+  document.getElementById('vs-rejected').textContent= venueEvents.filter(e => e.status === 'rejected').length;
+  document.getElementById('vtab-events-count').textContent = venueEvents.length;
+}
+
+function renderVenueEvents() {
+  const tbody = document.getElementById('venue-events-tbody');
+  if (!venueEvents.length) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty"><div class="empty-icon">🎉</div><div class="empty-title">No events yet — click + Add Event to get started</div></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = venueEvents.map(ev => {
+    const sid = 'vetr-'+ev.id;
+    const statusClass = ev.status === 'approved' ? 'status-approved' : ev.status === 'rejected' ? 'status-rejected' : 'status-pending';
+    const statusLabel = ev.status === 'approved' ? 'Live' : ev.status === 'rejected' ? 'Rejected' : 'Pending';
+    const price = ev.price !== undefined && ev.price !== null ? (ev.price > 0 ? Number(ev.price).toLocaleString()+'₫' : 'Free') : '—';
+    return `<tr id="${sid}">
+      <td style="max-width:180px" class="truncate"><strong>${esc(ev.title||'—')}</strong></td>
+      <td>${esc(ev.venueName||'—')}</td>
+      <td style="white-space:nowrap">${shortDate(ev.date)}</td>
+      <td>${esc(ev.city||'—')}</td>
+      <td><span class="status-pill ${statusClass}">${statusLabel}</span></td>
+      <td style="color:var(--text3);font-size:12px">${esc(ev.genre||'—')}</td>
+      <td style="font-size:12px">${price}</td>
+      <td style="white-space:nowrap">
+        <button class="ib ib-edit" onclick="openVenueEditEvent('${ev.id}')">Edit</button>
+        <button class="ib ib-del" onclick="deleteVenueEvent('${ev.id}','${esc(ev.title||'')}')">🗑</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function renderVenueGuestlist() {
+  const tbody = document.getElementById('venue-guests-tbody');
+  if (!tbody) return;
+  if (!venueGuestlist.length) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty"><div class="empty-icon">🎟</div><div class="empty-title">No guests yet</div></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = venueGuestlist.map(g => `<tr>
+    <td>${esc(g.buyerName||g.name||'—')}</td>
+    <td><a href="mailto:${esc(g.buyerEmail||'')}" style="color:var(--gold)">${esc(g.buyerEmail||'—')}</a></td>
+    <td>${esc(g.phone||'—')}</td>
+    <td class="truncate" style="max-width:160px">${esc(g.eventTitle||'—')}</td>
+    <td style="font-family:monospace;font-size:11px;color:var(--text3)">${esc(g.ref||'—')}</td>
+    <td style="font-size:12px;color:var(--text3)">${timeAgo(g.createdAt)}</td>
+  </tr>`).join('');
+}
+
+window.venueTab = function(tab, btn) {
+  document.querySelectorAll('.venue-tab-btn').forEach(b => {
+    b.style.borderBottomColor = 'transparent';
+    b.style.color = 'var(--text2)';
+    b.style.fontWeight = '600';
+  });
+  btn.style.borderBottomColor = 'var(--gold)';
+  btn.style.color = 'var(--gold)';
+  btn.style.fontWeight = '700';
+  document.getElementById('vpanel-events').style.display    = tab === 'events'    ? 'block' : 'none';
+  document.getElementById('vpanel-guestlist').style.display = tab === 'guestlist' ? 'block' : 'none';
+  if (tab === 'guestlist') renderVenueGuestlist();
+};
+
+// Venue event form helpers
+const VLABEL = 'font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px';
+const VINPUT = 'width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box';
+
+window.openVenueAddEvent = function() {
+  editingVenueEventId = null;
+  document.getElementById('vem-modal-title').textContent = 'Add New Event';
+  document.getElementById('vem-submit-btn').textContent = 'Submit for Approval →';
+  ['vem-title-inp','vem-venue','vem-time','vem-img','vem-desc','vem-artists'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('vem-date').value  = '';
+  document.getElementById('vem-price').value = '0';
+  document.getElementById('vem-cap').value   = '0';
+  document.getElementById('vem-city').selectedIndex  = 0;
+  document.getElementById('vem-genre').selectedIndex = 0;
+  document.getElementById('venue-event-modal').style.display = 'block';
+};
+
+window.openVenueEditEvent = function(id) {
+  const ev = venueEvents.find(e => e.id === id);
+  if (!ev) return;
+  editingVenueEventId = id;
+  document.getElementById('vem-modal-title').textContent = 'Edit Event';
+  document.getElementById('vem-submit-btn').textContent = ev.status === 'approved' ? 'Save Changes' : 'Resubmit for Approval →';
+  document.getElementById('vem-title-inp').value  = ev.title      || '';
+  document.getElementById('vem-venue').value      = ev.venueName  || '';
+  document.getElementById('vem-date').value       = ev.date       || '';
+  document.getElementById('vem-time').value       = ev.time       || '';
+  document.getElementById('vem-img').value        = ev.img        || ev.imgDetail || '';
+  document.getElementById('vem-desc').value       = ev.description|| ev.desc || '';
+  document.getElementById('vem-artists').value    = (ev.artists||[]).join(', ');
+  document.getElementById('vem-price').value      = ev.price      ?? 0;
+  document.getElementById('vem-cap').value        = ev.guestlistCap ?? 0;
+  const cityEl = document.getElementById('vem-city');
+  for (let i=0; i<cityEl.options.length; i++) { if(cityEl.options[i].value===ev.city){cityEl.selectedIndex=i;break;} }
+  const genreEl = document.getElementById('vem-genre');
+  for (let i=0; i<genreEl.options.length; i++) { if(genreEl.options[i].value===(ev.genre||'')){genreEl.selectedIndex=i;break;} }
+  document.getElementById('venue-event-modal').style.display = 'block';
+};
+
+window.closeVenueModal = function() {
+  document.getElementById('venue-event-modal').style.display = 'none';
+};
+
+window.submitVenueEvent = async function(e) {
+  e.preventDefault();
+  const title = document.getElementById('vem-title-inp').value.trim();
+  const venue = document.getElementById('vem-venue').value.trim();
+  const city  = document.getElementById('vem-city').value;
+  const date  = document.getElementById('vem-date').value;
+  if (!title) { toast('⚠️ Event title is required'); return; }
+  if (!venue) { toast('⚠️ Venue name is required'); return; }
+  if (!city)  { toast('⚠️ Please select a city'); return; }
+  if (!date)  { toast('⚠️ Date is required'); return; }
+  const btn = document.getElementById('vem-submit-btn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  const artistRaw = document.getElementById('vem-artists').value;
+  const artists = artistRaw ? artistRaw.split(',').map(s=>s.trim()).filter(Boolean) : [];
+  const data = {
+    title, venueName: venue, city, date,
+    time        : document.getElementById('vem-time').value || '',
+    genre       : document.getElementById('vem-genre').value || '',
+    price       : parseFloat(document.getElementById('vem-price').value) || 0,
+    guestlistCap: parseInt(document.getElementById('vem-cap').value) || 0,
+    img         : document.getElementById('vem-img').value.trim(),
+    imgDetail   : document.getElementById('vem-img').value.trim(),
+    description : document.getElementById('vem-desc').value.trim(),
+    artists,
+    publishedBy : venueUid,
+    updatedAt   : serverTimestamp()
+  };
+  try {
+    if (editingVenueEventId) {
+      const existing = venueEvents.find(e => e.id === editingVenueEventId);
+      if (existing?.status !== 'approved') data.status = 'pending';
+      await updateDoc(doc(db,'events',editingVenueEventId), data);
+      toast('Event updated' + (data.status === 'pending' ? ' — awaiting approval' : ''));
+    } else {
+      data.status = 'pending';
+      data.createdAt = serverTimestamp();
+      await addDoc(collection(db,'events'), data);
+      toast('Event submitted for approval');
+    }
+    window.closeVenueModal();
+  } catch(err) { toast('Error: '+err.message); }
+  btn.disabled = false;
+  btn.textContent = editingVenueEventId ? 'Save Changes' : 'Submit for Approval →';
+};
+
+window.deleteVenueEvent = async function(id, title) {
+  if (!deleteConfirm.has(id)) {
+    deleteConfirm.add(id);
+    const row = document.getElementById('vetr-'+id);
+    if (row) { const b = row.querySelector('.ib-del'); if(b){b.textContent='?';b.classList.add('ib-confirm');} }
+    setTimeout(() => {
+      deleteConfirm.delete(id);
+      const r = document.getElementById('vetr-'+id);
+      if (r) { const b = r.querySelector('.ib-del'); if(b){b.textContent='🗑';b.classList.remove('ib-confirm');} }
+    }, 3000);
+    return;
+  }
+  deleteConfirm.delete(id);
+  try {
+    await deleteDoc(doc(db,'events',id));
+    toast(`"${title}" deleted`);
+  } catch(err) { toast('Error: '+err.message); }
+};
+
+window.exportVenueGuestsCSV = function() {
+  const rows = [['Name','Email','Phone','Event','Ref','Signed Up']];
+  venueGuestlist.forEach(g => rows.push([
+    g.buyerName||g.name||'', g.buyerEmail||'', g.phone||'',
+    g.eventTitle||'', g.ref||'', timeAgo(g.createdAt)
+  ]));
+  downloadCSV(rows, 'my-guests.csv');
+};
 
 // ── REALTIME SUBSCRIPTIONS ────────────────────────────────
 function subscribeAll() {
@@ -1597,25 +2001,25 @@ function subscribeAll() {
     }),
     onSnapshot(query(collection(db,'guestlist'), orderBy('createdAt','desc')), snap => {
       allGuestlist = snap.docs.map(d => ({id:d.id,...d.data()}));
-      renderGuestlistPanel();
       updateBadge('guestlist-badge', allGuestlist.length);
+      if (isPanel('panel-guestlist')) renderGuestlistPanel();
     }),
     onSnapshot(query(collection(db,'deals'), orderBy('claimedAt','desc')), snap => {
       allDeals = snap.docs.map(d => ({id:d.id,...d.data()}));
-      renderDealsPanel();
+      if (isPanel('panel-deals')) renderDealsPanel();
     }),
     onSnapshot(query(collection(db,'inquiries'), orderBy('createdAt','desc')), snap => {
       allInquiries = snap.docs.map(d => ({id:d.id,...d.data()}));
-      renderInquiriesPanel();
       updateBadge('inquiries-badge', allInquiries.filter(i=>!i.read).length);
+      if (isPanel('panel-inquiries')) renderInquiriesPanel();
     }),
     onSnapshot(query(collection(db,'magazine'), orderBy('date','desc')), snap => {
       allMagazine = snap.docs.map(d => ({id:d.id,...d.data()}));
-      renderMagazinePanel();
+      if (isPanel('panel-magazine')) renderMagazinePanel();
     }),
     onSnapshot(query(collection(db,'promoters'), orderBy('name','asc')), snap => {
       allPromoters = snap.docs.map(d => ({id:d.id,...d.data()}));
-      renderPromotersPanel();
+      if (isPanel('panel-promoters')) renderPromotersPanel();
     })
   );
   let _proLeads = [];
@@ -1976,7 +2380,7 @@ async function seedDefaultEvents() {
       });
     }
     toast('✅ Default events seeded to Firestore');
-  } catch(err) { console.warn('Seed error:', err.message); }
+  } catch { }
 }
 
 function renderEventsTable() {
@@ -2509,7 +2913,7 @@ async function seedDefaultArtists() {
       await addDoc(collection(db,'artists'), { ...a, hidden:false, source:'seeded', createdAt:serverTimestamp() });
     }
     toast('✅ Default artists added to Firestore');
-  } catch(err) { console.warn('Artist seed error:', err.message); }
+  } catch { }
 }
 
 function renderArtistsPanel() {
@@ -3121,16 +3525,30 @@ window.navTo = function(page) {
               document.querySelector(`.mobile-tabbar button[onclick="nav('${page}',this)"]`);
   if (btn) nav(page, btn);
 };
+function isPanel(id) {
+  const el = document.getElementById(id);
+  return el && el.classList.contains('active');
+}
+
 window.nav = function(page, btn) {
   document.querySelectorAll('.nav-item,.mobile-tabbar button').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   btn.classList.add('active');
-  // Sync sidebar + mobile bar
   document.querySelectorAll(`.nav-item, .mobile-tabbar button`).forEach(b => {
     if(b.getAttribute('onclick')===`nav('${page}',this)`) b.classList.add('active');
   });
   document.getElementById('panel-'+page).classList.add('active');
   document.getElementById('page-title').textContent = TITLES[page];
+  // Trigger fresh render on panel show
+  ({
+    leads:     () => renderLeadsPanel(),
+    guestlist: () => renderGuestlistPanel(),
+    deals:     () => renderDealsPanel(),
+    inquiries: () => renderInquiriesPanel(),
+    magazine:  () => renderMagazinePanel(),
+    promoters: () => renderPromotersPanel(),
+    banner:    () => renderBannerPanel()
+  })[page]?.();
 };
 
 window.refresh = function() { toast('Data is live — updates automatically'); };

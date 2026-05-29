@@ -94,7 +94,8 @@ service cloud.firestore {
     match /guestlist/{id} {
       allow create: if request.resource.data.keys().hasAll(['ref','buyerEmail','eventTitle'])
                     && request.resource.data.buyerEmail is string;
-      allow read, update, delete: if isStaff();
+      allow read: if isStaff() || isVenueOwner();
+      allow update, delete: if isStaff();
     }
 
     // ── deals/{id} ────────────────────────────────────────────────────────────
