@@ -6133,6 +6133,7 @@ function _initApp(){
             desc:ev.description||ev.desc||'',
             featured:!!ev.featured,
             soldOut:!!ev.soldOut,
+            hidden:!!ev.hidden,
             attendees:parseInt(ev.capacity)||ev.attendees||0,
             isNew:ev.isNew!==false,
             lineup:ev.lineup||[],
@@ -6142,11 +6143,13 @@ function _initApp(){
           };
         });
         // Merge: hardcoded events stay as baseline, Firestore events added on top
+        // Hidden events (admin toggled) are excluded from the public site
+        const visible=mapped.filter(e=>!e.hidden);
         const _byId=new Map(STATIC_EVENTS.map(e=>[String(e.id),e]));
-        mapped.forEach(e=>_byId.set(String(e.id),e));
+        visible.forEach(e=>_byId.set(String(e.id),e));
         EVENTS=[..._byId.values()].sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0);
-        // Only switch banner IDs if Firestore has featured events with images
-        const _fbFeat=mapped.filter(e=>e.featured&&e.img);
+        // Only switch banner IDs if Firestore has visible featured events with images
+        const _fbFeat=visible.filter(e=>e.featured&&e.img);
         if(_fbFeat.length) BANNER_IDS=_fbFeat.map(e=>e.id);
         renderAll();
       }, err=>{ console.warn('[Tonight Firebase events]',err.message); });

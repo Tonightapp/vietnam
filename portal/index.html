@@ -508,6 +508,16 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
 .ea-edit:hover{background:rgba(59,130,246,.2)}
 .ea-unblock{background:rgba(34,197,94,.08);color:var(--green);border-color:rgba(34,197,94,.2)}
 .ea-unblock:hover{background:rgba(34,197,94,.2)}
+.ea-hide{background:rgba(148,163,184,.06);color:var(--text3);border-color:var(--border)}
+.ea-hide:hover{background:rgba(148,163,184,.15);color:var(--text2)}
+.ea-show{background:rgba(34,197,94,.08);color:var(--green);border-color:rgba(34,197,94,.2)}
+.ea-show:hover{background:rgba(34,197,94,.18)}
+.ftab.on-all{background:rgba(59,130,246,.1);border-color:rgba(59,130,246,.3);color:var(--blue)}
+.ftab.on-all .ftab-count{background:var(--blue);color:#fff}
+.evt-card.evt-hidden{opacity:.55;border-style:dashed}
+.evt-hidden-badge{font-size:10px;font-weight:700;color:var(--text3);background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:4px;padding:1px 6px;vertical-align:middle;margin-left:4px}
+.area-quick-select{background:var(--bg);border:1px solid var(--border2);color:var(--text2);border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;font-family:inherit;outline:none}
+.area-quick-select:focus{border-color:var(--blue)}
 
 /* ─── FIREBASE SETUP PROMPT ──────────────────────────────── */
 #setup-prompt{
@@ -1373,7 +1383,7 @@ window.deleteMember = async function(id, coll, name) {
 };
 
 // ── EVENTS ────────────────────────────────────────────────
-let eventFilter  = 'pending';
+let eventFilter  = 'all';
 let genreFilter  = 'all';
 let evtSearchQ   = '';
 const deleteConfirm = new Set(); // ids pending 2nd-click confirm
@@ -1446,49 +1456,71 @@ function renderEventsTable() {
 }
 
 function eventCard(e) {
-  const status     = e.status || 'pending';
-  const title      = esc(e.title || '—');
-  const venue      = esc(e.venueName || e.venue || '—');
-  const city       = esc(e.city || '');
-  const genre      = esc(e.genre || '');
-  const dateStr    = shortDate(e.date);
-  const price      = e.price > 0 ? `${Number(e.price).toLocaleString()}₫` : 'Free';
-  const isPending  = status === 'pending';
-  const isFeat     = !!e.featured;
-  const emailLabel = e.emailSent ? `📧 ${e.emailCount||0} sent` : '📧 unsent';
+  const status      = e.status || 'pending';
+  const title       = esc(e.title || '—');
+  const venue       = esc(e.venueName || e.venue || '—');
+  const city        = esc(e.city || '');
+  const area        = e.area || '';
+  const genre       = esc(e.genre || '');
+  const dateStr     = shortDate(e.date);
+  const price       = e.price > 0 ? `${Number(e.price).toLocaleString()}₫` : 'Free';
+  const isPending   = status === 'pending';
+  const isApproved  = status === 'approved';
+  const isRejected  = status === 'rejected';
+  const isFeat      = !!e.featured;
+  const isHidden    = !!e.hidden;
+  const emailLabel  = e.emailSent ? `📧 ${e.emailCount||0} sent` : '📧 unsent';
 
   const thumbInner = e.img
     ? `<img src="${esc(e.img)}" loading="lazy" alt=""/><span class="evt-thumb-emoji">${e.emoji||'🎵'}</span>`
     : `<span class="evt-thumb-emoji">${e.emoji||'🎵'}</span>`;
 
-  const approveRejectBtns = isPending ? `
-    <button class="ea-btn ea-reject"  onclick="rejectEvent('${e.id}','${title}')">✕ Reject</button>
-    <button class="ea-btn ea-approve" onclick="approveEvent('${e.id}','${title}')">✓ Approve</button>
-  ` : '';
+  // Approve / Reject depending on current status
+  const approveBtn = `<button class="ea-btn ea-approve" onclick="approveEvent('${e.id}','${title}')">✓ Approve</button>`;
+  const rejectBtn  = `<button class="ea-btn ea-reject"  onclick="rejectEvent('${e.id}','${title}')">✕ Reject</button>`;
+  const statusBtns = isPending  ? rejectBtn + approveBtn
+                   : isRejected ? approveBtn
+                   : isApproved ? rejectBtn
+                   : '';
+
+  // Area quick-change — inline select, updates Firestore immediately
+  const areaSelect = `<select class="area-quick-select" title="Move to area" onchange="moveArea('${e.id}',this.value)">
+    <option value="" ${!area?'selected':''}>📍 Area…</option>
+    <option value="Old Quarter" ${area==='Old Quarter'?'selected':''}>Old Quarter</option>
+    <option value="Tay Ho"      ${area==='Tay Ho'?'selected':''}>Tay Ho</option>
+    <option value="Ba Dinh"     ${area==='Ba Dinh'?'selected':''}>Ba Dinh</option>
+    <option value="Other"       ${area==='Other'?'selected':''}>Other</option>
+  </select>`;
+
+  const hideBtn = isHidden
+    ? `<button class="ea-btn ea-show" onclick="toggleHidden('${e.id}',true)"  title="Show on site">👁 Show</button>`
+    : `<button class="ea-btn ea-hide" onclick="toggleHidden('${e.id}',false)" title="Hide from site">🙈 Hide</button>`;
 
   const delClass = deleteConfirm.has(e.id) ? 'ea-del confirm' : 'ea-del';
   const delLabel = deleteConfirm.has(e.id) ? 'Sure?' : '🗑';
 
-  return `<div class="evt-card${isFeat?' featured':''}" id="ecard-${e.id}">
+  return `<div class="evt-card${isFeat?' featured':''}${isHidden?' evt-hidden':''}" id="ecard-${e.id}">
     <div class="evt-status-bar ${status}"></div>
     <div class="evt-thumb">${thumbInner}</div>
     <div class="evt-body">
-      <div class="evt-title">${title}${isFeat?' ⭐':''}</div>
-      <div class="evt-venue">📍 ${venue}${city?` · ${city}`:''}</div>
+      <div class="evt-title">${title}${isFeat?' ⭐':''}${isHidden?'<span class="evt-hidden-badge">HIDDEN</span>':''}</div>
+      <div class="evt-venue">📍 ${venue}${city?` · ${city}`:''}${area?` · <em style="color:var(--blue);font-style:normal">${esc(area)}</em>`:''}</div>
       <div class="evt-tags">
         ${genre?`<span class="evt-tag">${genre}</span>`:''}
         <span class="evt-tag">${dateStr}${e.time?` · ${esc(e.time)}`:''}</span>
         <span class="evt-tag ${e.price>0?'orange':'green'}">${price}</span>
-        <span class="evt-tag ${status==='approved'?'green':status==='rejected'?'':'orange'}">${status}</span>
+        <span class="evt-tag ${isApproved?'green':isRejected?'red':'orange'}">${status}</span>
         ${e.emailSent?`<span class="evt-tag green">${emailLabel}</span>`:`<span class="evt-tag">${emailLabel}</span>`}
       </div>
       ${e.description?`<div class="evt-desc">${esc(e.description)}</div>`:''}
     </div>
     <div class="evt-actions">
-      ${approveRejectBtns}
-      <button class="ea-btn ea-edit" onclick="openEditEvent('${e.id}')" title="Edit">✏</button>
-      <button class="ea-btn ea-feat${isFeat?' on':''}" onclick="toggleFeatured('${e.id}',${isFeat})" title="${isFeat?'Unfeature':'Feature'}">⭐</button>
-      <button class="ea-btn ${delClass}" onclick="deleteEvent('${e.id}','${title}')">${delLabel}</button>
+      ${statusBtns}
+      ${areaSelect}
+      <button class="ea-btn ea-edit" onclick="openEditEvent('${e.id}')" title="Edit event">✏ Edit</button>
+      <button class="ea-btn ea-feat${isFeat?' on':''}" onclick="toggleFeatured('${e.id}',${isFeat})" title="${isFeat?'Remove from banner':'Pin to banner'}">⭐</button>
+      ${hideBtn}
+      <button class="ea-btn ${delClass}" onclick="deleteEvent('${e.id}','${title}')" style="margin-left:auto">${delLabel}</button>
     </div>
   </div>`;
 }
@@ -1521,7 +1553,22 @@ window.rejectEvent = async function(eventId, title) {
 window.toggleFeatured = async function(eventId, current) {
   try {
     await updateDoc(doc(db,'events',eventId), { featured: !current });
-    toast(current ? 'Removed from featured' : '⭐ Event featured!');
+    toast(current ? 'Removed from featured' : '⭐ Event pinned to banner!');
+  } catch(e) { toast(`Error: ${e.message}`); }
+};
+
+window.toggleHidden = async function(eventId, current) {
+  try {
+    await updateDoc(doc(db,'events',eventId), { hidden: !current });
+    toast(current ? '👁 Event is now visible on site' : '🙈 Event hidden from site (still in portal)');
+  } catch(e) { toast(`Error: ${e.message}`); }
+};
+
+window.moveArea = async function(eventId, area) {
+  if (!area) return;
+  try {
+    await updateDoc(doc(db,'events',eventId), { area });
+    toast(`📍 Moved to ${area}`);
   } catch(e) { toast(`Error: ${e.message}`); }
 };
 
