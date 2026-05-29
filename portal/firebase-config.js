@@ -28,7 +28,7 @@ export const FIREBASE_CONFIG = {
   measurementId:     "G-F2ES9FFJGW",
 };
 
-export const ADMIN_EMAIL = 'app.tonigh1@gmail.com';
+export const ADMIN_EMAIL = 'app.tonight1@gmail.com';
 
 function assertConfigReady() {
   const missing = Object.entries(FIREBASE_CONFIG)
