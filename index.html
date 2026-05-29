@@ -2966,15 +2966,11 @@ function payLogos(size='sm'){
 }
 
 // ── DATA ──
-// IDs in the order they appear in the banner carousel
-let BANNER_IDS=[44,45];
-
-let EVENTS=[
-  {id:45,title:"Afro Kulture Festival Vietnam", artist:"G.O.A.T Entertainment", genre:"Afrobeats", city:"Hanoi", area:"Tay Ho", venue:"Sala Nature Garden → Maya Fusion Bar → Vox Westlake Club", lat:21.0521,lng:105.8190, date:"2026-05-30", price:0, img:"images/afro-kulture-banner.jpg", imgDetail:"images/afro-kulture-vertical.jpg", emoji:"🌍", grad:"grad-gold", desc:"G.O.A.T Entertainment presents Afro Kulture Festival Vietnam — a full-day celebration of African culture, pool vibes and Afrobeats music across three iconic Tay Ho venues.\n\n1PM–7PM: Sala Nature Garden (9/154 D De Quai, Tu Lien, Tay Ho)\n9PM–Late: Maya Fusion Bar (27/52 To Ngoc Van, Tay Ho)\n11PM–Late: Vox Westlake Club (27/52 To Ngoc Van, Tay Ho)\n\nOfficial Partners: Hanoi Luxe, VOX Social Club, Maya, Afrobeats Vietnam.\n\nTickets & info: www.hanoiluxe.com/afrokulturefest", featured:true, soldOut:false, attendees:250, isNew:true, organizer:"G.O.A.T Entertainment", ticketUrl:"https://www.hanoiluxe.com/afrokulturefest"},
-  {id:44,title:"Excursion x Wet Dynasty",  artist:"Rachel RM, Winnie Wakanda, Arixo + more", genre:"Themed Party", city:"Hanoi", area:"Red River", venue:"Red River Cruise, Hanoi", lat:21.0450,lng:105.8412, date:"2026-06-06", price:0, img:"images/excursion-wet-dynasty.jpg", emoji:"🛥",grad:"grad-pink", desc:"Electric Bazaar presents a river cruise party like no other — Excursion x Wet Dynasty sets sail on the Red River. Featuring DJ sets from Rachel RM, Winnie Wakanda, Arixo, Useph, Psyboost & Lamont, plus a spectacular Drag Show by Wet Dynasty. Hanoi's wildest night on the water.", featured:true, soldOut:false, attendees:150, isNew:true, lineup:["Rachel RM","Winnie Wakanda","Arixo","Useph","Psyboost","Lamont"], specialActs:"Drag Show by Wet Dynasty", organizer:"Electric Bazaar"},
-];
-// Hardcoded events kept as permanent baseline — banner always has something to show
-const STATIC_EVENTS=EVENTS.slice();
+// All events come from Firestore (admin portal is the single source of truth).
+// EVENTS is populated by the live onSnapshot subscription below.
+let BANNER_IDS=[];
+let EVENTS=[];
+const STATIC_EVENTS=[]; // no hardcoded fallback — portal manages everything
 
 const ARTISTS=[];
 
@@ -6112,7 +6108,7 @@ function _initApp(){
       const q=query(collection(db,'events'),where('status','==','approved'),orderBy('date','asc'));
       const _gGrad={Techno:'grad-purple',House:'grad-teal','DJ Night':'grad-purple',Electronic:'grad-orange',EDM:'grad-orange','Live Music':'grad-blue',Jazz:'grad-cyan','Hip-Hop':'grad-orange','Themed Party':'grad-gold'};
       onSnapshot(q, snap=>{
-        if(snap.empty) return; // keep hardcoded fallback when no approved events
+        if(snap.empty){ EVENTS=[]; renderAll(); return; } // nothing approved yet
         const mapped=snap.docs.map(d=>{
           const ev=d.data();
           return{
@@ -6142,15 +6138,10 @@ function _initApp(){
             ticketUrl:ev.ticketUrl||''
           };
         });
-        // Merge: hardcoded events stay as baseline, Firestore events added on top
-        // Hidden events (admin toggled) are excluded from the public site
+        // Portal is the single source of truth — hidden events excluded from public site
         const visible=mapped.filter(e=>!e.hidden);
-        const _byId=new Map(STATIC_EVENTS.map(e=>[String(e.id),e]));
-        visible.forEach(e=>_byId.set(String(e.id),e));
-        EVENTS=[..._byId.values()].sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0);
-        // Only switch banner IDs if Firestore has visible featured events with images
-        const _fbFeat=visible.filter(e=>e.featured&&e.img);
-        if(_fbFeat.length) BANNER_IDS=_fbFeat.map(e=>e.id);
+        EVENTS=visible.sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0);
+        BANNER_IDS=visible.filter(e=>e.featured&&e.img).map(e=>e.id);
         renderAll();
       }, err=>{ console.warn('[Tonight Firebase events]',err.message); });
     }catch(err){ console.warn('[Tonight Firebase events]',err.message); }
