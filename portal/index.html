@@ -1625,6 +1625,12 @@ const FIREBASE_CONFIG = {
 
 const ADMIN_EMAIL = 'app.tonight1@gmail.com';
 
+// Safety net: if Firebase Auth doesn't resolve within 10s, show login
+const _loadTimeout = setTimeout(() => {
+  const l = document.getElementById('loading');
+  if (l && !l.classList.contains('hide')) { l.classList.add('hide'); showLogin(); }
+}, 10000);
+
 // Check if config is filled in
 const configMissing = Object.values(FIREBASE_CONFIG).some(v => v.startsWith('PASTE_'));
 
@@ -1671,6 +1677,7 @@ let editingVenueEventId = null;
 
 // ── AUTH ──────────────────────────────────────────────────
 onAuthStateChanged(auth, async user => {
+  clearTimeout(_loadTimeout);
   document.getElementById('loading').classList.add('hide');
   if (!user) { showLogin(); return; }
 
