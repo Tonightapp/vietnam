@@ -95,10 +95,10 @@ img{max-width:100%;height:auto;-webkit-user-drag:none;user-select:none;-webkit-u
 .btn-white:hover{background:#e0e0e0;}
 .btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border);}
 .btn-ghost:hover{border-color:var(--border2);color:#fff;}
-.btn-buy{display:none!important;}
-.cal-event-price{display:none!important;}
-.evt-card-price{display:none!important;}
-.evt-wide-price{display:none!important;}
+.btn-buy{display:inline-flex;}
+.cal-event-price{display:inline-block;}
+.evt-card-price{display:block;}
+.evt-wide-price{display:block;}
 .tag{display:inline-block;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:400;text-transform:uppercase;letter-spacing:.5px;}
 .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
 .section-head h2{font-size:16px;font-weight:700;letter-spacing:-.2px;color:#fff;}
@@ -3089,12 +3089,15 @@ const _top10Err="var c=this.closest('.top10-card');if(c)c.remove();";
 
 function portCard(ev){
   const f=favs.some(x=>String(x)===String(ev.id));
+  const hasPrice=ev.price!==undefined&&ev.price!==null;
+  const priceHtml=hasPrice?`<div class="evt-card-price" style="color:${ev.price>0?'#f5c842':'#22c55e'}">${ev.price>0?Number(ev.price).toLocaleString()+'₫':'Free'}</div>`:'';
   return`<div class="evt-card" onclick="openEvent('${ev.id}')">
     ${ev.img?`<img src="${ev.img}" style="position:absolute;width:0;height:0;opacity:0;pointer-events:none" loading="lazy" onerror="${_imgErr}"/>`:''}
     <div class="evt-card-img-wrap">
       <div class="evt-card-img" style="${imgStyle(ev)}">${ev.img?'':ev.emoji}</div>
       <div class="evt-card-overlay"></div>
       ${ev.soldOut?'<div class="evt-card-badges"><span class="badge-sold">Sold Out</span></div>':ev.isNew?'<div class="evt-card-badges"><span class="badge-new">New</span></div>':''}
+      ${priceHtml}
       <div class="evt-card-fav ${f?'favd':''}" onclick="event.stopPropagation();toggleFav('${ev.id}')">♥</div>
     </div>
     <div class="evt-card-title">${ev.title}</div>
@@ -3105,12 +3108,15 @@ function portCard(ev){
 
 function wideCard(ev){
   const f=favs.some(x=>String(x)===String(ev.id));
+  const hasPrice=ev.price!==undefined&&ev.price!==null;
+  const priceHtml=hasPrice?`<div class="evt-wide-price" style="color:${ev.price>0?'#f5c842':'#22c55e'}">${ev.price>0?Number(ev.price).toLocaleString()+'₫':'Free'}</div>`:'';
   return`<div class="evt-wide" onclick="openEvent('${ev.id}')">
     ${ev.img?`<img src="${ev.img}" style="position:absolute;width:0;height:0;opacity:0;pointer-events:none" loading="lazy" onerror="${_wideErr}"/>`:''}
     <div class="evt-wide-img-wrap">
       <div class="evt-wide-img" style="${imgStyle(ev)}">${ev.img?'':ev.emoji}</div>
       <div class="evt-wide-overlay"></div>
       ${ev.soldOut?'<div class="evt-wide-badges"><span class="badge-sold">Sold Out</span></div>':ev.isNew?'<div class="evt-wide-badges"><span class="badge-new">New</span></div>':''}
+      ${priceHtml}
       <div class="evt-wide-fav ${f?'favd':''}" onclick="event.stopPropagation();toggleFav('${ev.id}')">♥</div>
     </div>
     <div class="evt-wide-title">${ev.title}</div>
@@ -3972,6 +3978,13 @@ function openEvent(id){
   const ev=activeEv;
   _reviewStarSel=0;
   document.getElementById('evtTitle').textContent=ev.title;
+  // Update OG/Twitter meta for native share
+  const _ogT=document.querySelector('meta[property="og:title"]');
+  const _ogD=document.querySelector('meta[property="og:description"]');
+  const _ogI=document.querySelector('meta[property="og:image"]');
+  if(_ogT) _ogT.setAttribute('content',ev.title+' — Tonight Vietnam');
+  if(_ogD) _ogD.setAttribute('content',(ev.venueName||ev.venue||'')+' · '+fmt(ev.date)+' · '+ev.city+' · Tonight Vietnam');
+  if(_ogI&&(ev.imgDetail||ev.img)) _ogI.setAttribute('content',ev.imgDetail||ev.img);
   const shareTitle=encodeURIComponent( ev.title+ ' on Tonight!');
   const shareCopy='Tonight \u2014 '+ev.title+' @ '+ev.venue;
   document.getElementById('evtBody').innerHTML=`

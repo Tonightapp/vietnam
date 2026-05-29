@@ -77,9 +77,18 @@ exports.onEventApproved = onDocumentUpdated(
     const before = event.data.before.data();
     const after  = event.data.after.data();
 
-    // Only run when status flips to 'approved' and email not already sent
+    // Only run when status flips to 'approved'
     if (before.status === 'approved' || after.status !== 'approved') return;
-    if (after.emailSent) return;
+
+    // Atomic guard — prevents duplicate sends if two updates fire simultaneously
+    let shouldSend = false;
+    await db.runTransaction(async (tx) => {
+      const snap = await tx.get(event.data.after.ref);
+      if (snap.data().emailSent) return;
+      tx.update(event.data.after.ref, { emailSent: true, emailSentAt: Timestamp.now() });
+      shouldSend = true;
+    });
+    if (!shouldSend) { console.log('[onEventApproved] Already sent, skipping.'); return; }
 
     const ev      = after;
     const eventId = event.params.eventId;
@@ -117,12 +126,8 @@ exports.onEventApproved = onDocumentUpdated(
 
     console.log(`[onEventApproved] Sent ${sent}/${users.length} emails`);
 
-    // Mark email sent on the event doc
-    await event.data.after.ref.update({
-      emailSent:    true,
-      emailSentAt:  Timestamp.now(),
-      emailCount:   sent,
-    });
+    // Update count only (emailSent already set atomically above)
+    await event.data.after.ref.update({ emailCount: sent });
   }
 );
 
@@ -622,3 +627,105 @@ exports.onVenueApproved = onDocumentUpdated(
     }
   }
 );
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FUNCTION 6: onCommunitySignup
+// Fires when someone joins the community — sends a branded welcome email.
+// ══════════════════════════════════════════════════════════════════════════════
+exports.onCommunitySignup = onDocumentCreated(
+  {
+    document: 'community_signups/{id}',
+    region:   'asia-southeast1',
+  },
+  async (event) => {
+    const signup = event.data.data();
+    if (!signup.email) return;
+    if (signup.welcomeSent) return;
+
+    const transporter = makeTransporter(EMAIL_USER.value(), EMAIL_PASS.value());
+    const fromLabel   = EMAIL_FROM.value() || `Tonight Vietnam <${EMAIL_USER.value()}>`;
+    const firstName   = (signup.fullName || signup.name || signup.email.split('@')[0]).split(' ')[0];
+
+    try {
+      await transporter.sendMail({
+        from:    fromLabel,
+        to:      signup.email,
+        subject: `🌙 Welcome to Tonight Vietnam, ${firstName}!`,
+        html:    buildWelcomeEmail(signup, firstName),
+      });
+      await event.data.ref.update({ welcomeSent: true, welcomeSentAt: Timestamp.now() });
+      console.log(`[onCommunitySignup] Welcome email sent to ${signup.email}`);
+    } catch (err) {
+      console.error(`[onCommunitySignup] Error: ${err.message}`);
+    }
+  }
+);
+
+function buildWelcomeEmail(signup, firstName) {
+  const city = signup.city || 'Vietnam';
+  return `<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/></head>
+<body style="margin:0;padding:0;background:#080810;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#080810;padding:32px 16px">
+<tr><td align="center">
+<table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%">
+
+  <tr><td style="text-align:center;padding-bottom:24px">
+    <div style="display:inline-block;background:rgba(245,200,66,0.1);border:1px solid rgba(245,200,66,0.3);border-radius:12px;padding:8px 18px">
+      <span style="color:#f5c842;font-size:16px;font-weight:800;letter-spacing:2px">🌙 TONIGHT VIETNAM</span>
+    </div>
+  </td></tr>
+
+  <tr><td style="background:linear-gradient(135deg,#13131f 0%,#0e0e1a 100%);border:1px solid rgba(245,200,66,0.2);border-radius:20px;overflow:hidden">
+
+    <div style="background:linear-gradient(135deg,rgba(245,200,66,0.15) 0%,rgba(245,200,66,0.05) 100%);padding:40px 32px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.07)">
+      <div style="font-size:56px;margin-bottom:12px">🎉</div>
+      <h1 style="color:#ffffff;font-size:26px;font-weight:800;margin:0 0 8px">You're in, ${escHtml(firstName)}!</h1>
+      <p style="color:#f5c842;font-size:15px;font-weight:600;margin:0">Welcome to Tonight Vietnam</p>
+    </div>
+
+    <div style="padding:32px">
+      <p style="color:#f1f5f9;font-size:15px;line-height:1.8;margin:0 0 24px">
+        You now get first access to the best events, deals and guestlist offers in ${escHtml(city)} — straight to your inbox before anyone else.
+      </p>
+
+      <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px">
+        <tr><td style="padding:14px 16px;background:rgba(245,200,66,0.06);border:1px solid rgba(245,200,66,0.15);border-radius:10px;margin-bottom:10px">
+          <div style="color:#f5c842;font-size:13px;font-weight:700;margin-bottom:4px">🎟️ Exclusive Guestlists</div>
+          <div style="color:#94a3b8;font-size:13px">Skip the queue with free guestlist spots at top Hanoi venues</div>
+        </td></tr>
+        <tr><td style="height:10px"></td></tr>
+        <tr><td style="padding:14px 16px;background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.15);border-radius:10px;margin-bottom:10px">
+          <div style="color:#22c55e;font-size:13px;font-weight:700;margin-bottom:4px">💸 Member Deals</div>
+          <div style="color:#94a3b8;font-size:13px">2-for-1 drinks, discounted entry and flash offers sent only to members</div>
+        </td></tr>
+        <tr><td style="height:10px"></td></tr>
+        <tr><td style="padding:14px 16px;background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.15);border-radius:10px">
+          <div style="color:#a78bfa;font-size:13px;font-weight:700;margin-bottom:4px">🔔 First to Know</div>
+          <div style="color:#94a3b8;font-size:13px">New events drop every week — you'll hear about them before the crowd</div>
+        </td></tr>
+      </table>
+
+      <div style="text-align:center">
+        <a href="https://tonightvietnam.com" style="display:inline-block;background:#f5c842;color:#000;font-size:15px;font-weight:700;padding:16px 40px;border-radius:12px;text-decoration:none;letter-spacing:0.3px">
+          Explore Tonight Now →
+        </a>
+      </div>
+    </div>
+
+  </td></tr>
+
+  <tr><td style="text-align:center;padding:24px 0">
+    <p style="color:#475569;font-size:12px;margin:0 0 8px">Tonight Vietnam · The best nightlife in Vietnam, curated for you.</p>
+    <p style="color:#475569;font-size:11px;margin:0">
+      <a href="https://tonightvietnam.com/unsubscribe?email=${encodeURIComponent(signup.email)}" style="color:#475569">Unsubscribe</a>
+    </p>
+  </td></tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>`;
+}

@@ -1606,6 +1606,8 @@ window.deleteMember = async function(id, coll, name) {
 let eventFilter  = 'all';
 let genreFilter  = 'all';
 let evtSearchQ   = '';
+let evtPage      = 1;
+const EVT_PAGE   = 50;
 const deleteConfirm = new Set();
 let evtSelected  = new Set();
 let _seeded = false;
@@ -1725,6 +1727,8 @@ function renderEventsTable() {
     el.innerHTML = `<div class="empty"><div class="empty-icon">🎫</div><div class="empty-title">No events match</div><div class="empty-sub">Try a different filter or genre</div></div>`;
     return;
   }
+  const page    = filtered.slice(0, evtPage * EVT_PAGE);
+  const hasMore = filtered.length > page.length;
   el.innerHTML = `<div style="overflow-x:auto"><table class="evt-table">
     <thead><tr>
       <th style="width:36px"><input type="checkbox" id="evt-chk-all" onchange="evtSelAll(this.checked)" title="Select all"/></th>
@@ -1734,8 +1738,9 @@ function renderEventsTable() {
       <th>Status</th>
       <th style="min-width:220px">Actions</th>
     </tr></thead>
-    <tbody>${filtered.map(e => eventRow(e)).join('')}</tbody>
-  </table></div>`;
+    <tbody>${page.map(e => eventRow(e)).join('')}</tbody>
+  </table></div>
+  ${hasMore?`<div style="text-align:center;padding:16px"><button class="btn b-approve" onclick="evtLoadMore()" style="font-size:13px;padding:10px 28px">Load More (${filtered.length - page.length} remaining)</button></div>`:'<div style="text-align:center;padding:10px;font-size:11px;color:var(--text3)">Showing all ${filtered.length} event${filtered.length!==1?'s':''}</div>'}`;
 }
 
 function eventCard(e) {
@@ -1864,9 +1869,10 @@ function eventRow(e) {
   </tr>`;
 }
 
-window.setEF = function(f) { eventFilter = f; genreFilter = 'all'; renderEventsTable(); };
-window.setGF = function(g) { genreFilter = g; renderEventsTable(); };
-window.evtSearch = function(q) { evtSearchQ = q.trim(); renderEventsTable(); };
+window.setEF = function(f) { eventFilter = f; genreFilter = 'all'; evtPage = 1; renderEventsTable(); };
+window.setGF = function(g) { genreFilter = g; evtPage = 1; renderEventsTable(); };
+window.evtSearch = function(q) { evtSearchQ = q.trim(); evtPage = 1; renderEventsTable(); };
+window.evtLoadMore = function() { evtPage++; renderEventsTable(); };
 
 window.approveEvent = async function(eventId, title) {
   try {
