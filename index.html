@@ -2220,9 +2220,19 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
             </select>
           </div>
           <div class="le-field">
-            <label>Venue Address</label>
-            <input type="text" id="le_address" placeholder="Street address or district"/>
+            <label>Neighborhood / Area <span class="cm-req">*</span></label>
+            <select id="le_area">
+              <option value="" disabled selected>Select area</option>
+              <option value="Old Quarter">Old Quarter</option>
+              <option value="Tay Ho">Tay Ho</option>
+              <option value="Ba Dinh">Ba Dinh</option>
+              <option value="Other">Other</option>
+            </select>
           </div>
+        </div>
+        <div class="le-field">
+          <label>Venue Address <span class="cm-req-soft">(optional)</span></label>
+          <input type="text" id="le_address" placeholder="Street address or district"/>
         </div>
         <div class="le-row">
           <div class="le-field">
@@ -6201,9 +6211,11 @@ function leNextStep(from){
     const contact=document.getElementById('le_contact').value.trim();
     const phone=document.getElementById('le_phone').value.trim();
     const email=document.getElementById('le_email').value.trim();
+    const area=document.getElementById('le_area').value;
     if(!biz){toast('Please enter your business name','err');return;}
     if(!type){toast('Please select venue type','err');return;}
     if(!city){toast('Please select a city','err');return;}
+    if(!area){toast('Please select a neighborhood / area','err');return;}
     if(!contact){toast('Please enter your name','err');return;}
     if(!phone){toast('Please enter a WhatsApp number','err');return;}
     if(!email||!email.includes('@')){toast('Please enter a valid email','err');return;}
@@ -6233,7 +6245,7 @@ function leRenderReview(){
   box.innerHTML=`
     <div style="display:grid;gap:6px">
       <div><strong>Business:</strong> ${v('le_biz')} · ${v('le_type')}</div>
-      <div><strong>City:</strong> ${v('le_city')}${v('le_address')?' · '+v('le_address'):''}</div>
+      <div><strong>City:</strong> ${v('le_city')} · ${v('le_area')}${v('le_address')?' · '+v('le_address'):''}</div>
       <div><strong>Event:</strong> ${v('le_title')}</div>
       <div><strong>Date:</strong> ${v('le_date')} at ${v('le_time')||'20:00'}</div>
       ${v('le_genre')?`<div><strong>Genre:</strong> ${v('le_genre')}</div>`:''}
@@ -6316,6 +6328,7 @@ async function submitListEvent(e){
     businessName: document.getElementById('le_biz').value.trim(),
     venueType:    document.getElementById('le_type').value,
     city:         document.getElementById('le_city').value,
+    area:         document.getElementById('le_area').value,
     address:      document.getElementById('le_address').value.trim(),
     eventTitle:   document.getElementById('le_title').value.trim(),
     date:         document.getElementById('le_date').value,
@@ -6352,7 +6365,7 @@ async function submitListEvent(e){
   const imgData=document.getElementById('le_imageData').value||'';
   await _saveToFirestore('events',{
     title:data.eventTitle, venueName:data.businessName, venueType:data.venueType,
-    city:data.city, address:data.address, date:data.date, time:data.doorsOpen,
+    city:data.city, area:data.area, address:data.address, date:data.date, time:data.doorsOpen,
     genre:data.genre, capacity:data.capacity, description:data.description,
     specialOffer:data.specialOffer, contactName:data.contactName, phone:data.phone,
     email:data.email, instagram:data.instagram, website:data.website,
