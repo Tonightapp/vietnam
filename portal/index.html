@@ -667,13 +667,13 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
         <svg viewBox="0 0 24 24"><path d="M12 2L4 6v6c0 5.25 3.4 10.15 8 11.35C16.6 22.15 20 17.25 20 12V6l-8-4z"/></svg>
       </div>
       <div class="login-brand">Tonight Vietnam</div>
-      <div class="login-tag">Staff Portal</div>
+      <div class="login-tag">Admin &amp; Venue Portal</div>
     </div>
     <div class="login-body">
       <label class="field-label">Email address</label>
       <div class="input-row">
         <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-        <input id="login-email" type="email" placeholder="admin@tonightvietnam.com" autocomplete="email"/>
+        <input id="login-email" type="email" placeholder="your@email.com" autocomplete="email"/>
       </div>
       <label class="field-label mt-field">Password</label>
       <div class="input-row">
@@ -696,7 +696,7 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
     </div>
     <div class="login-foot">
       <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
-      Authorised staff only · Tonight Vietnam
+      Admin &amp; approved venue owners · Tonight Vietnam
     </div>
   </div>
 </div>
@@ -1686,7 +1686,7 @@ onAuthStateChanged(auth, async user => {
       showErr('Access denied. Use your venue owner account.');
       showLogin();
     }
-  } catch {
+  } catch(e) {
     await signOut(auth);
     showErr('Could not verify your account. Try again.');
     showLogin();
@@ -1732,6 +1732,7 @@ document.getElementById('login-pw').addEventListener('keydown', e => { if(e.key=
 function showLogin() {
   document.getElementById('login').classList.remove('hide');
   document.getElementById('app').classList.remove('on');
+  document.getElementById('venue-app').style.display = 'none';
 }
 
 function showApp(user) {
@@ -1756,7 +1757,7 @@ function showVenueApp(user, userData) {
   venueUid = user.uid;
   document.getElementById('login').classList.add('hide');
   document.getElementById('venue-app').style.display = 'block';
-  document.getElementById('venue-user-name').textContent  = userData?.venueName || user.displayName || 'My Venue';
+  document.getElementById('venue-user-name').textContent  = userData?.fullName || userData?.venueName || user.displayName || 'My Venue';
   document.getElementById('venue-user-email').textContent = user.email;
   subscribeVenue(user.uid);
 }
@@ -1764,19 +1765,23 @@ function showVenueApp(user, userData) {
 function subscribeVenue(uid) {
   venueUnsubs.forEach(u => u()); venueUnsubs = [];
   venueUnsubs.push(
-    onSnapshot(query(collection(db,'events'), where('publishedBy','==',uid), orderBy('createdAt','desc')), snap => {
-      venueEvents = snap.docs.map(d => ({id:d.id,...d.data()}));
+    onSnapshot(query(collection(db,'events'), where('publishedBy','==',uid)), snap => {
+      venueEvents = snap.docs.map(d => ({id:d.id,...d.data()})).sort((a,b) => {
+        const ta = a.createdAt?.toMillis?.() || a.createdAt?.seconds*1000 || 0;
+        const tb = b.createdAt?.toMillis?.() || b.createdAt?.seconds*1000 || 0;
+        return tb - ta;
+      });
       renderVenueStats();
       renderVenueEvents();
       renderVenueGuestlist();
-    }),
+    }, err => { toast('Events error: ' + err.message); }),
     onSnapshot(query(collection(db,'guestlist'), orderBy('createdAt','desc')), snap => {
       const all = snap.docs.map(d => ({id:d.id,...d.data()}));
       const myTitles = new Set(venueEvents.map(e => e.title));
       venueGuestlist = all.filter(g => myTitles.has(g.eventTitle) || (g.publishedBy === uid));
       document.getElementById('vtab-guests-count').textContent = venueGuestlist.length;
       if (document.getElementById('vpanel-guestlist').style.display !== 'none') renderVenueGuestlist();
-    })
+    }, err => { toast('Guestlist error: ' + err.message); })
   );
 }
 
@@ -1963,73 +1968,75 @@ window.exportVenueGuestsCSV = function() {
 
 // ── REALTIME SUBSCRIPTIONS ────────────────────────────────
 function subscribeAll() {
+  const onErr = label => err => toast(`${label}: ${err.code || err.message}`);
+
   unsubs.push(
     onSnapshot(query(collection(db,'community_signups'), orderBy('createdAt','desc')), snap => {
       allMembers = snap.docs.map(d => ({id:d.id,...d.data()}));
-      renderStats();
-      renderNewSignups();
+      renderStats(); renderNewSignups();
       renderMembersTable(document.getElementById('member-search')?.value || '');
       rebuildLeads();
-    }),
+    }, onErr('Members')),
+
     onSnapshot(query(collection(db,'users'), orderBy('createdAt','desc')), snap => {
       allUsers = snap.docs.map(d => ({id:d.id,...d.data()}));
-      renderStats();
-      renderNewSignups();
+      renderStats(); renderNewSignups();
       renderMembersTable(document.getElementById('member-search')?.value || '');
-    }),
+    }, onErr('Users')),
+
     onSnapshot(query(collection(db,'venue_requests'), orderBy('createdAt','desc')), snap => {
       allRequests = snap.docs.map(d => ({id:d.id,...d.data()}));
-      renderStats();
-      renderBars();
-      renderVenueFilters();
-      renderVenueList();
-      renderAttentionWidget();
-    }),
+      renderStats(); renderBars(); renderVenueFilters(); renderVenueList(); renderAttentionWidget();
+    }, onErr('Venues')),
+
     onSnapshot(query(collection(db,'events'), orderBy('createdAt','desc')), snap => {
       allEvents = snap.docs.map(d => ({id:d.id,...d.data()}));
       if (allEvents.length === 0) seedDefaultEvents();
-      renderStats();
-      renderEventsTable();
-      renderAttentionWidget();
-      renderBannerPanel();
-    }),
+      renderStats(); renderEventsTable(); renderAttentionWidget(); renderBannerPanel();
+    }, onErr('Events')),
+
     onSnapshot(query(collection(db,'artists'), orderBy('name','asc')), snap => {
       allArtists = snap.docs.map(d => ({id:d.id,...d.data()}));
       if (allArtists.length === 0 && !_artistSeeded) seedDefaultArtists();
       document.getElementById('artists-count').textContent = allArtists.length;
       renderArtistsPanel();
-    }),
+    }, onErr('Artists')),
+
     onSnapshot(query(collection(db,'guestlist'), orderBy('createdAt','desc')), snap => {
       allGuestlist = snap.docs.map(d => ({id:d.id,...d.data()}));
       updateBadge('guestlist-badge', allGuestlist.length);
       if (isPanel('panel-guestlist')) renderGuestlistPanel();
-    }),
-    onSnapshot(query(collection(db,'deals'), orderBy('claimedAt','desc')), snap => {
+    }, onErr('Guestlist')),
+
+    onSnapshot(query(collection(db,'deals'), orderBy('createdAt','desc')), snap => {
       allDeals = snap.docs.map(d => ({id:d.id,...d.data()}));
       if (isPanel('panel-deals')) renderDealsPanel();
-    }),
+    }, onErr('Deals')),
+
     onSnapshot(query(collection(db,'inquiries'), orderBy('createdAt','desc')), snap => {
       allInquiries = snap.docs.map(d => ({id:d.id,...d.data()}));
       updateBadge('inquiries-badge', allInquiries.filter(i=>!i.read).length);
       if (isPanel('panel-inquiries')) renderInquiriesPanel();
-    }),
-    onSnapshot(query(collection(db,'magazine'), orderBy('date','desc')), snap => {
+    }, onErr('Inquiries')),
+
+    onSnapshot(query(collection(db,'magazine'), orderBy('createdAt','desc')), snap => {
       allMagazine = snap.docs.map(d => ({id:d.id,...d.data()}));
       if (isPanel('panel-magazine')) renderMagazinePanel();
-    }),
+    }, onErr('Magazine')),
+
     onSnapshot(query(collection(db,'promoters'), orderBy('name','asc')), snap => {
       allPromoters = snap.docs.map(d => ({id:d.id,...d.data()}));
       if (isPanel('panel-promoters')) renderPromotersPanel();
-    })
+    }, onErr('Promoters'))
   );
+
   let _proLeads = [];
-  // Leads = community_signups + pro_signups combined
   unsubs.push(
     onSnapshot(query(collection(db,'pro_signups'), orderBy('createdAt','desc')), snap => {
       _proLeads = snap.docs.map(d => ({id:d.id,...d.data(), _source:'Pro Signup'}));
       rebuildLeads(_proLeads);
       updateBadge('leads-badge', _proLeads.filter(p=>!p._seen).length);
-    })
+    }, onErr('Pro Signups'))
   );
 
   function rebuildLeads(proLeads) {
@@ -2380,7 +2387,7 @@ async function seedDefaultEvents() {
       });
     }
     toast('✅ Default events seeded to Firestore');
-  } catch { }
+  } catch(e) { }
 }
 
 function renderEventsTable() {
@@ -2913,7 +2920,7 @@ async function seedDefaultArtists() {
       await addDoc(collection(db,'artists'), { ...a, hidden:false, source:'seeded', createdAt:serverTimestamp() });
     }
     toast('✅ Default artists added to Firestore');
-  } catch { }
+  } catch(e) { }
 }
 
 function renderArtistsPanel() {
