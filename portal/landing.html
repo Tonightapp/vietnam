@@ -410,11 +410,11 @@ footer{
       <form class="signup-form" id="signup-form" novalidate onsubmit="return false">
         <div class="s-input">
           <svg viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
-          <input type="text" id="s-name" placeholder="Your name" required autocomplete="name"/>
+          <input type="text" id="s-name" placeholder="Your name" required autocomplete="name" maxlength="100"/>
         </div>
         <div class="s-input">
           <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-          <input type="email" id="s-email" placeholder="your@email.com" required autocomplete="email"/>
+          <input type="email" id="s-email" placeholder="your@email.com" required autocomplete="email" maxlength="254"/>
         </div>
         <div class="s-input">
           <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
@@ -508,7 +508,8 @@ const db  = getFirestore(app);
 // ── LOAD APPROVED EVENTS ───────────────────────────────────────────────────────
 (async function loadEvents() {
   try {
-    const q    = query(collection(db,'events'), where('status','==','approved'), orderBy('date','asc'), limit(12));
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const q    = query(collection(db,'events'), where('status','==','approved'), where('date','>=',todayStr), orderBy('date','asc'), limit(12));
     const snap = await getDocs(q);
     const events = snap.docs.map(d => ({id:d.id,...d.data()}));
     renderEvents(events);
@@ -521,6 +522,7 @@ function renderEvents(events) {
   const section = document.getElementById('live-events-section');
   if (!section || events.length === 0) return;
   section.style.display = 'block';
+  section.classList.add('visible');
   const grid = document.getElementById('live-events-grid');
   const now  = new Date();
   grid.innerHTML = events.map(e => {
@@ -605,7 +607,9 @@ document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 // ── SMOOTH SCROLL ──────────────────────────────────────────────────────────────
 document.querySelectorAll('a[href^="#"]').forEach(a => {
   a.addEventListener('click', e => {
-    const target = document.querySelector(a.getAttribute('href'));
+    const href = a.getAttribute('href');
+    if (!href || href === '#') return;
+    const target = document.querySelector(href);
     if (target) { e.preventDefault(); target.scrollIntoView({behavior:'smooth'}); }
   });
 });

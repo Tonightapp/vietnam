@@ -64,6 +64,14 @@
         { "fieldPath": "eventTitle", "order": "ASCENDING" },
         { "fieldPath": "createdAt",  "order": "DESCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "guestlist",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "venueOwnerId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt",    "order": "DESCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

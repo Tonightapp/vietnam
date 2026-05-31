@@ -298,7 +298,7 @@ footer a:hover{color:var(--text2)}
           <label class="field-label" for="f-vname">Venue Name</label>
           <div class="input-wrap" id="w-vname">
             <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-            <input type="text" id="f-vname" placeholder="e.g. Broma Not A Bar"/>
+            <input type="text" id="f-vname" placeholder="e.g. Broma Not A Bar" maxlength="200"/>
           </div>
           <div class="field-error" id="e-vname">Venue name is required</div>
         </div>
@@ -371,6 +371,8 @@ footer a:hover{color:var(--text2)}
           </div>
         </div>
 
+        <div id="form-err" style="display:none;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.4);border-radius:8px;padding:12px 14px;font-size:13px;color:#f87171;margin-top:4px"></div>
+
         <button type="submit" class="submit-btn" id="submit-btn">
           Submit Application
         </button>
@@ -411,9 +413,11 @@ const FIREBASE_CONFIG = {
 const CDN = 'https://www.gstatic.com/firebasejs/10.12.0';
 const { initializeApp, getApps } = await import(`${CDN}/firebase-app.js`);
 const { getFirestore, collection, addDoc, serverTimestamp } = await import(`${CDN}/firebase-firestore.js`);
+const { getAuth, signInAnonymously }                        = await import(`${CDN}/firebase-auth.js`);
 
-const app = getApps().length ? getApps()[0] : initializeApp(FIREBASE_CONFIG);
-const db  = getFirestore(app);
+const app  = getApps().length ? getApps()[0] : initializeApp(FIREBASE_CONFIG);
+const db   = getFirestore(app);
+const auth = getAuth(app);
 
 // ── CHAR COUNTER ───────────────────────────────────────────────────────────────
 window.updateChar = function() {
@@ -458,7 +462,10 @@ async function submitForm() {
   let   web = document.getElementById('f-web').value.trim();
   if (web && !/^https?:\/\//i.test(web)) web = 'https://' + web;
 
+  const formErr = document.getElementById('form-err');
+  formErr.style.display = 'none';
   try {
+    if (!auth.currentUser) await signInAnonymously(auth);
     await addDoc(collection(db, 'venue_requests'), {
       fullName:    document.getElementById('f-name').value.trim(),
       email:       document.getElementById('f-email').value.trim().toLowerCase(),
@@ -480,9 +487,8 @@ async function submitForm() {
     _submitted = false;
     btn.disabled = false;
     btn.innerHTML = 'Submit Application';
-    const errEl = document.getElementById('e-desc');
-    errEl.textContent = 'Something went wrong. Please try again.';
-    errEl.classList.add('on');
+    formErr.textContent = 'Something went wrong. Please try again. (' + err.message + ')';
+    formErr.style.display = 'block';
   }
 }
 

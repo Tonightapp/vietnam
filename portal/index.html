@@ -1714,7 +1714,12 @@ onAuthStateChanged(auth, async user => {
 
   try {
     const snap = await getDoc(doc(db, 'users', user.uid));
-    const role = snap.exists() ? snap.data().role : null;
+    if (!snap.exists()) {
+      showErr('Account setup incomplete. Please contact support or wait a moment and refresh.');
+      showLogin();
+      return;
+    }
+    const role = snap.data().role;
     if (role === 'venue_owner') { showVenueApp(user, snap.data()); }
     else if (role === 'admin')  { showApp(user); }
     else {
@@ -1723,8 +1728,7 @@ onAuthStateChanged(auth, async user => {
       showLogin();
     }
   } catch(e) {
-    await signOut(auth);
-    showErr('Could not verify your account. Try again.');
+    showErr('Network error verifying your account. Please refresh the page.');
     showLogin();
   }
 });
@@ -1748,10 +1752,15 @@ window.doResetPassword = async function() {
   if (!email) { showErr('Enter your email address first.'); return; }
   try {
     await sendPasswordResetEmail(auth, email);
-    showErr(`✓ Reset link sent to ${email} — check your inbox`);
-    document.getElementById('err-msg').parentElement.style.borderColor = 'rgba(34,197,94,0.4)';
-    document.getElementById('err-msg').parentElement.style.color = '#22c55e';
+    const box = document.getElementById('err-box');
+    document.getElementById('err-msg').textContent = `✓ Reset link sent to ${email} — check your inbox`;
+    box.style.borderColor = 'rgba(34,197,94,0.4)';
+    box.style.color = '#22c55e';
+    box.classList.add('on');
   } catch(e) {
+    const box = document.getElementById('err-box');
+    box.style.borderColor = '';
+    box.style.color = '';
     showErr('Could not send reset email: ' + e.message);
   }
 };
@@ -1759,11 +1768,13 @@ window.doResetPassword = async function() {
 window.doSignOut = async function() {
   unsubs.forEach(u => u()); unsubs = [];
   venueUnsubs.forEach(u => u()); venueUnsubs = [];
-  await signOut(auth);
+  try { await signOut(auth); } catch(_) {}
+  document.getElementById('app').classList.remove('on');
   document.getElementById('venue-app').style.display = 'none';
+  showLogin();
 };
 
-document.getElementById('login-pw').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+document.getElementById('login-pw')?.addEventListener('keydown', e => { if(e.key==='Enter') window.doLogin(); });
 
 // ── SHOW SCREENS ──────────────────────────────────────────
 function showLogin() {
@@ -1812,10 +1823,8 @@ function subscribeVenue(uid) {
       renderVenueEvents();
       renderVenueGuestlist();
     }, err => { toast('Events error: ' + err.message); }),
-    onSnapshot(query(collection(db,'guestlist'), orderBy('createdAt','desc')), snap => {
-      const all = snap.docs.map(d => ({id:d.id,...d.data()}));
-      const myTitles = new Set(venueEvents.map(e => e.title));
-      venueGuestlist = all.filter(g => myTitles.has(g.eventTitle) || (g.publishedBy === uid));
+    onSnapshot(query(collection(db,'guestlist'), where('venueOwnerId','==',uid), orderBy('createdAt','desc')), snap => {
+      venueGuestlist = snap.docs.map(d => ({id:d.id,...d.data()}));
       document.getElementById('vtab-guests-count').textContent = venueGuestlist.length;
       if (document.getElementById('vpanel-guestlist').style.display !== 'none') renderVenueGuestlist();
     }, err => { toast('Guestlist error: ' + err.message); })
@@ -2319,9 +2328,17 @@ function venueRow(r) {
 // ── APPROVE / REJECT ──────────────────────────────────────
 window.approveVenue = async function(reqId, userId, name) {
   if (!confirm(`Approve ${name}?\n\nThey will be able to publish events immediately.`)) return;
+  if (!userId) {
+    if (!confirm(`Warning: no user ID linked to this application.\nThe account role cannot be updated automatically.\nContinue anyway?`)) return;
+  }
   try {
-    await updateDoc(doc(db,'venue_requests',reqId), { status:'approved', reviewedAt: serverTimestamp() });
-    toast(`✅ ${name} approved — now live on Tonight`);
+    const batch = writeBatch(db);
+    batch.update(doc(db,'venue_requests',reqId), { status:'approved', reviewedAt: serverTimestamp() });
+    if (userId) {
+      batch.update(doc(db,'users',userId), { role:'venue_owner', approvedAt: serverTimestamp() });
+    }
+    await batch.commit();
+    toast(`✅ ${name} approved — venue owner role granted`);
   } catch(e) { toast(`Error: ${e.message}`); }
 };
 
@@ -2935,7 +2952,7 @@ window.submitAddEvent = async function(e) {
       });
       toast('✅ Event published — live on Tonight now');
     }
-    closeAddEvent();
+    window.closeAddEvent();
   } catch(err) {
     toast(`Error: ${err.message}`);
     btn.disabled=false; btn.textContent = editingEventId?'Save Changes →':'Publish Event →';
@@ -3084,7 +3101,7 @@ window.submitArtist = async function(e) {
       await addDoc(collection(db,'artists'), {...data, hidden:false, source:'portal', createdAt:serverTimestamp()});
       toast('✅ Artist added');
     }
-    closeAddArtist();
+    window.closeAddArtist();
   } catch(err) {
     toast(`Error: ${err.message}`);
     btn.disabled = false; btn.textContent = editingArtistId ? 'Save Changes →' : 'Add Artist →';
@@ -3154,7 +3171,7 @@ function renderAttentionWidget() {
       </div>
       <div class="attn-acts">
         <button class="ib ib-reject"  title="Reject"  onclick="rejectVenue('${r.id}','${nm}')">✕</button>
-        <button class="ib ib-approve" title="Approve" onclick="approveVenue('${r.id}','','${nm}')">✓ Approve</button>
+        <button class="ib ib-approve" title="Approve" onclick="approveVenue('${r.id}','${escQ(r.userId||r.user_id||'')}','${nm}')">✓ Approve</button>
       </div>
     </div>`;
   });
@@ -3438,7 +3455,7 @@ window.openEditPromoter = function(id) {
 window.closeAddPromoter = function() {
   document.getElementById('add-promoter-modal').style.display = 'none';
   editingPromoterId = null;
-  ['promo-name','promo-city','promo-genre','promo-ig','promo-img','promo-bio'].forEach(id => document.getElementById(id).value = '');
+  ['promo-name','promo-type','promo-city','promo-genres','promo-ig','promo-img','promo-bio'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
   document.getElementById('promo-modal-title').textContent = 'Add Promoter';
   document.getElementById('promo-submit-btn').textContent = 'Save Promoter →';
 };

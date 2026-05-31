@@ -24,6 +24,7 @@ const { onSchedule }                 = require('firebase-functions/v2/scheduler'
 const { initializeApp }              = require('firebase-admin/app');
 const { getFirestore, Timestamp }    = require('firebase-admin/firestore');
 const nodemailer                     = require('nodemailer');
+const QRCode                         = require('qrcode');
 
 initializeApp();
 const db = getFirestore();
@@ -140,7 +141,7 @@ exports.onEventApproved = onDocumentUpdated(
 // ══════════════════════════════════════════════════════════════════════════════
 exports.sendReminders = onSchedule(
   {
-    schedule:  'every day 03:00',   // 03:00 UTC = 10:00 AM Ho Chi Minh City
+    schedule:  '0 3 * * *',         // 03:00 UTC = 10:00 AM Ho Chi Minh City
     timeZone:  'UTC',
     region:    'asia-southeast1',
   },
@@ -156,7 +157,7 @@ exports.sendReminders = onSchedule(
     const eventsSnap = await db.collection('events')
       .where('date', '==', dateStr)
       .where('status', '==', 'approved')
-      .where('reminderSent', '==', false)
+      .where('reminderSent', 'in', [false, null])
       .get();
 
     if (eventsSnap.empty) {
@@ -397,10 +398,6 @@ exports.onGuestlistCreate = onDocumentCreated(
       ? new Date(tk.date).toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' })
       : '';
 
-    // Generate QR code server-side as base64 data URI (no external dependency)
-    const QRCode = require('qrcode');
-    const qrDataUrl = await QRCode.toDataURL('TONIGHT:' + ref, { width: 200, margin: 1 });
-
     const html = `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"/></head>
 <body style="margin:0;padding:0;background:#080810;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
@@ -425,7 +422,7 @@ exports.onGuestlistCreate = onDocumentCreated(
   </td></tr>
   <tr><td style="padding:0 32px 24px;text-align:center">
     <div style="background:#fff;border-radius:12px;padding:20px;display:inline-block">
-      <img src="${qrDataUrl}" width="200" height="200" alt="QR Code" style="display:block;border-radius:4px"/>
+      <img src="__QR__" width="200" height="200" alt="QR Code" style="display:block;border-radius:4px"/>
       <div style="margin-top:8px;font-size:10px;font-weight:700;letter-spacing:1.5px;color:#333;font-family:monospace">${escHtml(ref)}</div>
     </div>
     <div style="font-size:12px;color:rgba(255,255,255,0.35);margin-top:10px">Show this QR at venue entry · Staff scans to check you in</div>
@@ -439,11 +436,13 @@ exports.onGuestlistCreate = onDocumentCreated(
 </body></html>`;
 
     try {
+      const qrDataUrl = await QRCode.toDataURL('TONIGHT:' + ref, { width: 200, margin: 1 });
+      const htmlFinal = html.replace('__QR__', qrDataUrl);
       await transporter.sendMail({
         from:    fromLabel,
         to:      tk.buyerEmail,
         subject: `🎫 Your Tonight Ticket — ${tk.eventTitle || 'Guestlist Confirmed'}`,
-        html,
+        html:    htmlFinal,
       });
       await event.data.ref.update({ emailSent: true, emailSentAt: Timestamp.now() });
       console.log(`[onGuestlistCreate] QR ticket sent to ${tk.buyerEmail} ref=${ref}`);
@@ -472,8 +471,6 @@ exports.onDealCreate = onDocumentCreated(
     const fromLabel   = EMAIL_FROM.value() || `Tonight Vietnam <${EMAIL_USER.value()}>`;
     const code        = dl.code || '';
     const qrData      = dl.qrData || ('TONIGHT-DEAL:' + code);
-    const QRCode      = require('qrcode');
-    const qrDataUrl   = await QRCode.toDataURL(qrData, { width: 200, margin: 1 });
     const firstName   = (dl.guestName || 'Guest').split(' ')[0];
     const window_     = (dl.startTime && dl.endTime) ? `${dl.startTime}–${dl.endTime}` : 'tonight';
 
@@ -501,7 +498,7 @@ exports.onDealCreate = onDocumentCreated(
   </td></tr>
   <tr><td style="padding:0 32px 24px;text-align:center">
     <div style="background:#fff;border-radius:12px;padding:20px;display:inline-block">
-      <img src="${qrDataUrl}" width="200" height="200" alt="QR Code" style="display:block;border-radius:4px"/>
+      <img src="__QR__" width="200" height="200" alt="QR Code" style="display:block;border-radius:4px"/>
       <div style="margin-top:8px;font-size:10px;font-weight:700;letter-spacing:1.5px;color:#333;font-family:monospace">${escHtml(code)}</div>
     </div>
     <div style="font-size:12px;color:rgba(255,255,255,0.35);margin-top:10px">Show this QR at the venue · Staff scans to unlock your deal</div>
@@ -515,11 +512,13 @@ exports.onDealCreate = onDocumentCreated(
 </body></html>`;
 
     try {
+      const qrDataUrl = await QRCode.toDataURL(qrData, { width: 200, margin: 1 });
+      const htmlFinal = html.replace('__QR__', qrDataUrl);
       await transporter.sendMail({
         from:    fromLabel,
         to:      dl.guestEmail,
         subject: `🎫 Your Tonight Deal — ${dl.dealTitle || 'Deal Confirmed'} at ${dl.venueName || ''}`,
-        html,
+        html:    htmlFinal,
       });
       await event.data.ref.update({ emailSent: true, emailSentAt: Timestamp.now() });
       console.log(`[onDealCreate] Deal voucher sent to ${dl.guestEmail} code=${code}`);

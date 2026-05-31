@@ -4,7 +4,8 @@
     "public": "portal",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
-      { "source": "/", "destination": "/landing.html" }
+      { "source": "/", "destination": "/landing.html" },
+      { "source": "**", "destination": "/landing.html" }
     ],
     "headers": [
       {

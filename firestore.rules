@@ -83,11 +83,13 @@ service cloud.firestore {
                     && (isVenueOwner() || request.auth == null))
                     || (isAuthenticated() && request.auth.token.email == 'app.tonight1@gmail.com');
 
-      // Venue owners can update only their own events and cannot change the status.
+      // Venue owners can update only their own events.
+      // They may reset a rejected event back to 'pending' for re-review, but never self-approve.
       allow update: if (isVenueOwner()
                         && resource.data.publishedBy == request.auth.uid
                         && request.resource.data.publishedBy == request.auth.uid
-                        && request.resource.data.status == resource.data.status)
+                        && request.resource.data.status != 'approved'
+                        && request.resource.data.status in ['pending', resource.data.status])
                     || isStaff();
 
       allow delete: if (isVenueOwner() && resource.data.publishedBy == request.auth.uid)
