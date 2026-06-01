@@ -2820,7 +2820,7 @@ window.bulkApprove = async function() {
   try {
     for (const id of ids) await updateDoc(doc(db,'events',id), { status:'approved', approvedAt:serverTimestamp(), approvedBy:auth.currentUser?.email||'staff' });
     toast(`✅ ${ids.length} event(s) approved`);
-    clearEvtSelection();
+    window.clearEvtSelection();
   } catch(e) { toast(`Error: ${e.message}`); }
 };
 
@@ -2831,7 +2831,7 @@ window.bulkReject = async function() {
   try {
     for (const id of ids) await updateDoc(doc(db,'events',id), { status:'rejected', rejectedAt:serverTimestamp() });
     toast(`${ids.length} event(s) rejected`);
-    clearEvtSelection();
+    window.clearEvtSelection();
   } catch(e) { toast(`Error: ${e.message}`); }
 };
 
@@ -2842,7 +2842,7 @@ window.bulkDelete = async function() {
   try {
     for (const id of ids) await deleteDoc(doc(db,'events',id));
     toast(`🗑 ${ids.length} event(s) deleted`);
-    clearEvtSelection();
+    window.clearEvtSelection();
   } catch(e) { toast(`Error: ${e.message}`); }
 };
 
@@ -3599,7 +3599,7 @@ const TITLES = { overview:'Overview', members:'Members', venues:'Venue Applicati
 window.navTo = function(page) {
   const btn = document.querySelector(`.nav-item[onclick="nav('${page}',this)"]`) ||
               document.querySelector(`.mobile-tabbar button[onclick="nav('${page}',this)"]`);
-  if (btn) nav(page, btn);
+  if (btn) window.nav(page, btn);
 };
 function isPanel(id) {
   const el = document.getElementById(id);
