@@ -768,6 +768,11 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
       </button>
 
       <div class="nav-label" style="margin-top:4px">Content</div>
+      <button class="nav-item" onclick="nav('venues-list',this)">
+        <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+        Venue List
+        <span class="nav-badge hide" id="venues-list-count">0</span>
+      </button>
       <button class="nav-item" onclick="nav('magazine',this)">
         <svg viewBox="0 0 24 24"><path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/></svg>
         Magazine
@@ -1381,6 +1386,58 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
         </div>
       </div>
 
+      <!-- ── VENUE LIST ── -->
+      <div class="panel" id="panel-venues-list">
+        <div class="section-card">
+          <div class="section-head">
+            <div>
+              <div class="section-title">Venue Listing</div>
+              <div style="font-size:12px;color:var(--text3);margin-top:2px">Manage venues shown in the app — Sacred Garden, Bi's Corner, etc.</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="count-pill" id="venues-list-count">—</div>
+              <button class="btn b-approve" onclick="window.openAddVenue()" style="font-size:12px;padding:7px 16px">+ Add Venue</button>
+            </div>
+          </div>
+          <div id="venue-list"></div>
+        </div>
+
+        <!-- Add/Edit Venue form -->
+        <div class="section-card" id="add-venue-card" style="display:none">
+          <div class="section-title" id="venue-modal-title" style="margin-bottom:16px">Add Venue</div>
+          <form onsubmit="window.submitVenue(event)" style="display:flex;flex-direction:column;gap:14px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Name *</label>
+                <input id="vn-name" type="text" required placeholder="e.g. Sacred Garden" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
+              <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Type</label>
+                <input id="vn-type" type="text" placeholder="Garden Bar / Club / Rooftop…" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+              <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">City</label>
+                <input id="vn-city" type="text" placeholder="Hanoi" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
+              <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Area</label>
+                <input id="vn-area" type="text" placeholder="Tay Ho" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
+              <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Capacity</label>
+                <input id="vn-capacity" type="number" min="0" placeholder="0" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Opens</label>
+                <input id="vn-open" type="text" placeholder="5pm" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
+              <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Closes</label>
+                <input id="vn-close" type="text" placeholder="2am" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
+            </div>
+            <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Logo / Image URL</label>
+              <input id="vn-img" type="url" placeholder="https://..." style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
+            <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Description</label>
+              <textarea id="vn-desc" rows="3" placeholder="Short venue description…" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;resize:vertical"></textarea></div>
+            <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px">
+              <button type="button" onclick="window.closeAddVenue()" style="padding:10px 20px;border-radius:8px;border:1px solid var(--border2);background:none;color:var(--text2);font-size:13px;font-weight:600;cursor:pointer">Cancel</button>
+              <button type="submit" id="vn-submit-btn" style="padding:10px 24px;border-radius:8px;border:none;background:var(--gold);color:#000;font-size:13px;font-weight:800;cursor:pointer">Save Venue →</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
       <!-- ── BANNER ORDER ── -->
       <div class="panel" id="panel-banner">
         <div class="section-card">
@@ -1697,8 +1754,11 @@ let allDeals        = [];
 let allInquiries    = [];
 let allMagazine     = [];
 let allPromoters    = [];
+let allVenues       = [];
 let editingArticleId  = null;
 let editingPromoterId = null;
+let editingVenueId    = null;
+let _venueSeeded      = false;
 
 // Venue-owner portal state
 let venueUid        = null;
@@ -2076,7 +2136,14 @@ function subscribeAll() {
     onSnapshot(query(collection(db,'promoters'), orderBy('name','asc')), snap => {
       allPromoters = snap.docs.map(d => ({id:d.id,...d.data()}));
       if (isPanel('panel-promoters')) renderPromotersPanel();
-    }, onErr('Promoters'))
+    }, onErr('Promoters')),
+
+    onSnapshot(query(collection(db,'venues'), orderBy('name','asc')), snap => {
+      allVenues = snap.docs.map(d => ({id:d.id,...d.data()}));
+      if (allVenues.length === 0 && !_venueSeeded) seedDefaultVenues();
+      document.getElementById('venues-list-count').textContent = allVenues.length;
+      if (isPanel('panel-venues-list')) renderVenuesListPanel();
+    }, onErr('Venues'))
   );
 
   let _proLeads = [];
@@ -2967,9 +3034,8 @@ window.submitAddEvent = async function(e) {
 async function seedDefaultArtists() {
   _artistSeeded = true;
   const defaults = [
-    { name:'DJ Useph',    genre:'House / Afrobeats',    city:'Hanoi', img:'images/djuseph.jpg',    instagram:'https://www.instagram.com/useph0/', bio:'' },
-    { name:'DJ Psyboost', genre:'House / Electronic',   city:'Hanoi', img:'images/djpsyboost.jpg', instagram:'https://www.instagram.com/djpsyboost/', bio:"Born in Namibia, raised in South Africa, and chasing a mystical dream across Vietnam, DJ PsyBoost is a sonic storyteller whose journey transcends borders and genres. From the age of 7, music became his native language — mastering the violin and cello, performing in symphony orchestras across Germany, conducting full choirs, and teaching music long before he commanded a DJ booth.\n\nA true multi-genre maestro, PsyBoost moves effortlessly from House, Afro House, and Techno to Trance and his signature Psytrance." },
-    { name:'Solea',       genre:'R&B / House / Techno', city:'Hanoi', img:'images/solea.jpg',      instagram:'https://www.instagram.com/solea.rhythm/', bio:'Where R&B melts into House & Techno. Golden hours. Deep grooves. Afro fire in motion. Born in Vietnam — Moving worldwide.' },
+    { name:'DJ Useph',    genre:'House / Afrobeats',  city:'Hanoi', img:'images/djuseph.jpg',    instagram:'https://www.instagram.com/useph0/', bio:'' },
+    { name:'DJ Psyboost', genre:'House / Electronic', city:'Hanoi', img:'images/djpsyboost.jpg', instagram:'https://www.instagram.com/djpsyboost/', bio:"Born in Namibia, raised in South Africa, and chasing a mystical dream across Vietnam, DJ PsyBoost is a sonic storyteller whose journey transcends borders and genres." },
   ];
   try {
     for (const a of defaults) {
@@ -3499,6 +3565,120 @@ window.deletePromoter = async function(id, name) {
   catch(e) { toast('Error: '+e.message); }
 };
 
+// ── VENUE LISTING PANEL ───────────────────────────────────
+
+async function seedDefaultVenues() {
+  _venueSeeded = true;
+  const defaults = [
+    { name:'Sacred Garden', city:'Hanoi', area:'Tay Ho', type:'Garden Bar', capacity:150,
+      genres:['House','Afrobeats','Indie'], open:'11am', close:'12am',
+      img:'images/sacred-garden-logo.jpg', logo:'images/sacred-garden-logo.jpg',
+      desc:'A lush hidden garden bar in the heart of Tay Ho. Sacred Garden blends open-air greenery with craft drinks, good music and a relaxed crowd. Home of Saigon Cider in Hanoi.',
+      status:'active' },
+    { name:"Bi's Corner", city:'Hanoi', area:'Tay Ho', type:'Outdoor Bar', capacity:80,
+      genres:['House','Afrobeats','Chill'], open:'5pm', close:'1am',
+      img:'images/bis-corner-logo.jpg', logo:'images/bis-corner-logo.jpg',
+      desc:"Outdoor bar with a laid-back crowd, good music, and easy conversations. A small space, but always alive in the right way.",
+      address:'2 Ng. 89 P. Tứ Liên, Hồng Hà, Hà Nội', status:'active' },
+  ];
+  try {
+    for (const v of defaults) await addDoc(collection(db,'venues'), {...v, source:'seeded', createdAt:serverTimestamp()});
+    toast('✅ Default venues added');
+  } catch(e) { toast('Venue seed error: '+e.message); }
+}
+
+function renderVenuesListPanel() {
+  document.getElementById('venues-list-count').textContent = allVenues.length;
+  const el = document.getElementById('venue-list');
+  if (!allVenues.length) { el.innerHTML = emptyRow('No venues yet — click + Add Venue','🏛'); return; }
+  el.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-top:16px">` +
+    allVenues.map(v => `
+      <div style="background:var(--card2);border:1px solid var(--border);border-radius:12px;overflow:hidden">
+        ${v.img ? `<img src="${esc(v.img)}" style="width:100%;height:110px;object-fit:cover" loading="lazy" onerror="this.style.display='none'"/>` : `<div style="height:60px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:28px">🏛</div>`}
+        <div style="padding:12px">
+          <div style="font-weight:700;font-size:14px;color:var(--text);margin-bottom:2px">${esc(v.name)}</div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:8px">${esc(v.type||'')} · ${esc(v.area||v.city||'')} · ${v.open||''}–${v.close||''}</div>
+          <div style="font-size:11px;color:var(--text2);margin-bottom:10px;line-height:1.5">${esc((v.desc||'').slice(0,80))}${(v.desc||'').length>80?'…':''}</div>
+          <div style="display:flex;gap:8px">
+            <button onclick="window.openEditVenue('${v.id}')" style="flex:1;padding:6px;border-radius:6px;border:1px solid var(--border2);background:none;color:var(--text2);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">Edit</button>
+            <button onclick="window.deleteVenue('${v.id}','${escQ(v.name)}')" style="padding:6px 12px;border-radius:6px;border:1px solid rgba(239,68,68,.3);background:none;color:#ef4444;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">Delete</button>
+          </div>
+        </div>
+      </div>`).join('') + `</div>`;
+}
+
+window.openAddVenue = function() {
+  editingVenueId = null;
+  document.getElementById('venue-modal-title').textContent = 'Add Venue';
+  ['vn-name','vn-type','vn-city','vn-area','vn-open','vn-close','vn-img','vn-desc'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  document.getElementById('vn-capacity').value = '';
+  document.getElementById('add-venue-card').style.display = 'block';
+  document.getElementById('add-venue-card').scrollIntoView({behavior:'smooth'});
+};
+
+window.openEditVenue = function(id) {
+  const v = allVenues.find(x => x.id === id);
+  if (!v) return;
+  editingVenueId = id;
+  document.getElementById('venue-modal-title').textContent = 'Edit Venue';
+  document.getElementById('vn-name').value     = v.name     || '';
+  document.getElementById('vn-type').value     = v.type     || '';
+  document.getElementById('vn-city').value     = v.city     || '';
+  document.getElementById('vn-area').value     = v.area     || '';
+  document.getElementById('vn-capacity').value = v.capacity || '';
+  document.getElementById('vn-open').value     = v.open     || '';
+  document.getElementById('vn-close').value    = v.close    || '';
+  document.getElementById('vn-img').value      = v.img      || '';
+  document.getElementById('vn-desc').value     = v.desc     || '';
+  document.getElementById('add-venue-card').style.display = 'block';
+  document.getElementById('add-venue-card').scrollIntoView({behavior:'smooth'});
+};
+
+window.closeAddVenue = function() {
+  editingVenueId = null;
+  document.getElementById('add-venue-card').style.display = 'none';
+};
+
+window.submitVenue = async function(e) {
+  e.preventDefault();
+  const name = document.getElementById('vn-name').value.trim();
+  if (!name) return;
+  const btn = document.getElementById('vn-submit-btn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  const data = {
+    name,
+    type:     document.getElementById('vn-type').value.trim(),
+    city:     document.getElementById('vn-city').value.trim() || 'Hanoi',
+    area:     document.getElementById('vn-area').value.trim(),
+    capacity: parseInt(document.getElementById('vn-capacity').value) || 0,
+    open:     document.getElementById('vn-open').value.trim(),
+    close:    document.getElementById('vn-close').value.trim(),
+    img:      document.getElementById('vn-img').value.trim(),
+    logo:     document.getElementById('vn-img').value.trim(),
+    desc:     document.getElementById('vn-desc').value.trim(),
+    status:   'active',
+  };
+  try {
+    if (editingVenueId) {
+      await updateDoc(doc(db,'venues',editingVenueId), data);
+      toast('Venue updated');
+    } else {
+      await addDoc(collection(db,'venues'), {...data, createdAt:serverTimestamp()});
+      toast('Venue added');
+    }
+    window.closeAddVenue();
+  } catch(e2) { toast('Error: '+e2.message); }
+  finally { btn.disabled = false; btn.textContent = 'Save Venue →'; }
+};
+
+window.deleteVenue = async function(id, name) {
+  if (!confirm(`Delete venue "${name}"?`)) return;
+  try { await deleteDoc(doc(db,'venues',id)); toast('Venue deleted'); }
+  catch(e) { toast('Error: '+e.message); }
+};
+
 // ── BANNER ORDER PANEL ────────────────────────────────────
 function renderBannerPanel() {
   const featured    = allEvents.filter(e => e.featured).sort((a,b) => (a.featuredOrder||999) - (b.featuredOrder||999));
@@ -3598,7 +3778,7 @@ function downloadCSV(rows, filename) {
 }
 
 // ── NAV ───────────────────────────────────────────────────
-const TITLES = { overview:'Overview', members:'Members', venues:'Venue Applications', events:'Event Approvals', artists:'Artists', leads:'Leads & Data', guestlist:'Guestlist', deals:'Claimed Deals', inquiries:'Inquiries', magazine:'Magazine Articles', promoters:'Promoters', banner:'Hero Banner Order' };
+const TITLES = { overview:'Overview', members:'Members', venues:'Venue Applications', events:'Event Approvals', artists:'Artists', leads:'Leads & Data', guestlist:'Guestlist', deals:'Claimed Deals', inquiries:'Inquiries', magazine:'Magazine Articles', promoters:'Promoters', 'venues-list':'Venue Listing', banner:'Hero Banner Order' };
 window.navTo = function(page) {
   const btn = document.querySelector(`.nav-item[onclick="nav('${page}',this)"]`) ||
               document.querySelector(`.mobile-tabbar button[onclick="nav('${page}',this)"]`);
@@ -3625,8 +3805,9 @@ window.nav = function(page, btn) {
     deals:     () => renderDealsPanel(),
     inquiries: () => renderInquiriesPanel(),
     magazine:  () => renderMagazinePanel(),
-    promoters: () => renderPromotersPanel(),
-    banner:    () => renderBannerPanel()
+    promoters:     () => renderPromotersPanel(),
+    'venues-list': () => renderVenuesListPanel(),
+    banner:        () => renderBannerPanel()
   })[page]?.();
 };
 
