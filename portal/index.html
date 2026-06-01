@@ -138,6 +138,9 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
 .sidebar-sub{font-size:10px;color:var(--text3);font-weight:500;margin-top:1px}
 
 .sidebar-nav{flex:1;min-height:0;padding:8px 10px;display:flex;flex-direction:column;gap:1px;overflow-y:auto}
+.sidebar-nav::-webkit-scrollbar{width:3px}
+.sidebar-nav::-webkit-scrollbar-track{background:transparent}
+.sidebar-nav::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 .nav-label{
   font-size:10px;font-weight:700;letter-spacing:1px;
   color:var(--text3);text-transform:uppercase;
@@ -743,7 +746,7 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
         Artists
       </button>
 
-      <div class="nav-label" style="margin-top:10px">Leads &amp; Data</div>
+      <div class="nav-label" style="margin-top:4px">Leads &amp; Data</div>
       <button class="nav-item" onclick="nav('leads',this)">
         <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
         Leads
@@ -764,7 +767,7 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
         <span class="nav-badge hide" id="inquiries-badge">0</span>
       </button>
 
-      <div class="nav-label" style="margin-top:10px">Content</div>
+      <div class="nav-label" style="margin-top:4px">Content</div>
       <button class="nav-item" onclick="nav('magazine',this)">
         <svg viewBox="0 0 24 24"><path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/></svg>
         Magazine
@@ -774,7 +777,7 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
         Promoters
       </button>
 
-      <div class="nav-label" style="margin-top:10px">Display</div>
+      <div class="nav-label" style="margin-top:4px">Display</div>
       <button class="nav-item" onclick="nav('banner',this)">
         <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"/></svg>
         Banner Order
