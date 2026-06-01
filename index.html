@@ -853,8 +853,39 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
 .tstep-l.cur{color:#fff;}
 .tline{flex:1;height:1px;background:var(--border);margin:0 4px;}
 .tline.done{background:var(--green);}
-/* ── QR TICKET CARD ── */
-/* ── PHYSICAL TICKET ── */
+/* ── PREMIUM TICKET CARD ── */
+.tkt-card{border-radius:18px;overflow:hidden;margin-bottom:18px;background:#0d0e1b;border:1px solid rgba(255,255,255,.07);box-shadow:0 20px 60px rgba(0,0,0,.8);position:relative;}
+.tkt-hero{position:relative;height:140px;background:#141526 no-repeat center/cover;overflow:hidden;}
+.tkt-hero-grad{position:absolute;inset:0;background:linear-gradient(160deg,rgba(0,0,0,.1) 0%,rgba(8,8,22,.9) 100%);}
+.tkt-brand{position:absolute;top:12px;left:14px;font-size:8px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,.4);}
+.tkt-badge{position:absolute;top:10px;right:12px;font-size:8px;font-weight:800;letter-spacing:.8px;padding:4px 10px;border-radius:20px;}
+.tkt-badge-valid{background:rgba(0,208,132,.12);color:#00d084;border:1px solid rgba(0,208,132,.25);}
+.tkt-badge-used{background:rgba(255,59,92,.1);color:#ff3b5c;border:1px solid rgba(255,59,92,.2);}
+.tkt-badge-checkin{background:rgba(245,200,66,.12);color:#f5c842;border:1px solid rgba(245,200,66,.25);}
+.tkt-hero-info{position:absolute;bottom:14px;left:14px;right:14px;}
+.tkt-event-name{font-size:16px;font-weight:700;color:#fff;line-height:1.2;margin-bottom:4px;letter-spacing:-.2px;}
+.tkt-event-meta{font-size:10px;color:rgba(255,255,255,.55);font-weight:400;letter-spacing:.1px;}
+/* torn-edge divider */
+.tkt-tear{position:relative;height:22px;background:#0d0e1b;overflow:visible;}
+.tkt-tear::after{content:'';position:absolute;top:10px;left:26px;right:26px;border-top:1.5px dashed rgba(255,255,255,.08);}
+.tkt-notch{position:absolute;width:24px;height:24px;border-radius:50%;background:var(--bg3);top:50%;transform:translateY(-50%);z-index:2;}
+.tkt-notch-l{left:-12px;}
+.tkt-notch-r{right:-12px;}
+/* ticket body */
+.tkt-body{padding:16px 18px 18px;background:#0d0e1b;display:flex;gap:16px;align-items:center;}
+.tkt-qr-box{background:#fff;border-radius:10px;padding:8px;flex-shrink:0;box-shadow:0 4px 16px rgba(0,0,0,.4);}
+.tkt-qr-box canvas{display:block;}
+.tkt-details{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px;}
+.tkt-detail-row{display:flex;flex-direction:column;gap:2px;}
+.tkt-detail-label{font-size:8px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:rgba(255,255,255,.28);}
+.tkt-detail-val{font-size:12px;font-weight:600;color:#e8ecf4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tkt-detail-sm{font-size:10px;}
+/* footer strip */
+.tkt-footer{padding:11px 18px 14px;background:#090a16;border-top:1px solid rgba(255,255,255,.05);text-align:center;}
+.tkt-ref{font-family:'Courier New',monospace;font-size:13px;font-weight:700;letter-spacing:3px;color:#f5c842;}
+.tkt-ref-sub{font-size:8px;color:rgba(255,255,255,.22);margin-top:3px;letter-spacing:1.5px;text-transform:uppercase;}
+.tkt-arrived{margin-top:7px;font-size:11px;font-weight:600;color:#00d084;letter-spacing:.2px;}
+/* legacy classes kept for ticket overlay */
 .qr-ticket{background:#fff;border-radius:16px;overflow:visible;margin-bottom:14px;box-shadow:0 12px 40px rgba(0,0,0,.55);color:#111;position:relative;}
 .qr-ticket-hero{position:relative;height:120px;overflow:hidden;border-radius:16px 16px 0 0;}
 .qr-ticket-hero-img{width:100%;height:100%;background-size:cover;background-position:center;background-color:#1a1a2e;}
@@ -864,13 +895,11 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
 .qr-ticket-hero-title{position:absolute;bottom:11px;left:14px;right:14px;}
 .qr-ticket-hero-title h4{font-size:14px;font-weight:700;color:#fff;margin-bottom:1px;line-height:1.25;}
 .qr-ticket-hero-title p{font-size:10px;color:rgba(255,255,255,.7);font-weight:400;}
-/* torn-edge divider */
 .qr-ticket-tear{position:relative;height:18px;background:#fff;overflow:visible;}
 .qr-ticket-tear::after{content:'';position:absolute;top:9px;left:22px;right:22px;border-top:1.5px dashed #ddd;}
 .qr-ticket-notch-l,.qr-ticket-notch-r{position:absolute;width:24px;height:24px;border-radius:50%;background:var(--bg3);top:50%;transform:translateY(-50%);z-index:2;}
 .qr-ticket-notch-l{left:-12px;}
 .qr-ticket-notch-r{right:-12px;}
-/* ticket body */
 .qr-ticket-body{padding:14px 18px 16px;background:#fff;display:flex;gap:14px;align-items:center;}
 .qr-ticket-qr-wrap{background:#fff;border:2px solid #f0f0f0;border-radius:10px;padding:7px;flex-shrink:0;}
 .qr-ticket-qr-wrap canvas{display:block;}
@@ -878,7 +907,6 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
 .qr-td-row{display:flex;flex-direction:column;}
 .qr-td-label{font-size:8px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:#aaa;margin-bottom:1px;}
 .qr-td-val{font-size:12px;font-weight:600;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-/* barcode strip */
 .qr-ticket-barcode{padding:10px 18px 14px;background:#fafafa;border-top:1px solid #f0f0f0;text-align:center;border-radius:0 0 16px 16px;}
 .qr-ticket-barcode .bar-ref{font-family:'Courier New',monospace;font-size:12px;font-weight:700;letter-spacing:3px;color:#222;}
 .qr-ticket-barcode .bar-sub{font-size:8px;color:#bbb;margin-top:3px;letter-spacing:1.5px;text-transform:uppercase;}
@@ -5672,36 +5700,61 @@ function showUTab(tab,el){
   const c=document.getElementById('uTabContent');
   if(tab==='tickets'){
     const myTkts=getTickets();
-    c.innerHTML=`<h3 style="font-weight:400;font-size:15px;margin-bottom:4px">My Tickets <span style="color:var(--text3);font-weight:300">(${myTkts.length})</span></h3>
-    <p style="font-size:12px;color:var(--text3);font-weight:300;margin-bottom:16px">Show QR code at venue entry or bar — staff will scan to verify.</p>
-    ${myTkts.length?myTkts.map((tk,idx)=>`
-    <div class="qr-ticket">
-      <div class="qr-ticket-top">
-        <div class="qr-ticket-info">
-          <h4>${tk.eventTitle}</h4>
-          <p>📅 ${fmt(tk.date)} · ${tk.venue}<br>🎟 ${tk.ticketType} × ${tk.qty} &nbsp;·&nbsp; <span style="color:${tk.totalPaid==='Free'?'var(--green)':'var(--text2)'}">${tk.totalPaid}</span></p>
-          ${tk.buyerEmail?`<p style="font-size:10px;color:var(--text3);margin-top:3px">👤 ${tk.buyerName} &nbsp;·&nbsp; 📧 ${tk.buyerEmail}${tk.buyerPhone?' &nbsp;·&nbsp; 📞 '+tk.buyerPhone:''}</p>`:''}
-        </div>
-        <span class="qr-ticket-status s-${tk.status==='checked_in'?'valid':tk.status}">${tk.status==='valid'||tk.status==='checked_in'?'✓ '+(tk.totalPaid==='Free'?'FREE':'VALID'):'✗ USED'}</span>
+    c.innerHTML=`<div style="margin-bottom:20px">
+      <div style="font-size:18px;font-weight:700;color:#fff;letter-spacing:-.3px">My Tickets <span style="color:rgba(255,255,255,.3);font-size:14px;font-weight:400">(${myTkts.length})</span></div>
+      <div style="font-size:11px;color:rgba(255,255,255,.35);margin-top:4px">Show QR at venue entry — staff will scan to verify</div>
+    </div>
+    ${myTkts.length ? myTkts.map((tk,idx)=>{
+      const isValid=tk.status==='valid'||tk.status==='checked_in';
+      const isCheckedIn=tk.status==='checked_in';
+      const badgeCls=isCheckedIn?'tkt-badge-checkin':isValid?'tkt-badge-valid':'tkt-badge-used';
+      const badgeTxt=isCheckedIn?'CHECKED IN':isValid?(tk.totalPaid==='Free'?'CONFIRMED · FREE':'CONFIRMED'):'USED';
+      const heroStyle=tk.img?`background-image:url(${JSON.stringify(tk.img)})`:'' ;
+      return `<div class="tkt-card">
+  <div class="tkt-hero" style="${heroStyle}">
+    <div class="tkt-hero-grad"></div>
+    <div class="tkt-brand">TONIGHT VIETNAM · OFFICIAL TICKET</div>
+    <span class="tkt-badge ${badgeCls}">${badgeTxt}</span>
+    <div class="tkt-hero-info">
+      <div class="tkt-event-name">${tk.eventTitle}</div>
+      <div class="tkt-event-meta">${fmt(tk.date)} &nbsp;·&nbsp; ${tk.venue}</div>
+    </div>
+  </div>
+  <div class="tkt-tear"><div class="tkt-notch tkt-notch-l"></div><div class="tkt-notch tkt-notch-r"></div></div>
+  <div class="tkt-body">
+    <div class="tkt-qr-box" id="udQr${idx}"></div>
+    <div class="tkt-details">
+      <div class="tkt-detail-row">
+        <div class="tkt-detail-label">GUEST</div>
+        <div class="tkt-detail-val">${tk.buyerName||'—'}</div>
       </div>
-      <div class="qr-ticket-divider"><span></span></div>
-      <div class="qr-ticket-bot">
-        <div class="qr-canvas-wrap" id="udQr${idx}"></div>
-        <div class="qr-ticket-ref">
-          <div class="ref-label">Serial Number</div>
-          <div class="ref-num">${tk.ref}</div>
-          <div class="ref-hint">Present at venue entry or bar counter. Staff will scan to check you in.</div>
-          ${tk.arrivedAt?`<div style="margin-top:8px;background:rgba(245,200,66,.08);border:1px solid rgba(245,200,66,.2);border-radius:8px;padding:7px 10px;font-size:10px;color:#f5c842;line-height:1.5">📋 Arrival confirmed · ${tk.arrivedAt}</div>`:''}
-          <div class="ref-source">via Tonight ✦</div>
-        </div>
+      <div class="tkt-detail-row">
+        <div class="tkt-detail-label">TICKET TYPE</div>
+        <div class="tkt-detail-val">${tk.ticketType} × ${tk.qty}</div>
       </div>
-    </div>`).join('')
-    :`<div style="text-align:center;padding:48px 0;color:var(--text3)">
-        <div style="font-size:48px;margin-bottom:12px">🎟</div>
-        <p style="font-weight:300">No tickets yet.<br><a href="#" onclick="closeUserDash()" style="color:var(--accent)">Browse events</a></p>
-      </div>`}`;
-    // render QR codes after DOM is ready
-    setTimeout(()=>{myTkts.forEach((tk,idx)=>renderQR(`udQr${idx}`,`TONIGHT:${tk.ref}`));},50);
+      <div class="tkt-detail-row">
+        <div class="tkt-detail-label">PRICE</div>
+        <div class="tkt-detail-val" style="color:${tk.totalPaid==='Free'?'#00d084':'#f5c842'}">${tk.totalPaid}</div>
+      </div>
+      ${tk.buyerEmail?`<div class="tkt-detail-row">
+        <div class="tkt-detail-label">EMAIL</div>
+        <div class="tkt-detail-val tkt-detail-sm">${tk.buyerEmail}</div>
+      </div>`:''}
+    </div>
+  </div>
+  <div class="tkt-footer">
+    <div class="tkt-ref">${tk.ref}</div>
+    <div class="tkt-ref-sub">Tonight Vietnam &nbsp;·&nbsp; Scan at venue entry</div>
+    ${tk.arrivedAt?`<div class="tkt-arrived">✓ Arrival confirmed · ${tk.arrivedAt}</div>`:''}
+  </div>
+</div>`;
+    }).join('') : `<div style="text-align:center;padding:52px 0 40px">
+      <div style="font-size:52px;margin-bottom:14px">🎟</div>
+      <div style="font-weight:600;font-size:16px;color:#fff;margin-bottom:6px">No tickets yet</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.35);margin-bottom:20px">Claim a spot at an event to see your tickets here</div>
+      <a href="#" onclick="closeUserDash()" style="display:inline-block;background:#f5c842;color:#000;font-weight:700;font-size:13px;padding:10px 24px;border-radius:10px;text-decoration:none">Browse Events</a>
+    </div>`}`;
+    setTimeout(()=>{ myTkts.forEach((tk,idx)=>renderQR(`udQr${idx}`,`TONIGHT:${tk.ref}`)); },60);
   }
   if(tab==='upcoming'){c.innerHTML=`<h3 style="font-weight:400;font-size:15px;margin-bottom:14px">Recommended For You</h3><div style="display:flex;flex-direction:column;gap:8px">${EVENTS.filter(e=>!e.soldOut).slice(0,5).map(e=>`
     <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;display:flex;align-items:center;gap:12px">
