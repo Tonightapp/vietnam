@@ -1422,7 +1422,7 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
             </div>
             <div style="display:flex;align-items:center;gap:10px">
               <div class="count-pill" id="venues-list-count">—</div>
-              <button class="btn" onclick="window.manualSeedVenues()" style="font-size:12px;padding:7px 14px;color:var(--text2);border-color:var(--border2)" title="Add Sacred Garden & Bi's Corner if missing">↓ Import Defaults</button>
+              <button class="btn" onclick="window.manualSeedVenues(this)" style="font-size:12px;padding:7px 14px;color:var(--text2);border-color:var(--border2)" title="Add Sacred Garden & Bi's Corner if missing">↓ Import Defaults</button>
               <button class="btn b-approve" onclick="window.openAddVenue()" style="font-size:12px;padding:7px 16px">+ Add Venue</button>
             </div>
           </div>
@@ -3682,36 +3682,45 @@ window.deletePromoter = async function(id, name) {
 // ── VENUE LISTING PANEL ───────────────────────────────────
 
 const _DEFAULT_VENUES = [
-  { name:'Sacred Garden', city:'Hanoi', area:'Tay Ho', type:'Garden Bar', capacity:150,
-    genres:['House','Afrobeats','Indie'], open:'11am', close:'12am',
-    instagram:'sacredgarden.hanoi',
-    img:'https://firebasestorage.googleapis.com/v0/b/tonight-vietnam.appspot.com/o/venues%2Fsacred-garden.jpg?alt=media',
-    logo:'https://firebasestorage.googleapis.com/v0/b/tonight-vietnam.appspot.com/o/venues%2Fsacred-garden.jpg?alt=media',
+  { name:'Sacred Garden',
+    city:'Hanoi', area:'Tay Ho', type:'Garden Bar', capacity:150,
+    open:'11am', close:'12am', instagram:'sacredgarden.hanoi',
+    img:'', logo:'',
     desc:'A lush hidden garden bar in the heart of Tay Ho. Sacred Garden blends open-air greenery with craft drinks, good music and a relaxed crowd. Known for afternoon sessions that stretch into late-night vibes. Home of Saigon Cider in Hanoi.',
     address:'Tay Ho, Hanoi', status:'active' },
-  { name:"Bi's Corner", city:'Hanoi', area:'Tay Ho', type:'Outdoor Bar', capacity:80,
-    genres:['House','Afrobeats','Chill'], open:'5pm', close:'1am',
-    instagram:'biscorner.hanoi',
-    img:'https://firebasestorage.googleapis.com/v0/b/tonight-vietnam.appspot.com/o/venues%2Fbis-corner.jpg?alt=media',
-    logo:'https://firebasestorage.googleapis.com/v0/b/tonight-vietnam.appspot.com/o/venues%2Fbis-corner.jpg?alt=media',
+  { name:"Bi's Corner",
+    city:'Hanoi', area:'Tay Ho', type:'Outdoor Bar', capacity:80,
+    open:'5pm', close:'1am', instagram:'biscorner.hanoi',
+    img:'', logo:'',
     desc:"Outdoor bar with a laid-back crowd, good music, and easy conversations. A small space, but always alive in the right way.",
     address:'2 Ng. 89 P. Tứ Liên, Hồng Hà, Hà Nội', status:'active' },
 ];
 
 async function seedDefaultVenues() {
   _venueSeeded = true;
-  const existingNames = allVenues.map(v => v.name.toLowerCase());
+  const existingNames = allVenues.map(v => (v.name||'').toLowerCase());
   const toAdd = _DEFAULT_VENUES.filter(v => !existingNames.includes(v.name.toLowerCase()));
-  if (!toAdd.length) { toast('Venues already in Firestore'); return; }
-  try {
-    for (const v of toAdd) await addDoc(collection(db,'venues'), {...v, source:'seeded', createdAt:serverTimestamp()});
-    toast(`✅ Added ${toAdd.map(v=>v.name).join(' & ')} to Firestore`);
-  } catch(e) { toast('Venue seed error: '+e.message); }
+  if (!toAdd.length) { toast('Both venues already exist'); return; }
+  let added = 0;
+  for (const v of toAdd) {
+    try {
+      await addDoc(collection(db,'venues'), {...v, createdAt: serverTimestamp()});
+      added++;
+      console.log('[Tonight] Seeded venue:', v.name);
+    } catch(e) {
+      console.error('[Tonight] Seed failed for', v.name, e);
+      toast('❌ Error adding ' + v.name + ': ' + e.message);
+      return;
+    }
+  }
+  toast('✅ Added ' + toAdd.map(v => v.name).join(' & '));
 }
 
-window.manualSeedVenues = async function() {
+window.manualSeedVenues = async function(btn) {
+  if (btn) { btn.disabled = true; btn.textContent = 'Adding…'; }
   _venueSeeded = false;
   await seedDefaultVenues();
+  if (btn) { btn.disabled = false; btn.textContent = '↓ Import Defaults'; }
 };
 
 function renderVenuesListPanel() {
