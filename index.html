@@ -3673,6 +3673,9 @@ function openVenue(id){
         </div>
       </div>
       <div class="venue-modal-loc">📍 ${v.address||((v.area?v.area+', ':'')+v.city)}</div>
+      ${v.instagram?`<a href="https://instagram.com/${v.instagram}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#E1306C;font-weight:600;margin-top:6px;text-decoration:none">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+        @${v.instagram}</a>`:''}
       <div class="venue-modal-stat-row">
         <div class="venue-modal-stat"><div class="venue-modal-stat-label">Hours</div><div class="venue-modal-stat-val">🕙 ${v.open} – ${v.close}</div></div>
         <div class="venue-modal-stat"><div class="venue-modal-stat-label">Capacity</div><div class="venue-modal-stat-val">👥 ${v.capacity.toLocaleString()}</div></div>
@@ -6319,7 +6322,7 @@ function _initApp(){
             return{id:d.id,name:v.name||'',city:v.city||'',area:v.area||'',
                    type:v.type||'',capacity:v.capacity||0,genres:v.genres||[],
                    open:v.open||'',close:v.close||'',img:v.img||'',logo:v.logo||'',
-                   desc:v.desc||'',address:v.address||'',photos:v.photos||[]};
+                   desc:v.desc||'',address:v.address||'',instagram:v.instagram||'',photos:v.photos||[]};
           });
           try{ renderRows(); renderVenues(); }catch(_){}
         }

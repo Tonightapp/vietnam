@@ -1422,6 +1422,7 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
             </div>
             <div style="display:flex;align-items:center;gap:10px">
               <div class="count-pill" id="venues-list-count">—</div>
+              <button class="btn" onclick="window.manualSeedVenues()" style="font-size:12px;padding:7px 14px;color:var(--text2);border-color:var(--border2)" title="Add Sacred Garden & Bi's Corner if missing">↓ Import Defaults</button>
               <button class="btn b-approve" onclick="window.openAddVenue()" style="font-size:12px;padding:7px 16px">+ Add Venue</button>
             </div>
           </div>
@@ -1452,8 +1453,14 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
               <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Closes</label>
                 <input id="vn-close" type="text" placeholder="2am" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
             </div>
-            <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Logo / Image URL</label>
-              <input id="vn-img" type="url" placeholder="https://..." style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Logo / Image URL</label>
+                <input id="vn-img" type="url" placeholder="https://..." style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
+              <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Instagram (without @)</label>
+                <input id="vn-instagram" type="text" placeholder="sacredgarden.hanoi" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
+            </div>
+            <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Address</label>
+              <input id="vn-address" type="text" placeholder="2 Ng. 89 P. Tứ Liên, Hà Nội…" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
             <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Description</label>
               <textarea id="vn-desc" rows="3" placeholder="Short venue description…" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;resize:vertical"></textarea></div>
             <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px">
@@ -2167,7 +2174,9 @@ function subscribeAll() {
 
     onSnapshot(query(collection(db,'venues'), orderBy('name','asc')), snap => {
       allVenues = snap.docs.map(d => ({id:d.id,...d.data()}));
-      if (allVenues.length === 0 && !_venueSeeded) seedDefaultVenues();
+      const _vNames = allVenues.map(v=>(v.name||'').toLowerCase());
+      const _missing = _DEFAULT_VENUES && _DEFAULT_VENUES.some(d=>!_vNames.includes(d.name.toLowerCase()));
+      if (_missing && !_venueSeeded) seedDefaultVenues();
       document.getElementById('venues-list-count').textContent = allVenues.length;
       if (isPanel('panel-venues-list')) renderVenuesListPanel();
     }, onErr('Venues'))
@@ -3672,25 +3681,38 @@ window.deletePromoter = async function(id, name) {
 
 // ── VENUE LISTING PANEL ───────────────────────────────────
 
+const _DEFAULT_VENUES = [
+  { name:'Sacred Garden', city:'Hanoi', area:'Tay Ho', type:'Garden Bar', capacity:150,
+    genres:['House','Afrobeats','Indie'], open:'11am', close:'12am',
+    instagram:'sacredgarden.hanoi',
+    img:'https://firebasestorage.googleapis.com/v0/b/tonight-vietnam.appspot.com/o/venues%2Fsacred-garden.jpg?alt=media',
+    logo:'https://firebasestorage.googleapis.com/v0/b/tonight-vietnam.appspot.com/o/venues%2Fsacred-garden.jpg?alt=media',
+    desc:'A lush hidden garden bar in the heart of Tay Ho. Sacred Garden blends open-air greenery with craft drinks, good music and a relaxed crowd. Known for afternoon sessions that stretch into late-night vibes. Home of Saigon Cider in Hanoi.',
+    address:'Tay Ho, Hanoi', status:'active' },
+  { name:"Bi's Corner", city:'Hanoi', area:'Tay Ho', type:'Outdoor Bar', capacity:80,
+    genres:['House','Afrobeats','Chill'], open:'5pm', close:'1am',
+    instagram:'biscorner.hanoi',
+    img:'https://firebasestorage.googleapis.com/v0/b/tonight-vietnam.appspot.com/o/venues%2Fbis-corner.jpg?alt=media',
+    logo:'https://firebasestorage.googleapis.com/v0/b/tonight-vietnam.appspot.com/o/venues%2Fbis-corner.jpg?alt=media',
+    desc:"Outdoor bar with a laid-back crowd, good music, and easy conversations. A small space, but always alive in the right way.",
+    address:'2 Ng. 89 P. Tứ Liên, Hồng Hà, Hà Nội', status:'active' },
+];
+
 async function seedDefaultVenues() {
   _venueSeeded = true;
-  const defaults = [
-    { name:'Sacred Garden', city:'Hanoi', area:'Tay Ho', type:'Garden Bar', capacity:150,
-      genres:['House','Afrobeats','Indie'], open:'11am', close:'12am',
-      img:'images/sacred-garden-logo.jpg', logo:'images/sacred-garden-logo.jpg',
-      desc:'A lush hidden garden bar in the heart of Tay Ho. Sacred Garden blends open-air greenery with craft drinks, good music and a relaxed crowd. Home of Saigon Cider in Hanoi.',
-      status:'active' },
-    { name:"Bi's Corner", city:'Hanoi', area:'Tay Ho', type:'Outdoor Bar', capacity:80,
-      genres:['House','Afrobeats','Chill'], open:'5pm', close:'1am',
-      img:'images/bis-corner-logo.jpg', logo:'images/bis-corner-logo.jpg',
-      desc:"Outdoor bar with a laid-back crowd, good music, and easy conversations. A small space, but always alive in the right way.",
-      address:'2 Ng. 89 P. Tứ Liên, Hồng Hà, Hà Nội', status:'active' },
-  ];
+  const existingNames = allVenues.map(v => v.name.toLowerCase());
+  const toAdd = _DEFAULT_VENUES.filter(v => !existingNames.includes(v.name.toLowerCase()));
+  if (!toAdd.length) { toast('Venues already in Firestore'); return; }
   try {
-    for (const v of defaults) await addDoc(collection(db,'venues'), {...v, source:'seeded', createdAt:serverTimestamp()});
-    toast('✅ Default venues added');
+    for (const v of toAdd) await addDoc(collection(db,'venues'), {...v, source:'seeded', createdAt:serverTimestamp()});
+    toast(`✅ Added ${toAdd.map(v=>v.name).join(' & ')} to Firestore`);
   } catch(e) { toast('Venue seed error: '+e.message); }
 }
+
+window.manualSeedVenues = async function() {
+  _venueSeeded = false;
+  await seedDefaultVenues();
+};
 
 function renderVenuesListPanel() {
   document.getElementById('venues-list-count').textContent = allVenues.length;
@@ -3715,10 +3737,11 @@ function renderVenuesListPanel() {
 window.openAddVenue = function() {
   editingVenueId = null;
   document.getElementById('venue-modal-title').textContent = 'Add Venue';
-  ['vn-name','vn-type','vn-city','vn-area','vn-open','vn-close','vn-img','vn-desc'].forEach(id => {
+  ['vn-name','vn-type','vn-city','vn-area','vn-open','vn-close','vn-img','vn-instagram','vn-address','vn-desc'].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = '';
   });
   document.getElementById('vn-capacity').value = '';
+  document.getElementById('vn-submit-btn').textContent = 'Save Venue →';
   document.getElementById('add-venue-card').style.display = 'block';
   document.getElementById('add-venue-card').scrollIntoView({behavior:'smooth'});
 };
@@ -3728,15 +3751,18 @@ window.openEditVenue = function(id) {
   if (!v) return;
   editingVenueId = id;
   document.getElementById('venue-modal-title').textContent = 'Edit Venue';
-  document.getElementById('vn-name').value     = v.name     || '';
-  document.getElementById('vn-type').value     = v.type     || '';
-  document.getElementById('vn-city').value     = v.city     || '';
-  document.getElementById('vn-area').value     = v.area     || '';
-  document.getElementById('vn-capacity').value = v.capacity || '';
-  document.getElementById('vn-open').value     = v.open     || '';
-  document.getElementById('vn-close').value    = v.close    || '';
-  document.getElementById('vn-img').value      = v.img      || '';
-  document.getElementById('vn-desc').value     = v.desc     || '';
+  document.getElementById('vn-name').value      = v.name      || '';
+  document.getElementById('vn-type').value      = v.type      || '';
+  document.getElementById('vn-city').value      = v.city      || '';
+  document.getElementById('vn-area').value      = v.area      || '';
+  document.getElementById('vn-capacity').value  = v.capacity  || '';
+  document.getElementById('vn-open').value      = v.open      || '';
+  document.getElementById('vn-close').value     = v.close     || '';
+  document.getElementById('vn-img').value       = v.img       || '';
+  document.getElementById('vn-instagram').value = v.instagram || '';
+  document.getElementById('vn-address').value   = v.address   || '';
+  document.getElementById('vn-desc').value      = v.desc      || '';
+  document.getElementById('vn-submit-btn').textContent = 'Update Venue →';
   document.getElementById('add-venue-card').style.display = 'block';
   document.getElementById('add-venue-card').scrollIntoView({behavior:'smooth'});
 };
@@ -3752,18 +3778,21 @@ window.submitVenue = async function(e) {
   if (!name) return;
   const btn = document.getElementById('vn-submit-btn');
   btn.disabled = true; btn.textContent = 'Saving…';
+  const imgVal = document.getElementById('vn-img').value.trim();
   const data = {
     name,
-    type:     document.getElementById('vn-type').value.trim(),
-    city:     document.getElementById('vn-city').value.trim() || 'Hanoi',
-    area:     document.getElementById('vn-area').value.trim(),
-    capacity: parseInt(document.getElementById('vn-capacity').value) || 0,
-    open:     document.getElementById('vn-open').value.trim(),
-    close:    document.getElementById('vn-close').value.trim(),
-    img:      document.getElementById('vn-img').value.trim(),
-    logo:     document.getElementById('vn-img').value.trim(),
-    desc:     document.getElementById('vn-desc').value.trim(),
-    status:   'active',
+    type:      document.getElementById('vn-type').value.trim(),
+    city:      document.getElementById('vn-city').value.trim() || 'Hanoi',
+    area:      document.getElementById('vn-area').value.trim(),
+    capacity:  parseInt(document.getElementById('vn-capacity').value) || 0,
+    open:      document.getElementById('vn-open').value.trim(),
+    close:     document.getElementById('vn-close').value.trim(),
+    img:       imgVal,
+    logo:      imgVal,
+    instagram: document.getElementById('vn-instagram').value.trim(),
+    address:   document.getElementById('vn-address').value.trim(),
+    desc:      document.getElementById('vn-desc').value.trim(),
+    status:    'active',
   };
   try {
     if (editingVenueId) {
