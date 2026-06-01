@@ -931,6 +931,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
 .search-results-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:14px;}
 .search-results-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;}
 .search-empty{text-align:center;padding:60px 20px;color:var(--text3);}
+.search-section-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3);margin:18px 0 10px;padding:0 2px;}
 .search-empty .se-ico{font-size:40px;margin-bottom:10px;}
 
 /* ── TIME FILTERS ── */
@@ -1771,7 +1772,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
       <div class="live-pill" id="livePill"><div class="live-pill-dot"></div><span id="liveCount">62</span>&nbsp;active now</div>
       <div class="nav-search" onclick="openSearch()" style="cursor:pointer">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <input type="text" placeholder="Event, Venue, Artist or Promoter" id="navSearch" readonly style="cursor:pointer"/>
+        <input type="text" placeholder="Events, Venues, Artists…" id="navSearch" readonly style="cursor:pointer"/>
       </div>
       <div class="nav-actions">
         <div class="nav-loc" onclick="openCityPicker()" id="navCityBtn">
@@ -3432,7 +3433,7 @@ function renderVenues(){
   const cnt=document.getElementById('venueCount');
   if(cnt) cnt.textContent=list.length+' venue'+(list.length!==1?'s':'');
   document.getElementById('venuesGrid').innerHTML=list.length?list.map(v=>`
-    <div class="venue-card" onclick="openVenue(${v.id})" style="cursor:pointer">
+    <div class="venue-card" onclick="openVenue('${v.id}')" style="cursor:pointer">
       <div class="venue-card-img-wrap">
         <img src="${v.img}" alt="${v.name}" loading="lazy"/>
         <div class="venue-type-badge">${v.type}</div>
@@ -3655,7 +3656,7 @@ function closeMagReader(){
 
 // ── VENUE DETAIL MODAL ──
 function openVenue(id){
-  const v=VENUES.find(x=>x.id===id);
+  const v=VENUES.find(x=>String(x.id)===String(id));
   if(!v) return;
   const evts=EVENTS.filter(e=>e.venue===v.name||e.city===v.city).slice(0,4);
   document.getElementById('venueModalTitle').textContent=v.name;
@@ -6094,19 +6095,86 @@ function closeSearch(){
   document.getElementById('searchResults').innerHTML='<div class="search-empty"><div class="se-ico">🔍</div><p>Start typing to find events</p></div>';
 }
 // Escape key is handled by the unified listener above
+function _venueSearchCard(v){
+  const sid=escQ(String(v.id));
+  const bg=v.img?`background-image:url('${v.img}')`:'background:#1a1b2e';
+  return `<div class="evt-card" onclick="closeSearch();openVenue('${sid}')">
+    <div class="evt-card-img-wrap">
+      <div class="evt-card-img" style="${bg}"></div>
+      <div class="evt-card-overlay"></div>
+      <div class="evt-card-badges"><span style="font-size:9px;padding:3px 7px;border-radius:20px;background:rgba(245,200,66,.15);color:#f5c842;font-weight:700">${v.type||'Venue'}</span></div>
+    </div>
+    <div class="evt-card-title">${v.name}</div>
+    <div class="evt-card-sub">${[v.area,v.city].filter(Boolean).join(' · ')}</div>
+    <div class="evt-card-genre">${(v.genres||[]).slice(0,2).join(' · ')}</div>
+  </div>`;
+}
+function _artistSearchCard(a){
+  const sname=escQ(a.name);
+  const bg=a.img?`background-image:url('${a.img}')`:'background:#1a1b2e';
+  return `<div class="evt-card" onclick="closeSearch();openArtistProfile('${sname}')">
+    <div class="evt-card-img-wrap">
+      <div class="evt-card-img" style="${bg}"></div>
+      <div class="evt-card-overlay"></div>
+      <div class="evt-card-badges"><span style="font-size:9px;padding:3px 7px;border-radius:20px;background:rgba(100,200,255,.12);color:#64c8ff;font-weight:700">Artist</span></div>
+    </div>
+    <div class="evt-card-title">${a.name}</div>
+    <div class="evt-card-sub">${a.genre||''}</div>
+    <div class="evt-card-genre">${a.city||''}</div>
+  </div>`;
+}
+function _promoSearchCard(p){
+  const click=p.instagram?`window.open('https://instagram.com/${p.instagram}','_blank')`:'';
+  const bg=p.img?`background-image:url('${p.img}')`:'background:#1a1b2e';
+  return `<div class="evt-card" onclick="closeSearch();${click}">
+    <div class="evt-card-img-wrap">
+      <div class="evt-card-img" style="${bg}"></div>
+      <div class="evt-card-overlay"></div>
+      <div class="evt-card-badges"><span style="font-size:9px;padding:3px 7px;border-radius:20px;background:rgba(180,100,255,.15);color:#b464ff;font-weight:700">Promoter</span></div>
+    </div>
+    <div class="evt-card-title">${p.name}</div>
+    <div class="evt-card-sub">${p.type||''}</div>
+    <div class="evt-card-genre">${(p.genres||[]).slice(0,2).join(' · ')}</div>
+  </div>`;
+}
 function _runSearch(q){
   const res=document.getElementById('searchResults');
-  if(!q.trim()){res.innerHTML='<div class="search-empty"><div class="se-ico">🔍</div><p>Start typing to find events</p></div>';return;}
+  if(!q.trim()){res.innerHTML='<div class="search-empty"><div class="se-ico">🔍</div><p>Search events, venues, artists or promoters</p></div>';return;}
   const ql=q.toLowerCase();
-  const list=EVENTS.filter(e=>
-    e.title.toLowerCase().includes(ql)||
-    e.artist.toLowerCase().includes(ql)||
-    e.venue.toLowerCase().includes(ql)||
-    e.city.toLowerCase().includes(ql)||
-    e.genre.toLowerCase().includes(ql)
+  const evts=EVENTS.filter(e=>
+    (e.title||'').toLowerCase().includes(ql)||
+    (e.artist||'').toLowerCase().includes(ql)||
+    (e.venue||'').toLowerCase().includes(ql)||
+    (e.city||'').toLowerCase().includes(ql)||
+    (e.genre||'').toLowerCase().includes(ql)
   );
-  if(!list.length){res.innerHTML='<div class="search-empty"><div class="se-ico">🎟</div><p>No events found for "'+q+'"</p></div>';return;}
-  res.innerHTML='<div class="search-results-label">'+list.length+' result'+(list.length>1?'s':'')+'</div><div class="search-results-grid">'+list.map(portCard).join('')+'</div>';
+  const venues=VENUES.filter(v=>
+    v.name.toLowerCase().includes(ql)||
+    (v.area||'').toLowerCase().includes(ql)||
+    (v.city||'').toLowerCase().includes(ql)||
+    (v.type||'').toLowerCase().includes(ql)||
+    (v.genres||[]).some(g=>g.toLowerCase().includes(ql))||
+    (v.desc||'').toLowerCase().includes(ql)
+  );
+  const artists=[...ARTISTS,...LOCAL_ARTISTS].filter(a=>
+    a.name.toLowerCase().includes(ql)||
+    (a.genre||'').toLowerCase().includes(ql)||
+    (a.city||'').toLowerCase().includes(ql)
+  );
+  const promos=PROMOTERS.filter(p=>
+    p.name.toLowerCase().includes(ql)||
+    (p.type||'').toLowerCase().includes(ql)||
+    (p.city||'').toLowerCase().includes(ql)||
+    (p.genres||[]).some(g=>g.toLowerCase().includes(ql))
+  );
+  const total=evts.length+venues.length+artists.length+promos.length;
+  if(!total){res.innerHTML='<div class="search-empty"><div class="se-ico">🎟</div><p>No results for "'+q+'"</p></div>';return;}
+  let html='<div class="search-results-label">'+total+' result'+(total!==1?'s':'')+'</div>';
+  if(evts.length)   html+='<div class="search-section-label">Events</div><div class="search-results-grid">'+evts.map(portCard).join('')+'</div>';
+  if(venues.length) html+='<div class="search-section-label">Venues</div><div class="search-results-grid">'+venues.map(_venueSearchCard).join('')+'</div>';
+  if(artists.length)html+='<div class="search-section-label">Artists</div><div class="search-results-grid">'+artists.map(_artistSearchCard).join('')+'</div>';
+  if(promos.length) html+='<div class="search-section-label">Promoters</div><div class="search-results-grid">'+promos.map(_promoSearchCard).join('')+'</div>';
+  res.innerHTML=html;
 }
 // wire up search input — wait for DOM
 (function(){
