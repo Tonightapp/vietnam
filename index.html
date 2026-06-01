@@ -873,7 +873,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
 .tkt-notch-r{right:-12px;}
 /* ticket body */
 .tkt-body{padding:16px 18px 18px;background:#0d0e1b;display:flex;gap:16px;align-items:center;}
-.tkt-qr-box{background:#fff;border-radius:10px;padding:8px;flex-shrink:0;box-shadow:0 4px 16px rgba(0,0,0,.4);}
+.tkt-qr-box{background:#fff;border-radius:12px;padding:10px;flex-shrink:0;box-shadow:0 4px 20px rgba(0,0,0,.5);}
 .tkt-qr-box canvas{display:block;}
 .tkt-details{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px;}
 .tkt-detail-row{display:flex;flex-direction:column;gap:2px;}
@@ -4181,7 +4181,6 @@ function _tktDoneBlock(tk){
       </div>
     </div>
     <div class="tkt-footer">
-      <div class="tkt-ref">${tk.ref}</div>
       <div class="tkt-ref-sub">Show QR at venue entry · Staff will scan to check you in</div>
     </div>
   </div>
@@ -4231,7 +4230,7 @@ function renderTkt(){
     b+=_tktDoneBlock(lastTicket);
   }
   document.getElementById('tktBody').innerHTML=b;
-  if(tStep===2) setTimeout(()=>renderQR('tktQrCanvas','TONIGHT:'+lastTicket.ref,140),80);
+  if(tStep===2) setTimeout(()=>renderQR('tktQrCanvas','TONIGHT:'+lastTicket.ref,160),80);
 }
 
 function chQty(d){
@@ -5740,7 +5739,6 @@ function showUTab(tab,el){
     </div>
   </div>
   <div class="tkt-footer">
-    <div class="tkt-ref">${tk.ref}</div>
     <div class="tkt-ref-sub">Tonight Vietnam &nbsp;·&nbsp; Scan at venue entry</div>
     ${tk.arrivedAt?`<div class="tkt-arrived">✓ Arrival confirmed · ${tk.arrivedAt}</div>`:''}
   </div>
@@ -5751,7 +5749,7 @@ function showUTab(tab,el){
       <div style="font-size:13px;color:rgba(255,255,255,.35);margin-bottom:20px">Claim a spot at an event to see your tickets here</div>
       <a href="#" onclick="closeUserDash()" style="display:inline-block;background:#f5c842;color:#000;font-weight:700;font-size:13px;padding:10px 24px;border-radius:10px;text-decoration:none">Browse Events</a>
     </div>`}`;
-    setTimeout(()=>{ myTkts.forEach((tk,idx)=>renderQR(`udQr${idx}`,`TONIGHT:${tk.ref}`)); },60);
+    setTimeout(()=>{ myTkts.forEach((tk,idx)=>renderQR(`udQr${idx}`,`TONIGHT:${tk.ref}`,160)); },60);
   }
   if(tab==='upcoming'){c.innerHTML=`<h3 style="font-weight:400;font-size:15px;margin-bottom:14px">Recommended For You</h3><div style="display:flex;flex-direction:column;gap:8px">${EVENTS.filter(e=>!e.soldOut).slice(0,5).map(e=>`
     <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;display:flex;align-items:center;gap:12px">
