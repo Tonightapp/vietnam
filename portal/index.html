@@ -869,15 +869,16 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
             <div class="stat-label">Live Events</div>
             <div class="stat-note">published in app</div>
           </div>
-          <div class="stat-card alert" id="s-pending-card" onclick="navTo('venues')" title="View venue applications">
+          <div class="stat-card" onclick="navTo('guestlist')" title="View guestlist" style="cursor:pointer">
             <div class="stat-top">
-              <div class="stat-icon" style="background:rgba(249,115,22,0.1)">
-                <svg viewBox="0 0 24 24" style="fill:#f97316"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+              <div class="stat-icon" style="background:rgba(0,208,132,0.1)">
+                <svg viewBox="0 0 24 24" style="fill:#00d084"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
               </div>
+              <div class="stat-change" id="s-checkin-label" style="color:#00d084">0 arrived</div>
             </div>
-            <div class="stat-val" id="s-pending" style="color:#f97316">—</div>
-            <div class="stat-label">Pending Reviews</div>
-            <div class="stat-note">venue applications</div>
+            <div class="stat-val" id="s-guestlist" style="color:#00d084">—</div>
+            <div class="stat-label">Guestlist</div>
+            <div class="stat-note">total sign-ups</div>
           </div>
         </div>
 
@@ -1214,26 +1215,51 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
 
       <!-- ── GUESTLIST ── -->
       <div class="panel" id="panel-guestlist">
+
+        <!-- Quick Door Check-in -->
+        <div class="section-card" style="background:linear-gradient(135deg,rgba(0,208,132,.08),rgba(0,208,132,.03));border-color:rgba(0,208,132,.2)">
+          <div class="section-title" style="margin-bottom:12px">🚪 Door Check-In</div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <input id="gl-lookup-input" type="text" placeholder="Enter ref code (TN-XXXX-XXXX-XXXX) or guest name…"
+              style="flex:1;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;color:#fff;font-size:14px;font-family:'Courier New',monospace;outline:none"
+              oninput="renderGuestlistLookup(this.value)" onkeydown="if(event.key==='Enter')renderGuestlistLookup(this.value)"/>
+            <button class="btn btn-approve" style="padding:10px 20px;font-size:13px;white-space:nowrap" onclick="renderGuestlistLookup(document.getElementById('gl-lookup-input').value)">Look Up</button>
+          </div>
+          <div id="gl-lookup-result" style="margin-top:12px"></div>
+        </div>
+
+        <!-- Guestlist Table -->
         <div class="section-card">
           <div class="section-head">
             <div>
-              <div class="section-title">Guestlist Sign-Ups</div>
-              <div style="font-size:12px;color:var(--text3);margin-top:2px">All guestlist reservations across events</div>
+              <div class="section-title">All Sign-Ups</div>
+              <div style="font-size:12px;color:var(--text3);margin-top:2px">
+                <span id="gl-arrived-count" style="color:#00d084;font-weight:700">0 arrived</span>
+                &nbsp;·&nbsp; <span id="guestlist-count">—</span> total
+              </div>
             </div>
             <div style="display:flex;align-items:center;gap:10px">
-              <div class="count-pill" id="guestlist-count">—</div>
-              <button class="btn btn-approve" style="padding:8px 16px;font-size:13px" onclick="exportGuestlistCSV()">⬇ Export CSV</button>
+              <select id="gl-event-filter" onchange="renderGuestlistPanel()"
+                style="background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:7px 12px;color:var(--text2);font-size:12px;cursor:pointer">
+                <option value="">All Events</option>
+              </select>
+              <button class="btn btn-approve" style="padding:8px 16px;font-size:13px" onclick="exportGuestlistCSV()">⬇ CSV</button>
             </div>
           </div>
           <div class="toolbar">
-            <div class="search-wrap" style="max-width:260px">
+            <div class="search-wrap" style="max-width:280px">
               <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-              <input type="text" placeholder="Search name, email, event…" oninput="guestlistSearch(this.value)" id="guestlist-search"/>
+              <input type="text" placeholder="Search name, email…" oninput="guestlistSearch(this.value)" id="guestlist-search"/>
+            </div>
+            <div style="margin-left:auto;display:flex;gap:8px">
+              <button class="btn" style="padding:6px 14px;font-size:12px" onclick="window._glStatusFilter='';renderGuestlistPanel()" id="gl-filter-all">All</button>
+              <button class="btn" style="padding:6px 14px;font-size:12px" onclick="window._glStatusFilter='waiting';renderGuestlistPanel()" id="gl-filter-wait">Waiting</button>
+              <button class="btn" style="padding:6px 14px;font-size:12px;color:#00d084;border-color:rgba(0,208,132,.3)" onclick="window._glStatusFilter='arrived';renderGuestlistPanel()" id="gl-filter-in">✓ Arrived</button>
             </div>
           </div>
           <div style="overflow-x:auto">
             <table class="data-table">
-              <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Event</th><th>Ref</th><th>Date</th><th></th></tr></thead>
+              <thead><tr><th>Name</th><th>Event</th><th>Ref</th><th>Guests</th><th>Status</th><th>Time</th><th></th></tr></thead>
               <tbody id="guestlist-body"></tbody>
             </table>
           </div>
@@ -2114,6 +2140,7 @@ function subscribeAll() {
     onSnapshot(query(collection(db,'guestlist'), orderBy('createdAt','desc')), snap => {
       allGuestlist = snap.docs.map(d => ({id:d.id,...d.data()}));
       updateBadge('guestlist-badge', allGuestlist.length);
+      renderStats();
       if (isPanel('panel-guestlist')) renderGuestlistPanel();
     }, onErr('Guestlist')),
 
@@ -2190,7 +2217,10 @@ function renderStats() {
   document.getElementById('s-week').textContent       = newThisWeek;
   document.getElementById('s-week-label').textContent = `+${newThisWeek} this week`;
   document.getElementById('s-events').textContent     = allEvents.filter(e => e.status === 'approved').length;
-  document.getElementById('s-pending').textContent    = pending;
+  const glTotal   = allGuestlist.length;
+  const glArrived = allGuestlist.filter(g => g.status === 'arrived').length;
+  document.getElementById('s-guestlist').textContent    = glTotal;
+  document.getElementById('s-checkin-label').textContent= `${glArrived} arrived`;
 
   // Badge
   const badge  = document.getElementById('venues-badge');
@@ -2201,7 +2231,8 @@ function renderStats() {
   } else {
     badge.classList.add('hide'); mbadge.classList.add('hide');
   }
-  document.getElementById('s-pending-card').className = pending > 0 ? 'stat-card alert' : 'stat-card';
+  const pc = document.getElementById('s-pending-card');
+  if (pc) pc.className = pending > 0 ? 'stat-card alert' : 'stat-card';
 }
 
 // ── BARS (approved venues) ────────────────────────────────
@@ -3281,35 +3312,109 @@ window.exportLeadsCSV = function() {
 };
 
 // ── GUESTLIST PANEL ───────────────────────────────────────
-function renderGuestlistPanel(q = '') {
-  const lq = (q || document.getElementById('guestlist-search')?.value || '').toLowerCase();
-  const rows = allGuestlist.filter(g =>
-    !lq || (g.buyerName||g.name||'').toLowerCase().includes(lq) ||
-    (g.buyerEmail||'').toLowerCase().includes(lq) ||
-    (g.eventTitle||'').toLowerCase().includes(lq)
-  );
-  document.getElementById('guestlist-count').textContent = rows.length;
+function _glEventOptions() {
+  const titles = [...new Set(allGuestlist.map(g => g.eventTitle).filter(Boolean))].sort();
+  const sel = document.getElementById('gl-event-filter');
+  if (!sel) return;
+  const cur = sel.value;
+  sel.innerHTML = `<option value="">All Events</option>` +
+    titles.map(t => `<option value="${esc(t)}" ${cur===t?'selected':''}>${esc(t)}</option>`).join('');
+}
+function renderGuestlistPanel() {
+  _glEventOptions();
+  const lq = (document.getElementById('guestlist-search')?.value || '').toLowerCase();
+  const evtFilter = document.getElementById('gl-event-filter')?.value || '';
+  const sfilt = window._glStatusFilter || '';
+  let rows = allGuestlist.filter(g => {
+    if (lq && !(g.buyerName||g.name||'').toLowerCase().includes(lq) &&
+               !(g.buyerEmail||'').toLowerCase().includes(lq) &&
+               !(g.ref||'').toLowerCase().includes(lq)) return false;
+    if (evtFilter && (g.eventTitle||'') !== evtFilter) return false;
+    if (sfilt === 'arrived' && g.status !== 'arrived') return false;
+    if (sfilt === 'waiting' && g.status === 'arrived') return false;
+    return true;
+  });
+  const total = allGuestlist.filter(g => !evtFilter || g.eventTitle === evtFilter).length;
+  const arrived = allGuestlist.filter(g => g.status === 'arrived' && (!evtFilter || g.eventTitle === evtFilter)).length;
+  document.getElementById('guestlist-count').textContent = total;
+  const arrivedEl = document.getElementById('gl-arrived-count');
+  if (arrivedEl) arrivedEl.textContent = `${arrived} arrived`;
   const tbody = document.getElementById('guestlist-body');
   if (!rows.length) {
-    tbody.innerHTML = `<tr><td colspan="7">${emptyRow('No guestlist sign-ups yet','🎟')}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7">${emptyRow('No guests yet','🎟')}</td></tr>`;
     return;
   }
-  tbody.innerHTML = rows.map(g => `<tr>
-    <td>${esc(g.buyerName||g.name||'—')}</td>
-    <td><a href="mailto:${esc(g.buyerEmail||'')}" style="color:var(--gold)">${esc(g.buyerEmail||'—')}</a></td>
-    <td>${esc(g.phone||'—')}</td>
-    <td class="truncate" style="max-width:160px">${esc(g.eventTitle||'—')}</td>
-    <td><span style="font-family:monospace;font-size:11px;color:var(--text3)">${esc(g.ref||'—')}</span></td>
-    <td style="color:var(--text3);font-size:12px">${timeAgo(g.createdAt)}</td>
-    <td></td>
-  </tr>`).join('');
+  tbody.innerHTML = rows.map(g => {
+    const isIn = g.status === 'arrived';
+    const rowStyle = isIn ? 'background:rgba(0,208,132,.04)' : '';
+    const statusBadge = isIn
+      ? `<span style="font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(0,208,132,.12);color:#00d084;font-weight:700">✓ In</span>`
+      : `<span style="font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(255,255,255,.05);color:var(--text3);font-weight:600">Waiting</span>`;
+    const checkBtn = isIn
+      ? `<button style="font-size:11px;padding:5px 12px;border-radius:6px;border:none;background:rgba(0,208,132,.1);color:#00d084;cursor:default;font-weight:600">✓ Checked In</button>`
+      : `<button class="btn btn-approve" style="padding:5px 14px;font-size:12px" onclick="checkInGuest('${esc(g.id)}')">Check In</button>`;
+    return `<tr style="${rowStyle}">
+      <td style="font-weight:600">${esc(g.buyerName||g.name||'—')}</td>
+      <td class="truncate" style="max-width:150px;font-size:12px;color:var(--text2)">${esc(g.eventTitle||'—')}</td>
+      <td><span style="font-family:monospace;font-size:11px;color:var(--gold)">${esc(g.ref||'—')}</span></td>
+      <td style="text-align:center">${g.qty||1}</td>
+      <td>${statusBadge}</td>
+      <td style="color:var(--text3);font-size:11px">${timeAgo(g.createdAt)}</td>
+      <td>${checkBtn}</td>
+    </tr>`;
+  }).join('');
 }
-window.guestlistSearch = q => { renderGuestlistPanel(q); };
+window.guestlistSearch = () => { renderGuestlistPanel(); };
+
+window.checkInGuest = async function(docId) {
+  const g = allGuestlist.find(x => x.id === docId);
+  if (!g) return;
+  try {
+    await updateDoc(doc(db,'guestlist',docId), {
+      status: 'arrived',
+      arrivedAt: serverTimestamp()
+    });
+    g.status = 'arrived';
+    renderGuestlistPanel();
+    toast(`✓ ${g.buyerName||'Guest'} checked in`);
+  } catch(e) { toast('Check-in failed: '+e.message); }
+};
+
+window.renderGuestlistLookup = function(q) {
+  const el = document.getElementById('gl-lookup-result');
+  if (!el) return;
+  const lq = (q||'').trim().toLowerCase();
+  if (lq.length < 2) { el.innerHTML = ''; return; }
+  const matches = allGuestlist.filter(g =>
+    (g.ref||'').toLowerCase().includes(lq) ||
+    (g.buyerName||'').toLowerCase().includes(lq)
+  ).slice(0, 5);
+  if (!matches.length) {
+    el.innerHTML = `<div style="font-size:13px;color:var(--text3);padding:8px 0">No guest found for "${esc(q)}"</div>`;
+    return;
+  }
+  el.innerHTML = matches.map(g => {
+    const isIn = g.status === 'arrived';
+    return `<div style="display:flex;align-items:center;gap:14px;padding:12px 16px;background:var(--bg);border:1px solid ${isIn?'rgba(0,208,132,.3)':'var(--border2)'};border-radius:10px;margin-bottom:8px">
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:700;font-size:15px;color:#fff">${esc(g.buyerName||g.name||'—')}</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:2px">${esc(g.eventTitle||'—')} &nbsp;·&nbsp; ${g.qty||1} guest${(g.qty||1)>1?'s':''}</div>
+        <div style="font-family:monospace;font-size:11px;color:var(--gold);margin-top:3px">${esc(g.ref||'—')}</div>
+      </div>
+      ${isIn
+        ? `<div style="font-size:13px;font-weight:700;color:#00d084">✓ Checked In</div>`
+        : `<button class="btn btn-approve" style="padding:9px 20px;font-size:13px;font-weight:700" onclick="checkInGuest('${esc(g.id)}');document.getElementById('gl-lookup-input').value='';document.getElementById('gl-lookup-result').innerHTML=''">✓ Check In</button>`
+      }
+    </div>`;
+  }).join('');
+};
+
 window.exportGuestlistCSV = function() {
-  const rows = [['Name','Email','Phone','Event','Ref','Joined']];
+  const rows = [['Name','Email','Phone','Event','Ref','Guests','Status','Joined']];
   allGuestlist.forEach(g => rows.push([
     g.buyerName||g.name||'', g.buyerEmail||'', g.phone||'',
-    g.eventTitle||'', g.ref||'', timeAgo(g.createdAt)
+    g.eventTitle||'', g.ref||'', g.qty||1,
+    g.status==='arrived'?'Arrived':'Waiting', timeAgo(g.createdAt)
   ]));
   downloadCSV(rows, 'tonight-guestlist.csv');
 };

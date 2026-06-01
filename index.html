@@ -4152,53 +4152,49 @@ function _tktStepBar(steps){
     </div>${i<steps.length-1?`<div class="tline ${i+1<tStep?'done':''}"></div>`:''}`).join('')}</div>`;
 }
 function _tktDoneBlock(tk){
+  const heroStyle=tk.img?`background-image:url('${tk.img}')`:'';
   const isGL=tk.ticketType==='Guestlist';
-  const imgStyle=tk.img?`background-image:url('${tk.img}');background-size:cover;background-position:center`:'background:linear-gradient(135deg,#1a1a3e,#0d1a2e)';
   return `
-  <div style="text-align:center;padding:6px 0 16px">
-    <div style="font-size:36px;margin-bottom:8px">🎉</div>
-    <h3 style="font-weight:800;margin-bottom:6px;font-size:18px;color:#fff">Place Claimed! 🎟</h3>
-    <p style="font-size:13px;color:var(--text2);font-weight:400;line-height:1.6">You're on the list, <strong style="color:#fff">${tk.buyerName}</strong>.<br/>Organisers will contact you to confirm — show your QR at the door.</p>
+  <div style="text-align:center;padding:4px 0 14px">
+    <div style="font-size:34px;margin-bottom:6px">🎉</div>
+    <h3 style="font-weight:800;margin-bottom:4px;font-size:17px;color:#fff">You're on the list!</h3>
+    <p style="font-size:12px;color:var(--text3);line-height:1.5">QR ticket sent to <strong style="color:#f5c842">${tk.buyerEmail}</strong></p>
   </div>
-  <div class="qr-ticket">
-    <div class="qr-ticket-hero">
-      <div class="qr-ticket-hero-img" style="${imgStyle}"></div>
-      <div class="qr-ticket-hero-grad"></div>
-      <div class="qr-ticket-hero-label">Tonight · ${isGL?'Guestlist':'Entry Ticket'}</div>
-      <span class="qr-ticket-hero-status ${isGL?'s-guestlist':'s-valid'}">${isGL?'GUESTLIST':'✓ CONFIRMED'}</span>
-      <div class="qr-ticket-hero-title">
-        <h4>${tk.eventTitle}</h4>
-        <p>${fmt(tk.date)} &nbsp;·&nbsp; ${tk.venue}, ${tk.city}</p>
+  <div class="tkt-card" style="margin-bottom:14px">
+    <div class="tkt-hero" style="${heroStyle}">
+      <div class="tkt-hero-grad"></div>
+      <div class="tkt-brand">TONIGHT VIETNAM · OFFICIAL TICKET</div>
+      <span class="tkt-badge tkt-badge-valid">${isGL?'GUESTLIST':'✓ CONFIRMED'}</span>
+      <div class="tkt-hero-info">
+        <div class="tkt-event-name">${tk.eventTitle}</div>
+        <div class="tkt-event-meta">${fmt(tk.date)} &nbsp;·&nbsp; ${tk.venue}</div>
       </div>
     </div>
-    <div class="qr-ticket-tear">
-      <div class="qr-ticket-notch-l"></div>
-      <div class="qr-ticket-notch-r"></div>
-    </div>
-    <div class="qr-ticket-body">
-      <div class="qr-ticket-qr-wrap" id="tktQrCanvas"></div>
-      <div class="qr-ticket-details">
-        <div class="qr-td-row"><div class="qr-td-label">Name</div><div class="qr-td-val">${tk.buyerName}</div></div>
-        <div class="qr-td-row"><div class="qr-td-label">Guests</div><div class="qr-td-val">${tk.qty} ${tk.qty===1?'person':'people'}</div></div>
-        <div class="qr-td-row"><div class="qr-td-label">Type</div><div class="qr-td-val">${tk.ticketType}</div></div>
-        <div class="qr-td-row"><div class="qr-td-label">Issued</div><div class="qr-td-val">${new Date(tk.issuedAt).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</div></div>
+    <div class="tkt-tear"><div class="tkt-notch tkt-notch-l"></div><div class="tkt-notch tkt-notch-r"></div></div>
+    <div class="tkt-body">
+      <div class="tkt-qr-box" id="tktQrCanvas"></div>
+      <div class="tkt-details">
+        <div class="tkt-detail-row"><div class="tkt-detail-label">GUEST</div><div class="tkt-detail-val">${tk.buyerName}</div></div>
+        <div class="tkt-detail-row"><div class="tkt-detail-label">PARTY SIZE</div><div class="tkt-detail-val">${tk.qty} ${tk.qty===1?'person':'people'}</div></div>
+        <div class="tkt-detail-row"><div class="tkt-detail-label">TYPE</div><div class="tkt-detail-val">${tk.ticketType}</div></div>
+        <div class="tkt-detail-row"><div class="tkt-detail-label">ISSUED</div><div class="tkt-detail-val tkt-detail-sm">${new Date(tk.issuedAt).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</div></div>
       </div>
     </div>
-    <div class="qr-ticket-barcode">
-      <div class="bar-ref">${tk.ref}</div>
-      <div class="bar-sub">Show to organiser at entry · They will confirm your spot</div>
+    <div class="tkt-footer">
+      <div class="tkt-ref">${tk.ref}</div>
+      <div class="tkt-ref-sub">Show QR at venue entry · Staff will scan to check you in</div>
     </div>
   </div>
-  <button class="fsub" style="background:#f5c842;color:#000;margin-bottom:10px" onclick="sendTicketEmail('${tk.ref}');this.textContent='📧 QR resent to ${tk.buyerEmail} ✓';this.disabled=true">📧 Resend QR to ${tk.buyerEmail}</button>
+  <button class="fsub" style="background:rgba(245,200,66,.12);color:#f5c842;border:1px solid rgba(245,200,66,.25);margin-bottom:10px" onclick="sendTicketEmail('${tk.ref}');this.textContent='📧 Resent ✓';this.disabled=true">📧 Resend QR to email</button>
   ${loggedIn
-    ? `<div style="display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 0 4px;font-size:12px;color:var(--green)"><span>✓</span> Ticket saved to your Tonight account — find it in <strong style="cursor:pointer;text-decoration:underline" onclick="closeOverlay('tktOverlay');openUser();showUTab('tickets',null)">My Tickets</strong></div>`
-    : `<div style="background:rgba(0,208,132,.07);border:1px solid rgba(0,208,132,.18);border-radius:12px;padding:14px;margin-bottom:10px;text-align:center">
-        <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px">📱 Access your QR anytime</div>
-        <div style="font-size:11px;color:var(--text3);margin-bottom:12px;line-height:1.5">Sign in to find your ticket in the QR section — even after closing this page.</div>
-        <button class="fsub" style="margin:0;background:linear-gradient(135deg,#fff,#f0f0f0);color:#000;font-weight:700" onclick="closeOverlay('tktOverlay');openGateway()">Sign In / Create Account →</button>
+    ? `<div style="display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 0 2px;font-size:12px;color:var(--green)"><span>✓</span> Saved — find it in <strong style="cursor:pointer;text-decoration:underline" onclick="closeOverlay('tktOverlay');openUser();showUTab('tickets',null)">My Tickets</strong></div>`
+    : `<div style="background:rgba(0,208,132,.07);border:1px solid rgba(0,208,132,.15);border-radius:10px;padding:12px;margin-bottom:8px;text-align:center">
+        <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:3px">📱 Access your QR anytime</div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:10px">Sign in to find your ticket even after closing this page.</div>
+        <button class="fsub" style="margin:0;padding:9px 20px;font-size:13px;background:linear-gradient(135deg,#fff,#f0f0f0);color:#000;font-weight:700" onclick="closeOverlay('tktOverlay');openGateway()">Sign In →</button>
       </div>`
   }
-  <p style="font-size:10px;color:rgba(255,255,255,.25);text-align:center;margin-top:8px;line-height:1.6">This QR is your guestlist registration. Show it to the organiser at the door — entry is confirmed by them, not by Tonight.</p>`;
+  <p style="font-size:10px;color:rgba(255,255,255,.2);text-align:center;margin-top:6px;line-height:1.5">Entry is confirmed by the organiser at the door.</p>`;
 }
 
 function renderTkt(){
