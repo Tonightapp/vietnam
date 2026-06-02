@@ -1548,6 +1548,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
   /* ── TIME FILTERS ── */
   .time-filters{padding:8px 16px 4px;}
   .tpill{font-size:11px;padding:5px 12px;}
+  .tpill.active{background:#f5c842;color:#000;border-color:#f5c842;font-weight:700;}
 
   /* ── SECTION HEADS ── */
   .home-section{padding:24px 0 4px;}
@@ -1589,6 +1590,14 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
     padding:0 16px 12px;
     gap:12px;
   }
+
+  /* ── BADGES: monochrome on mobile ── */
+  .badge-new{background:rgba(255,255,255,.1);color:rgba(255,255,255,.65);border:1px solid rgba(255,255,255,.18);}
+  .badge-hot{background:rgba(255,255,255,.1);color:rgba(255,255,255,.65);border:1px solid rgba(255,255,255,.18);}
+
+  /* ── PROMO STRIP: minimal, no red ── */
+  .promo-live-badge{background:transparent;border-color:rgba(255,255,255,.14);color:rgba(255,255,255,.38);}
+  .promo-live-dot{background:rgba(255,255,255,.3);animation:none;}
 
   /* ── EVENT CARDS: tighter, no card bg ── */
   .evt-card{width:160px;}
@@ -3389,17 +3398,17 @@ function renderSpotlight(){
             <img src="${ev.img}" alt="${ev.title}" style="width:100%;display:block;object-fit:cover;max-height:480px;opacity:.92"/>
             <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.88) 0%,rgba(0,0,0,.1) 55%,transparent 100%)"></div>
             <div style="position:absolute;top:14px;left:14px;display:flex;gap:8px;align-items:center">
-              <span style="background:#ff3b5c;color:#fff;font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border-radius:100px">⭐ Featured</span>
+              <span style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);color:#fff;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border-radius:100px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)">Featured</span>
               ${ev.organizer?`<span style="background:rgba(0,0,0,.55);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#fff;font-size:10px;font-weight:700;letter-spacing:.5px;padding:5px 12px;border-radius:100px;border:1px solid rgba(255,255,255,.15)">${ev.organizer}</span>`:''}
             </div>
             <div style="position:absolute;bottom:0;left:0;right:0;padding:20px 20px 24px">
               <div class="spot-title" style="font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,6vw,50px);line-height:.95;color:#fff;letter-spacing:1px;margin-bottom:10px">${ev.title}</div>
               <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:${lineupHtml?'12px':'16px'}">
-                <span style="font-size:12px;color:rgba(255,255,255,.85);font-weight:500">📅 ${fmt(ev.date)}</span>
-                <span style="font-size:12px;color:rgba(255,255,255,.85);font-weight:500">📍 ${ev.venue}</span>
+                <span style="font-size:12px;color:rgba(255,255,255,.75);font-weight:500">${fmt(ev.date)}</span>
+                <span style="font-size:12px;color:rgba(255,255,255,.75);font-weight:500">${ev.venue}</span>
               </div>
               ${lineupHtml?`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px">${lineupHtml}</div>`:''}
-              ${ev.specialActs?`<div class="spot-special-acts" style="font-size:12px;color:var(--green);font-weight:700;margin-bottom:16px">✨ ${ev.specialActs}</div>`:''}
+              ${ev.specialActs?`<div class="spot-special-acts" style="font-size:12px;color:rgba(255,255,255,.6);font-weight:500;margin-bottom:16px">${ev.specialActs}</div>`:''}
               <button onclick="event.stopPropagation();openEvent('${ev.id}')" style="background:#fff;color:#000;font-weight:800;font-size:14px;border:none;border-radius:100px;padding:12px 28px;cursor:pointer;letter-spacing:-.2px">Explore Event →</button>
             </div>
           </div>`;
@@ -4041,18 +4050,18 @@ function openEvent(id){
     </div>
     <h3 style="font-size:20px;font-weight:400;margin-bottom:10px">${ev.title}</h3>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px;font-size:12px;color:var(--text2)">
-      <span>📅 ${fmt(ev.date)}</span>
-      <span>📍 ${ev.venue}, ${ev.city}</span>
-      <span>👤 ${ev.attendees.toLocaleString()} attending</span>
-      <span>🎵 Music starts ${_musicStarts(ev)}</span>
-      <span>👔 Dress code: ${_dressCode(ev.genre)}</span>
-      <span>🔞 Age: 18+</span>
+      <span>${fmt(ev.date)}</span>
+      <span>${ev.venue}, ${ev.city}</span>
+      <span>${ev.attendees.toLocaleString()} attending</span>
+      <span>Starts ${_musicStarts(ev)}</span>
+      <span>Dress: ${_dressCode(ev.genre)}</span>
+      <span>18+</span>
     </div>
     <p style="font-size:13px;color:var(--text2);line-height:1.75;margin-bottom:20px">${ev.desc}</p>
     ${ev.lineup&&ev.lineup.length?`<div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:12px 14px;margin-bottom:14px">
       <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Lineup</div>
       <div style="display:flex;flex-wrap:wrap;gap:6px">${ev.lineup.map(a=>`<span style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;color:var(--text)">${a}</span>`).join('')}</div>
-      ${ev.specialActs?`<div style="margin-top:10px;font-size:12px;color:var(--green);font-weight:600">✨ ${ev.specialActs}</div>`:''}
+      ${ev.specialActs?`<div style="margin-top:10px;font-size:12px;color:rgba(255,255,255,.55);font-weight:500">${ev.specialActs}</div>`:''}
     </div>`:''}
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
       ${ev.soldOut
