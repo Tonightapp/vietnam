@@ -426,7 +426,7 @@ img{max-width:100%;height:auto;-webkit-user-drag:none;user-select:none;-webkit-u
 .nav-icon-btn.icon-venues svg{stroke:#f5c842;}
 .nav-icon-btn.icon-community svg{stroke:#00d084;}
 @media(max-width:640px){
-  .nav-mobile-icons{display:flex;}
+  .nav-mobile-icons{display:flex;gap:6px;align-items:center;}
   .nav-signin-btn{display:none!important;}
   .nav-auth{display:none!important;}
   .notif-bell{display:none!important;}
@@ -1476,13 +1476,27 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
     background:rgba(245,200,66,0.1);
     border:1px solid rgba(245,200,66,0.4);
     color:#f5c842;
-    height:34px;padding:0 14px;
+    height:32px;padding:0 12px;
     border-radius:50px;
-    font-size:12px;font-weight:700;letter-spacing:.2px;
+    font-size:11px;font-weight:700;letter-spacing:.2px;
     font-family:inherit;white-space:nowrap;flex-shrink:0;
     transition:.15s;
   }
   .nav-mob-signup:active{transform:scale(.95);background:rgba(245,200,66,.18);}
+
+  /* ── Mobile Log In pill ── */
+  .nav-mob-login{
+    display:flex;align-items:center;
+    background:transparent;
+    border:1px solid rgba(255,255,255,.2);
+    color:rgba(255,255,255,.72);
+    height:32px;padding:0 12px;
+    border-radius:50px;
+    font-size:11px;font-weight:600;letter-spacing:.2px;
+    font-family:inherit;white-space:nowrap;flex-shrink:0;
+    cursor:pointer;transition:.15s;
+  }
+  .nav-mob-login:active{transform:scale(.95);background:rgba(255,255,255,.06);}
 
   /* ── Signed-in: compact avatar pill ── */
   .nav-auth .btn,.nav-auth .btn-white{display:none;}
@@ -1807,12 +1821,10 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
         <div class="nav-auth" id="navAuth">
           <button class="btn btn-white" onclick="openGateway()">Get Started</button>
         </div>
-        <!-- Mobile-only: Sign Up + Portal -->
+        <!-- Mobile-only: Log In + Sign Up -->
         <div class="nav-mobile-icons" id="navMobileIcons">
+          <button class="nav-mob-login" id="navMobLogin" onclick="openLogin()">Log In</button>
           <button class="nav-mob-signup" id="navMobSignup" onclick="openGateway()">Sign Up</button>
-          <button class="nav-icon-btn icon-portal" onclick="openOverlay('portalChoiceOverlay')" title="Portal Access" style="min-width:44px;min-height:44px">
-            <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          </button>
         </div>
       </div>
       <div class="hamburger" onclick="toggleMob()" role="button" aria-label="Open menu" tabindex="0"><span></span><span></span><span></span></div>
@@ -4434,6 +4446,16 @@ function openAuth(tab){
   swTab(tab||'login');
   openOverlay('authOverlay');
 }
+function openLogin(){
+  if(!curRole) curRole='user';
+  document.getElementById('stepRole').style.display='none';
+  document.getElementById('stepForm').style.display='';
+  document.getElementById('bizPitch').style.display='none';
+  document.getElementById('bizFg').style.display='none';
+  document.getElementById('authTitle').textContent='Welcome Back';
+  swTab('login');
+  openOverlay('authOverlay');
+}
 function pickRole(r){
   curRole=r;
   document.getElementById('rUser').classList.toggle('sel',r==='user');
@@ -4566,9 +4588,11 @@ function finishLogin(name,prov,profile){
   const bell=document.getElementById('notifBell');
   const sibBtn=document.getElementById('navSignInBtn');
   const mobSignup=document.getElementById('navMobSignup');
+  const mobLogin=document.getElementById('navMobLogin');
   if(bell) bell.style.display='flex';
   if(sibBtn) sibBtn.style.display='none';
   if(mobSignup) mobSignup.style.display='none';
+  if(mobLogin) mobLogin.style.display='none';
   if(curRole==='pro'){
     toast(`Welcome, ${name.split(' ')[0]}! Taking you to your business overview…`,'ok');
     setTimeout(()=>openPro(),400);
@@ -4593,9 +4617,11 @@ function signOut(){
   const bell=document.getElementById('notifBell');
   const sibBtn=document.getElementById('navSignInBtn');
   const mobSignup=document.getElementById('navMobSignup');
+  const mobLogin=document.getElementById('navMobLogin');
   if(bell) bell.style.display='none';
-  if(sibBtn) sibBtn.style.display=''; // CSS hides on desktop; shows on mobile only
+  if(sibBtn) sibBtn.style.display='';
   if(mobSignup) mobSignup.style.display='';
+  if(mobLogin) mobLogin.style.display='';
   toast('Signed out','ok');
 }
 // ── RESTORE SESSION ON LOAD ──
@@ -4616,9 +4642,11 @@ function signOut(){
       const bell=document.getElementById('notifBell');
       const sibBtn=document.getElementById('navSignInBtn');
       const mobSignup=document.getElementById('navMobSignup');
+      const mobLogin=document.getElementById('navMobLogin');
       if(bell) bell.style.display='flex';
       if(sibBtn) sibBtn.style.display='none';
       if(mobSignup) mobSignup.style.display='none';
+      if(mobLogin) mobLogin.style.display='none';
     }catch(_){}
   };
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',_restore,{once:true});
