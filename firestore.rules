@@ -159,6 +159,12 @@ service cloud.firestore {
       allow read, update, delete: if isStaff();
     }
 
+    // ── venues/{id} ───────────────────────────────────────────────────────────
+    match /venues/{venueId} {
+      allow read: if true;
+      allow create, update, delete: if isStaff();
+    }
+
     // ── artists/{id} ──────────────────────────────────────────────────────────
     match /artists/{artistId} {
       allow read: if true;
