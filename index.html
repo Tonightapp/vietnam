@@ -59,20 +59,21 @@ window._loadQR=function(){
 </script>
 <style>
 :root{
-  --bg:#0a0b14;
-  --bg2:#0f1020;
-  --bg3:#141525;
-  --card:#131422;
-  --card2:#1a1b2e;
-  --accent:#ffffff;
-  --text:#ffffff;
-  --text2:#d8dce8;
-  --text3:#a8b0cc;
-  --border:rgba(255,255,255,0.09);
-  --border2:rgba(255,255,255,0.2);
+  --bg:#000;
+  --bg2:#0a0a0a;
+  --bg3:#111;
+  --card:#0d0d0d;
+  --card2:#161616;
+  --accent:#f5c842;
+  --gold:#f5c842;
+  --text:#fff;
+  --text2:rgba(255,255,255,.62);
+  --text3:rgba(255,255,255,.36);
+  --border:rgba(255,255,255,.07);
+  --border2:rgba(255,255,255,.16);
   --green:#00d084;
   --red:#ff3b5c;
-  --r:8px;
+  --r:6px;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;text-size-adjust:100%;}
@@ -1717,6 +1718,138 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
   #browsePage,#calPage,#venuesPage,#artistsPage,#magazinePage,#promotersPage,
   #festPage,#businessPage{background:#000;}
 }
+
+/* ═══════════════════════════════════════════════
+   BUGECE DESIGN SYSTEM — Global Overrides
+   Black · White · Gold · No Accent Colors
+═══════════════════════════════════════════════ */
+
+/* ── BASE ── */
+body{background:#000;}
+#homePage,#homePage .container,#browsePage,#calPage,#venuesPage,#artistsPage,
+#magazinePage,#promotersPage,#festPage,#businessPage{background:#000;}
+
+/* ── NAVBAR ── */
+.navbar{background:#000;border-bottom:1px solid rgba(255,255,255,.06);}
+.nav-top{height:56px;}
+.nav-logo-main{font-size:26px;letter-spacing:4px;}
+.live-pill{display:none!important;}
+.nav-search{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.06);border-radius:8px;padding:8px 14px;}
+.nav-search:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.1);}
+.nav-loc{border-color:rgba(255,255,255,.07);font-size:11px;}
+.nav-signin-btn{background:#f5c842;color:#000;font-weight:700;border-radius:6px;padding:8px 18px;}
+.nav-signin-btn:active{background:#e8a800;}
+.nav-auth .btn-white{background:#f5c842;color:#000;font-weight:700;}
+.nav-auth .btn-white:hover{background:#e8a800;}
+
+/* ── CATEGORY TABS ── */
+.cat-tab{font-size:10px;letter-spacing:1px;color:rgba(255,255,255,.38);padding:10px 16px;}
+.cat-tab:hover{color:rgba(255,255,255,.65);}
+.cat-tab.active{color:#f5c842;border-bottom-color:#f5c842;}
+
+/* ── SECTION HEADS ── */
+.section-head{margin-bottom:24px;}
+.section-head h2{font-size:20px;font-weight:800;letter-spacing:-.3px;text-transform:uppercase;}
+.loc-section-tag{font-size:9px;letter-spacing:2.5px;color:rgba(255,255,255,.28);text-transform:uppercase;}
+.see-all a{font-size:10px;letter-spacing:.8px;color:rgba(255,255,255,.35);border:1px solid rgba(255,255,255,.09);border-radius:4px;padding:3px 10px;}
+.see-all a:hover{color:#fff;border-color:rgba(255,255,255,.28);}
+.home-section{padding:40px 0 8px;}
+
+/* ── TIME FILTERS ── */
+.time-filters{border-bottom:1px solid rgba(255,255,255,.05);padding-bottom:12px;}
+.tpill{background:transparent;border-color:rgba(255,255,255,.07);color:rgba(255,255,255,.48);font-size:11px;padding:5px 14px;}
+.tpill:hover{border-color:rgba(255,255,255,.18);color:rgba(255,255,255,.8);}
+.tpill.active{background:#f5c842;color:#000;border-color:#f5c842;font-weight:700;}
+
+/* ── BADGES — monochrome globally ── */
+.badge-new{background:rgba(255,255,255,.09);color:rgba(255,255,255,.62);border:1px solid rgba(255,255,255,.14);font-weight:600;}
+.badge-hot{background:rgba(255,255,255,.09);color:rgba(255,255,255,.62);border:1px solid rgba(255,255,255,.14);font-weight:600;}
+
+/* ── GENRE TAGS — all monochrome ── */
+.t-techno,.t-house,.t-edm,.t-rock,.t-hiphop,.t-jazz,
+.t-pop,.t-minimal,.t-trance,.t-rnb{
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.09);
+  color:rgba(255,255,255,.52);
+}
+.evt-card-genre{display:none;}
+
+/* ── PROMO STRIP — minimal ── */
+.promo-live-badge{background:transparent;border-color:rgba(255,255,255,.1);color:rgba(255,255,255,.32);}
+.promo-live-dot{background:rgba(255,255,255,.28);animation:none;}
+
+/* ── UVP SECTION ── */
+.uv-section{background:#000;border-color:rgba(255,255,255,.06);}
+.uv-tag{background:rgba(245,200,66,.08);border-color:rgba(245,200,66,.18);color:#f5c842;}
+.uv-accent{color:#f5c842;}
+.uv-feat-ico{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.07);}
+
+/* ── PROMO CTA SECTION ── */
+.promo-cta-section{background:#000;border-color:rgba(255,255,255,.06);}
+.promo-cta-tag{background:rgba(245,200,66,.08);border-color:rgba(245,200,66,.18);color:#f5c842;}
+.promo-cta-stat-num{color:#f5c842;}
+
+/* ── FOR PROS SECTION ── */
+.pros-tag{background:rgba(245,200,66,.08);border-color:rgba(245,200,66,.18);color:#f5c842;}
+.nav-forpros-btn{background:rgba(245,200,66,.1);border-color:rgba(245,200,66,.25);color:#f5c842;}
+.nav-forpros-btn:hover{background:rgba(245,200,66,.18);}
+.le-badge{background:rgba(245,200,66,.1);border-color:rgba(245,200,66,.22);color:#f5c842;}
+.le-header{background:#000;border-color:rgba(255,255,255,.07);}
+.le-submit{background:#f5c842;color:#000;}
+.le-submit:hover{box-shadow:0 4px 16px rgba(245,200,66,.25);}
+.le-step-item.active .ls-num{background:#f5c842;border-color:#f5c842;color:#000;}
+.le-step-item.done{color:rgba(255,255,255,.45);}
+.le-step-item.done .ls-num{background:rgba(245,200,66,.12);border-color:rgba(245,200,66,.25);color:#f5c842;}
+.nav-icon-btn.icon-community svg{stroke:#f5c842;}
+
+/* ── COMMUNITY SIGNUP ── */
+.cm-counter span{color:#f5c842;font-weight:700;}
+
+/* ── MAGAZINE ── */
+.mag-card-cat{color:#f5c842;}
+.mag-reader-topbar-cat{color:#f5c842;}
+.mag-related-cat{color:#f5c842;}
+.mag-reader-progress-bar{background:#f5c842;}
+.mag-body blockquote{border-left:3px solid rgba(245,200,66,.4);background:rgba(245,200,66,.04);}
+
+/* ── PROMOTERS PAGE ── */
+.promoter-btn-follow.following{background:rgba(245,200,66,.1);border-color:rgba(245,200,66,.22);color:#f5c842;}
+.promoter-genre-tag{background:rgba(245,200,66,.08);border-color:rgba(245,200,66,.18);color:#f5c842;}
+
+/* ── CARDS ── */
+.top10-card{background:#0d0d0d;border-color:rgba(255,255,255,.06);border-radius:8px;}
+.top10-card:hover{background:#141414;border-color:rgba(255,255,255,.12);}
+.promoter-card{background:#0d0d0d;border-color:rgba(255,255,255,.06);}
+.artist-bubble{background:#0d0d0d;border-color:rgba(255,255,255,.07);}
+.artist-bubble-follow{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);color:rgba(255,255,255,.62);}
+
+/* ── FILTER CHIPS ── */
+.fchip{border-color:rgba(255,255,255,.07);color:rgba(255,255,255,.42);}
+.fchip:hover{color:rgba(255,255,255,.75);border-color:rgba(255,255,255,.18);}
+.fchip.active{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.18);color:#fff;}
+
+/* ── MODALS ── */
+.modal{background:#111;border-color:rgba(255,255,255,.07);}
+.mhead{border-color:rgba(255,255,255,.07);}
+.role-card{background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.07);}
+.role-card:hover,.role-card.sel{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.14);}
+.atab.active{background:rgba(255,255,255,.1);color:#fff;}
+
+/* ── BUTTONS ── */
+.btn,.fsub{border-radius:6px;}
+.btn-white{background:#fff;color:#000;font-weight:700;}
+.btn-white:hover{background:#e8e8e8;}
+.fsub{font-weight:700;}
+
+/* ── SCROLL ROW ── */
+.scroll-row{padding-bottom:6px;}
+
+/* ── FOOTER ── */
+.footer-wrap{background:#000;border-color:rgba(255,255,255,.05);}
+
+/* ── TABLET ── */
+@media(max-width:900px){.section-head h2{font-size:18px;}}
+
 /* ── PROMOTERS PAGE ── */
 .promo-page-wrap{padding:24px 0 80px;}
 .promo-page-head{margin-bottom:20px;}
@@ -2595,7 +2728,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
           <input type="checkbox" id="psConsent" required/>
           <span>I agree to Tonight's <a href="privacy.html" target="_blank" style="color:var(--text2)">Privacy Policy</a> and <a href="privacy.html#terms" target="_blank" style="color:var(--text2)">Terms of Service</a>.</span>
         </label>
-        <button type="submit" class="fsub" id="psSubmitBtn" style="margin-top:10px;background:linear-gradient(135deg,#00d084,#00b070);border-color:transparent">Create Account &amp; Go to Dashboard →</button>
+        <button type="submit" class="fsub" id="psSubmitBtn" style="margin-top:10px;background:#f5c842;color:#000;border-color:transparent">Create Account &amp; Go to Dashboard →</button>
       </form>
       <p style="text-align:center;margin-top:12px;font-size:12px;color:var(--text3)">Already have an account? <a href="#" onclick="closeOverlay('proSignupOverlay');openAuth('login');return false" style="color:var(--text2)">Log in</a></p>
     </div>
@@ -5395,7 +5528,7 @@ function renderPromoStrip(){
   if(!list.length){strip.style.display='none';return;}
   strip.style.display='block';
   const badgeColors={
-    'FREE ENTRY':'#00d084','FREE IN':'#00d084','FREE DRINKS':'#ec4899',
+    'FREE ENTRY':'#f5c842','FREE IN':'#f5c842','FREE DRINKS':'#f5c842',
     '50% OFF':'#ff6b35','2-FOR-1':'#a855f7','30% OFF':'#3b82f6'
   };
   scroll.innerHTML=list.map(p=>{
@@ -5780,7 +5913,7 @@ function showUTab(tab,el){
       </div>
       <div class="tkt-detail-row">
         <div class="tkt-detail-label">PRICE</div>
-        <div class="tkt-detail-val" style="color:${tk.totalPaid==='Free'?'#00d084':'#f5c842'}">${tk.totalPaid}</div>
+        <div class="tkt-detail-val" style="color:#f5c842">${tk.totalPaid}</div>
       </div>
       ${tk.buyerEmail?`<div class="tkt-detail-row">
         <div class="tkt-detail-label">EMAIL</div>
@@ -6607,11 +6740,11 @@ async function submitListEvent(e){
         Thanks <strong style="color:#f5c842">${data.contactName.split(' ')[0]}</strong>! We received <strong style="color:#fff">${data.eventTitle}</strong>.
       </p>
       <p style="font-size:13px;color:var(--text3);line-height:1.6;margin-bottom:24px">
-        We'll review and list it within <strong style="color:#00d084">24 hours</strong>.<br>
+        We'll review and list it within <strong style="color:#f5c842">24 hours</strong>.<br>
         We'll contact you on <strong style="color:#fff">${data.phone}</strong> via WhatsApp.
       </p>
-      <div style="background:rgba(0,208,132,.07);border:1px solid rgba(0,208,132,.15);border-radius:12px;padding:16px;margin-bottom:20px;text-align:left">
-        <div style="font-size:11px;font-weight:700;color:#00d084;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px">What happens next</div>
+      <div style="background:rgba(245,200,66,.05);border:1px solid rgba(245,200,66,.15);border-radius:12px;padding:16px;margin-bottom:20px;text-align:left">
+        <div style="font-size:11px;font-weight:700;color:#f5c842;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px">What happens next</div>
         <div style="font-size:13px;color:var(--text2);display:flex;flex-direction:column;gap:8px">
           <span>✓ &nbsp;Tonight team reviews your event</span>
           <span>✓ &nbsp;We contact you to confirm details</span>
@@ -6629,7 +6762,7 @@ let _activeDeal = null;
 function openDeal(p){
   if(typeof p === 'string') try{ p=JSON.parse(p); }catch(e){ return; }
   _activeDeal = p;
-  const colors = {'FREE ENTRY':'#00d084','FREE IN':'#00d084','FREE DRINKS':'#ec4899','50% OFF':'#ff6b35','2-FOR-1':'#a855f7','30% OFF':'#3b82f6'};
+  const colors = {'FREE ENTRY':'#f5c842','FREE IN':'#f5c842','FREE DRINKS':'#f5c842','50% OFF':'#ff6b35','2-FOR-1':'#a855f7','30% OFF':'#3b82f6'};
   const color = p.badgeColor || colors[p.discount] || '#f5c842';
   const elId = id => document.getElementById(id);
   // Badge + title + venue — always in the photo overlay (primary), fallback header when no photo
@@ -7052,7 +7185,7 @@ async function submitCommunity(e){
 
   // Success UI
   label.textContent = '✓ You\'re in!';
-  btn.style.background = 'linear-gradient(135deg,#00d084,#00b070)';
+  btn.style.background = '#f5c842'; btn.style.color = '#000';
   document.getElementById('communityForm').innerHTML = `
     <div style="text-align:center;padding:32px 16px">
       <div style="font-size:52px;margin-bottom:16px">🎉</div>
