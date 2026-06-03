@@ -633,6 +633,15 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
   color:var(--gold);font-size:13px;font-weight:600;text-decoration:none;
 }
 .setup-link:hover{text-decoration:underline}
+
+/* ─── FORM UTILITIES ────────────────────────────────────────── */
+.fm-label{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px}
+.fm-input{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box}
+.fm-textarea{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box}
+.fm-hint{font-size:12px;color:var(--text3);margin-top:2px}
+.grid-2col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-h3{font-size:18px;font-weight:800;color:#fff}
+.btn-row{display:flex;gap:10px;justify-content:flex-end;margin-top:4px}
 </style>
 </head>
 <body>
@@ -959,7 +968,7 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
           <div class="section-head">
             <div>
               <div class="section-title">Events</div>
-              <div style="font-size:12px;color:var(--text3);margin-top:2px">Manage · approve · feature · sort by genre</div>
+              <div class="fm-hint">Manage · approve · feature · sort by genre</div>
             </div>
             <div style="display:flex;align-items:center;gap:10px">
               <div class="count-pill" id="events-count">—</div>
@@ -995,7 +1004,7 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
           <div class="section-head">
             <div>
               <div class="section-title">Artists</div>
-              <div style="font-size:12px;color:var(--text3);margin-top:2px">Add · edit · hide · manage local DJ & artist profiles</div>
+              <div class="fm-hint">Add · edit · hide · manage local DJ & artist profiles</div>
             </div>
             <div style="display:flex;align-items:center;gap:10px">
               <div class="count-pill" id="artists-count">—</div>
@@ -1016,24 +1025,24 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
       <div id="add-artist-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;overflow-y:auto;padding:24px 16px">
         <div style="max-width:520px;margin:0 auto;background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:28px 24px">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
-            <div id="aa-modal-title" style="font-size:18px;font-weight:800;color:#fff">Add Artist</div>
+            <div id="aa-modal-title" class="form-h3">Add Artist</div>
             <button onclick="closeAddArtist()" style="background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer">✕</button>
           </div>
           <form id="add-artist-form" onsubmit="submitArtist(event)" novalidate style="display:flex;flex-direction:column;gap:14px">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="grid-2col">
               <div>
-                <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Name *</label>
-                <input id="aa-name" type="text" placeholder="e.g. DJ Useph" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/>
+                <label class="fm-label">Name *</label>
+                <input id="aa-name" type="text" placeholder="e.g. DJ Useph" class="fm-input"/>
               </div>
               <div>
-                <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Genre *</label>
-                <input id="aa-genre" type="text" placeholder="e.g. House / Afrobeats" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/>
+                <label class="fm-label">Genre *</label>
+                <input id="aa-genre" type="text" placeholder="e.g. House / Afrobeats" class="fm-input"/>
               </div>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="grid-2col">
               <div>
-                <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">City</label>
-                <select id="aa-city" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit">
+                <label class="fm-label">City</label>
+                <select id="aa-city" class="fm-input">
                   <option value="Hanoi">Hanoi</option>
                   <option value="Ho Chi Minh City">Ho Chi Minh City</option>
                   <option value="Da Nang">Da Nang</option>
@@ -1041,19 +1050,19 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
                 </select>
               </div>
               <div>
-                <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Instagram URL</label>
-                <input id="aa-instagram" type="url" placeholder="https://instagram.com/..." style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/>
+                <label class="fm-label">Instagram URL</label>
+                <input id="aa-instagram" type="url" placeholder="https://instagram.com/..." class="fm-input"/>
               </div>
             </div>
             <div>
-              <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Photo URL</label>
-              <input id="aa-img" type="url" placeholder="https://... (link to artist photo)" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/>
+              <label class="fm-label">Photo URL</label>
+              <input id="aa-img" type="url" placeholder="https://... (link to artist photo)" class="fm-input"/>
             </div>
             <div>
-              <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Bio</label>
-              <textarea id="aa-bio" rows="4" placeholder="Short artist biography..." style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;resize:vertical"></textarea>
+              <label class="fm-label">Bio</label>
+              <textarea id="aa-bio" rows="4" placeholder="Short artist biography..." class="fm-textarea"></textarea>
             </div>
-            <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px">
+            <div class="btn-row">
               <button type="button" onclick="closeAddArtist()" style="padding:10px 20px;border-radius:8px;border:1px solid var(--border2);background:none;color:var(--text2);font-size:13px;font-weight:600;cursor:pointer">Cancel</button>
               <button type="submit" id="aa-submit-btn" style="padding:10px 24px;border-radius:8px;border:none;background:var(--gold);color:#000;font-size:13px;font-weight:800;cursor:pointer">Add Artist →</button>
             </div>
@@ -1065,24 +1074,24 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
       <div id="add-event-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;overflow-y:auto;padding:24px 16px">
         <div style="max-width:560px;margin:0 auto;background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:28px 24px">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
-            <div id="ae-modal-title" style="font-size:18px;font-weight:800;color:#fff">Add Event</div>
+            <div id="ae-modal-title" class="form-h3">Add Event</div>
             <button onclick="closeAddEvent()" style="background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer">✕</button>
           </div>
           <form id="add-event-form" onsubmit="submitAddEvent(event)" novalidate style="display:flex;flex-direction:column;gap:14px">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="grid-2col">
               <div>
-                <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Event Title *</label>
-                <input id="ae-title" type="text" placeholder="e.g. Saturday Night Techno" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/>
+                <label class="fm-label">Event Title *</label>
+                <input id="ae-title" type="text" placeholder="e.g. Saturday Night Techno" class="fm-input"/>
               </div>
               <div>
-                <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Venue Name *</label>
-                <input id="ae-venue" type="text" placeholder="e.g. Broma Not A Bar" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/>
+                <label class="fm-label">Venue Name *</label>
+                <input id="ae-venue" type="text" placeholder="e.g. Broma Not A Bar" class="fm-input"/>
               </div>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="grid-2col">
               <div>
-                <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">City *</label>
-                <select id="ae-city" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit">
+                <label class="fm-label">City *</label>
+                <select id="ae-city" class="fm-input">
                   <option value="">Select city...</option>
                   <option>Hanoi</option>
                   <option>Ho Chi Minh City</option>
@@ -1093,8 +1102,8 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
                 </select>
               </div>
               <div>
-                <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Genre</label>
-                <select id="ae-genre" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit">
+                <label class="fm-label">Genre</label>
+                <select id="ae-genre" class="fm-input">
                   <option>House</option><option>Techno</option><option>DJ Night</option>
                   <option>Live Music</option><option>Electronic</option><option>Hip-Hop</option>
                   <option>Afrobeats</option><option>R&amp;B</option><option>Jazz</option>
@@ -1103,28 +1112,28 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
                 </select>
               </div>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="grid-2col">
               <div>
-                <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Date *</label>
-                <input id="ae-date" type="date" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/>
+                <label class="fm-label">Date *</label>
+                <input id="ae-date" type="date" class="fm-input"/>
               </div>
               <div>
-                <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Doors Open</label>
-                <input id="ae-time" type="text" placeholder="e.g. 9:00 PM" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/>
+                <label class="fm-label">Doors Open</label>
+                <input id="ae-time" type="text" placeholder="e.g. 9:00 PM" class="fm-input"/>
               </div>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="grid-2col">
               <div>
-                <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Price (VND, 0 = Free)</label>
-                <input id="ae-price" type="number" placeholder="0" min="0" value="0" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/>
+                <label class="fm-label">Price (VND, 0 = Free)</label>
+                <input id="ae-price" type="number" placeholder="0" min="0" value="0" class="fm-input"/>
               </div>
               <div>
-                <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Emoji</label>
-                <input id="ae-emoji" type="text" placeholder="🎵" value="🎵" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/>
+                <label class="fm-label">Emoji</label>
+                <input id="ae-emoji" type="text" placeholder="🎵" value="🎵" class="fm-input"/>
               </div>
             </div>
             <div>
-              <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Event Flyer</label>
+              <label class="fm-label">Event Flyer</label>
               <!-- Preview -->
               <div id="ae-flyer-wrap" style="width:100%;height:160px;background:var(--bg);border:1px solid var(--border2);border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;margin-bottom:8px;position:relative">
                 <img id="ae-flyer-preview" src="" alt="Flyer preview" style="display:none;width:100%;height:100%;object-fit:cover"/>
@@ -1145,30 +1154,30 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
               <input type="hidden" id="ae-img"/>
             </div>
             <div>
-              <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Description</label>
-              <textarea id="ae-desc" rows="3" placeholder="Describe the event..." style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;resize:vertical"></textarea>
+              <label class="fm-label">Description</label>
+              <textarea id="ae-desc" rows="3" placeholder="Describe the event..." class="fm-textarea"></textarea>
             </div>
             <div>
-              <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Lineup (one artist per line)</label>
-              <textarea id="ae-lineup" rows="3" placeholder="e.g.&#10;Rachel RM&#10;Winnie Wakanda&#10;Arixo" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;resize:vertical"></textarea>
+              <label class="fm-label">Lineup (one artist per line)</label>
+              <textarea id="ae-lineup" rows="3" placeholder="e.g.&#10;Rachel RM&#10;Winnie Wakanda&#10;Arixo" class="fm-textarea"></textarea>
             </div>
             <div>
-              <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Special Acts (optional)</label>
-              <input id="ae-special" type="text" placeholder="e.g. Drag Show by Wet Dynasty" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/>
+              <label class="fm-label">Special Acts (optional)</label>
+              <input id="ae-special" type="text" placeholder="e.g. Drag Show by Wet Dynasty" class="fm-input"/>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="grid-2col">
               <div>
-                <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Area / Neighborhood</label>
-                <input id="ae-area" type="text" placeholder="e.g. Tay Ho, Old Quarter" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/>
+                <label class="fm-label">Area / Neighborhood</label>
+                <input id="ae-area" type="text" placeholder="e.g. Tay Ho, Old Quarter" class="fm-input"/>
               </div>
               <div>
-                <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Organizer</label>
-                <input id="ae-organizer" type="text" placeholder="e.g. G.O.A.T Entertainment" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/>
+                <label class="fm-label">Organizer</label>
+                <input id="ae-organizer" type="text" placeholder="e.g. G.O.A.T Entertainment" class="fm-input"/>
               </div>
             </div>
             <div>
-              <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Ticket URL (optional)</label>
-              <input id="ae-ticketurl" type="url" placeholder="https://..." style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/>
+              <label class="fm-label">Ticket URL (optional)</label>
+              <input id="ae-ticketurl" type="url" placeholder="https://..." class="fm-input"/>
             </div>
             <div style="display:flex;gap:24px;margin-top:4px">
               <div style="display:flex;align-items:center;gap:10px">
@@ -1191,7 +1200,7 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
           <div class="section-head">
             <div>
               <div class="section-title">Community Leads</div>
-              <div style="font-size:12px;color:var(--text3);margin-top:2px">Name · Email · Phone — ready for email campaigns</div>
+              <div class="fm-hint">Name · Email · Phone — ready for email campaigns</div>
             </div>
             <div style="display:flex;align-items:center;gap:10px">
               <div class="count-pill" id="leads-count">—</div>
@@ -1233,7 +1242,7 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
           <div class="section-head">
             <div>
               <div class="section-title">All Sign-Ups</div>
-              <div style="font-size:12px;color:var(--text3);margin-top:2px">
+              <div class="fm-hint">
                 <span id="gl-arrived-count" style="color:#00d084;font-weight:700">0 arrived</span>
                 &nbsp;·&nbsp; <span id="guestlist-count">—</span> total
               </div>
@@ -1272,7 +1281,7 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
           <div class="section-head">
             <div>
               <div class="section-title">Claimed Deals</div>
-              <div style="font-size:12px;color:var(--text3);margin-top:2px">All deal vouchers claimed by users</div>
+              <div class="fm-hint">All deal vouchers claimed by users</div>
             </div>
             <div class="count-pill" id="deals-count">—</div>
           </div>
@@ -1297,7 +1306,7 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
           <div class="section-head">
             <div>
               <div class="section-title">Inquiries</div>
-              <div style="font-size:12px;color:var(--text3);margin-top:2px">Contact form submissions from the app</div>
+              <div class="fm-hint">Contact form submissions from the app</div>
             </div>
             <div class="count-pill" id="inquiries-count">—</div>
           </div>
@@ -1311,7 +1320,7 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
           <div class="section-head">
             <div>
               <div class="section-title">Magazine Articles</div>
-              <div style="font-size:12px;color:var(--text3);margin-top:2px">Add · edit · delete articles shown in the Magazine tab</div>
+              <div class="fm-hint">Add · edit · delete articles shown in the Magazine tab</div>
             </div>
             <div style="display:flex;align-items:center;gap:10px">
               <div class="count-pill" id="magazine-count">—</div>
@@ -1326,34 +1335,34 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
       <div id="add-article-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;overflow-y:auto;padding:24px 16px">
         <div style="max-width:560px;margin:0 auto;background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:28px 24px">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
-            <div id="art-modal-title" style="font-size:18px;font-weight:800;color:#fff">Add Article</div>
+            <div id="art-modal-title" class="form-h3">Add Article</div>
             <button onclick="closeAddArticle()" style="background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer">✕</button>
           </div>
           <form onsubmit="submitArticle(event)" novalidate style="display:flex;flex-direction:column;gap:14px">
-            <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Title *</label>
-              <input id="art-title" type="text" placeholder="Article headline" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-              <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Category</label>
-                <select id="art-cat" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit">
+            <div><label class="fm-label">Title *</label>
+              <input id="art-title" type="text" placeholder="Article headline" class="fm-input"/></div>
+            <div class="grid-2col">
+              <div><label class="fm-label">Category</label>
+                <select id="art-cat" class="fm-input">
                   <option>Tips</option><option>Guide</option><option>Culture</option>
                   <option>Interview</option><option>News</option><option>Review</option>
                 </select></div>
-              <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Author</label>
-                <input id="art-author" type="text" placeholder="e.g. Tonight Editorial" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
+              <div><label class="fm-label">Author</label>
+                <input id="art-author" type="text" placeholder="e.g. Tonight Editorial" class="fm-input"/></div>
             </div>
-            <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Excerpt</label>
-              <textarea id="art-excerpt" rows="2" placeholder="Short teaser text shown on the magazine grid…" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;resize:vertical"></textarea></div>
-            <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Cover Image URL</label>
-              <input id="art-img" type="url" placeholder="https://..." style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
-            <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Full Article (HTML or plain text)</label>
-              <textarea id="art-body" rows="6" placeholder="Full article content…" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;resize:vertical"></textarea></div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-              <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Date</label>
-                <input id="art-date" type="date" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
-              <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Read Time (min)</label>
-                <input id="art-read" type="number" placeholder="5" min="1" value="5" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
+            <div><label class="fm-label">Excerpt</label>
+              <textarea id="art-excerpt" rows="2" placeholder="Short teaser text shown on the magazine grid…" class="fm-textarea"></textarea></div>
+            <div><label class="fm-label">Cover Image URL</label>
+              <input id="art-img" type="url" placeholder="https://..." class="fm-input"/></div>
+            <div><label class="fm-label">Full Article (HTML or plain text)</label>
+              <textarea id="art-body" rows="6" placeholder="Full article content…" class="fm-textarea"></textarea></div>
+            <div class="grid-2col">
+              <div><label class="fm-label">Date</label>
+                <input id="art-date" type="date" class="fm-input"/></div>
+              <div><label class="fm-label">Read Time (min)</label>
+                <input id="art-read" type="number" placeholder="5" min="1" value="5" class="fm-input"/></div>
             </div>
-            <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px">
+            <div class="btn-row">
               <button type="button" onclick="closeAddArticle()" style="padding:10px 20px;border-radius:8px;border:1px solid var(--border2);background:none;color:var(--text2);font-size:13px;font-weight:600;cursor:pointer">Cancel</button>
               <button type="submit" id="art-submit-btn" style="padding:10px 24px;border-radius:8px;border:none;background:var(--gold);color:#000;font-size:13px;font-weight:800;cursor:pointer">Save Article →</button>
             </div>
@@ -1367,7 +1376,7 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
           <div class="section-head">
             <div>
               <div class="section-title">Promoters</div>
-              <div style="font-size:12px;color:var(--text3);margin-top:2px">DJ & event promoter profiles shown on the Promoters page</div>
+              <div class="fm-hint">DJ & event promoter profiles shown on the Promoters page</div>
             </div>
             <div style="display:flex;align-items:center;gap:10px">
               <div class="count-pill" id="promoters-count">—</div>
@@ -1382,29 +1391,29 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
       <div id="add-promoter-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;overflow-y:auto;padding:24px 16px">
         <div style="max-width:520px;margin:0 auto;background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:28px 24px">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
-            <div id="promo-modal-title" style="font-size:18px;font-weight:800;color:#fff">Add Promoter</div>
+            <div id="promo-modal-title" class="form-h3">Add Promoter</div>
             <button onclick="closeAddPromoter()" style="background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer">✕</button>
           </div>
           <form onsubmit="submitPromoter(event)" novalidate style="display:flex;flex-direction:column;gap:14px">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-              <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Name *</label>
-                <input id="promo-name" type="text" placeholder="e.g. Solea.Rhythm" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
-              <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Type</label>
-                <input id="promo-type" type="text" placeholder="DJ / Promoter / Collective" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
+            <div class="grid-2col">
+              <div><label class="fm-label">Name *</label>
+                <input id="promo-name" type="text" placeholder="e.g. Solea.Rhythm" class="fm-input"/></div>
+              <div><label class="fm-label">Type</label>
+                <input id="promo-type" type="text" placeholder="DJ / Promoter / Collective" class="fm-input"/></div>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-              <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">City</label>
-                <input id="promo-city" type="text" placeholder="Hanoi" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
-              <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Instagram</label>
-                <input id="promo-ig" type="text" placeholder="handle (no @)" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
+            <div class="grid-2col">
+              <div><label class="fm-label">City</label>
+                <input id="promo-city" type="text" placeholder="Hanoi" class="fm-input"/></div>
+              <div><label class="fm-label">Instagram</label>
+                <input id="promo-ig" type="text" placeholder="handle (no @)" class="fm-input"/></div>
             </div>
-            <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Genres (comma separated)</label>
-              <input id="promo-genres" type="text" placeholder="e.g. Afrobeats, House, Latin" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
-            <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Photo URL</label>
-              <input id="promo-img" type="url" placeholder="https://..." style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
-            <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Bio</label>
-              <textarea id="promo-bio" rows="3" placeholder="Short bio…" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;resize:vertical"></textarea></div>
-            <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px">
+            <div><label class="fm-label">Genres (comma separated)</label>
+              <input id="promo-genres" type="text" placeholder="e.g. Afrobeats, House, Latin" class="fm-input"/></div>
+            <div><label class="fm-label">Photo URL</label>
+              <input id="promo-img" type="url" placeholder="https://..." class="fm-input"/></div>
+            <div><label class="fm-label">Bio</label>
+              <textarea id="promo-bio" rows="3" placeholder="Short bio…" class="fm-textarea"></textarea></div>
+            <div class="btn-row">
               <button type="button" onclick="closeAddPromoter()" style="padding:10px 20px;border-radius:8px;border:1px solid var(--border2);background:none;color:var(--text2);font-size:13px;font-weight:600;cursor:pointer">Cancel</button>
               <button type="submit" id="promo-submit-btn" style="padding:10px 24px;border-radius:8px;border:none;background:var(--gold);color:#000;font-size:13px;font-weight:800;cursor:pointer">Save Promoter →</button>
             </div>
@@ -1418,7 +1427,7 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
           <div class="section-head">
             <div>
               <div class="section-title">Venue Listing</div>
-              <div style="font-size:12px;color:var(--text3);margin-top:2px">Manage venues shown in the app — Sacred Garden, Bi's Corner, etc.</div>
+              <div class="fm-hint">Manage venues shown in the app — Sacred Garden, Bi's Corner, etc.</div>
             </div>
             <div style="display:flex;align-items:center;gap:10px">
               <div class="count-pill" id="venues-list-count">—</div>
@@ -1433,37 +1442,37 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
         <div class="section-card" id="add-venue-card" style="display:none">
           <div class="section-title" id="venue-modal-title" style="margin-bottom:16px">Add Venue</div>
           <form onsubmit="window.submitVenue(event)" style="display:flex;flex-direction:column;gap:14px">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-              <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Name *</label>
-                <input id="vn-name" type="text" required placeholder="e.g. Sacred Garden" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
-              <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Type</label>
-                <input id="vn-type" type="text" placeholder="Garden Bar / Club / Rooftop…" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
+            <div class="grid-2col">
+              <div><label class="fm-label">Name *</label>
+                <input id="vn-name" type="text" required placeholder="e.g. Sacred Garden" class="fm-input"/></div>
+              <div><label class="fm-label">Type</label>
+                <input id="vn-type" type="text" placeholder="Garden Bar / Club / Rooftop…" class="fm-input"/></div>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
-              <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">City</label>
-                <input id="vn-city" type="text" placeholder="Hanoi" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
-              <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Area</label>
-                <input id="vn-area" type="text" placeholder="Tay Ho" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
-              <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Capacity</label>
-                <input id="vn-capacity" type="number" min="0" placeholder="0" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
+              <div><label class="fm-label">City</label>
+                <input id="vn-city" type="text" placeholder="Hanoi" class="fm-input"/></div>
+              <div><label class="fm-label">Area</label>
+                <input id="vn-area" type="text" placeholder="Tay Ho" class="fm-input"/></div>
+              <div><label class="fm-label">Capacity</label>
+                <input id="vn-capacity" type="number" min="0" placeholder="0" class="fm-input"/></div>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-              <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Opens</label>
-                <input id="vn-open" type="text" placeholder="5pm" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
-              <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Closes</label>
-                <input id="vn-close" type="text" placeholder="2am" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
+            <div class="grid-2col">
+              <div><label class="fm-label">Opens</label>
+                <input id="vn-open" type="text" placeholder="5pm" class="fm-input"/></div>
+              <div><label class="fm-label">Closes</label>
+                <input id="vn-close" type="text" placeholder="2am" class="fm-input"/></div>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-              <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Logo / Image URL</label>
-                <input id="vn-img" type="url" placeholder="https://..." style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
-              <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Instagram (without @)</label>
-                <input id="vn-instagram" type="text" placeholder="sacredgarden.hanoi" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
+            <div class="grid-2col">
+              <div><label class="fm-label">Logo / Image URL</label>
+                <input id="vn-img" type="url" placeholder="https://..." class="fm-input"/></div>
+              <div><label class="fm-label">Instagram (without @)</label>
+                <input id="vn-instagram" type="text" placeholder="sacredgarden.hanoi" class="fm-input"/></div>
             </div>
-            <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Address</label>
-              <input id="vn-address" type="text" placeholder="2 Ng. 89 P. Tứ Liên, Hà Nội…" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit"/></div>
-            <div><label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Description</label>
-              <textarea id="vn-desc" rows="3" placeholder="Short venue description…" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;resize:vertical"></textarea></div>
-            <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px">
+            <div><label class="fm-label">Address</label>
+              <input id="vn-address" type="text" placeholder="2 Ng. 89 P. Tứ Liên, Hà Nội…" class="fm-input"/></div>
+            <div><label class="fm-label">Description</label>
+              <textarea id="vn-desc" rows="3" placeholder="Short venue description…" class="fm-textarea"></textarea></div>
+            <div class="btn-row">
               <button type="button" onclick="window.closeAddVenue()" style="padding:10px 20px;border-radius:8px;border:1px solid var(--border2);background:none;color:var(--text2);font-size:13px;font-weight:600;cursor:pointer">Cancel</button>
               <button type="submit" id="vn-submit-btn" style="padding:10px 24px;border-radius:8px;border:none;background:var(--gold);color:#000;font-size:13px;font-weight:800;cursor:pointer">Save Venue →</button>
             </div>
@@ -1477,7 +1486,7 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
           <div class="section-head">
             <div>
               <div class="section-title">Hero Banner Order</div>
-              <div style="font-size:12px;color:var(--text3);margin-top:2px">Drag or use ↑↓ to set which event appears first in the hero banner</div>
+              <div class="fm-hint">Drag or use ↑↓ to set which event appears first in the hero banner</div>
             </div>
             <div class="count-pill" id="banner-count">—</div>
           </div>
@@ -1646,22 +1655,22 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
 <div id="venue-event-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:300;overflow-y:auto;padding:24px 16px">
   <div style="max-width:600px;margin:0 auto;background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:28px 24px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
-      <div id="vem-modal-title" style="font-size:18px;font-weight:800;color:#fff">Add New Event</div>
+      <div id="vem-modal-title" class="form-h3">Add New Event</div>
       <button onclick="closeVenueModal()" style="background:none;border:none;color:var(--text2);font-size:22px;cursor:pointer;line-height:1;padding:0">✕</button>
     </div>
     <form onsubmit="submitVenueEvent(event)" novalidate style="display:flex;flex-direction:column;gap:14px">
       <div>
-        <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Event Title *</label>
-        <input id="vem-title-inp" type="text" placeholder="e.g. Afrobeats Night at Savage" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box"/>
+        <label class="fm-label">Event Title *</label>
+        <input id="vem-title-inp" type="text" placeholder="e.g. Afrobeats Night at Savage" class="fm-input"/>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="grid-2col">
         <div>
-          <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Venue Name *</label>
-          <input id="vem-venue" type="text" placeholder="e.g. Savage Club" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box"/>
+          <label class="fm-label">Venue Name *</label>
+          <input id="vem-venue" type="text" placeholder="e.g. Savage Club" class="fm-input"/>
         </div>
         <div>
-          <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">City *</label>
-          <select id="vem-city" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box">
+          <label class="fm-label">City *</label>
+          <select id="vem-city" class="fm-input">
             <option value="">Select city…</option>
             <option value="Hanoi">Hanoi</option>
             <option value="Ho Chi Minh City">Ho Chi Minh City</option>
@@ -1669,20 +1678,20 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
           </select>
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="grid-2col">
         <div>
-          <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Date *</label>
-          <input id="vem-date" type="date" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box"/>
+          <label class="fm-label">Date *</label>
+          <input id="vem-date" type="date" class="fm-input"/>
         </div>
         <div>
-          <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Start Time</label>
-          <input id="vem-time" type="time" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box"/>
+          <label class="fm-label">Start Time</label>
+          <input id="vem-time" type="time" class="fm-input"/>
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="grid-2col">
         <div>
-          <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Genre</label>
-          <select id="vem-genre" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box">
+          <label class="fm-label">Genre</label>
+          <select id="vem-genre" class="fm-input">
             <option value="">Select genre…</option>
             <option>Hip-Hop / Trap</option><option>Afrobeats</option><option>R&B</option>
             <option>Latin</option><option>House / Techno</option><option>Pop</option>
@@ -1690,27 +1699,27 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
           </select>
         </div>
         <div>
-          <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Price (VND · 0 = Free)</label>
-          <input id="vem-price" type="number" min="0" placeholder="0" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box"/>
+          <label class="fm-label">Price (VND · 0 = Free)</label>
+          <input id="vem-price" type="number" min="0" placeholder="0" class="fm-input"/>
         </div>
       </div>
       <div>
-        <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Cover Image URL</label>
-        <input id="vem-img" type="url" placeholder="https://…" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box"/>
+        <label class="fm-label">Cover Image URL</label>
+        <input id="vem-img" type="url" placeholder="https://…" class="fm-input"/>
       </div>
       <div>
-        <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Description</label>
-        <textarea id="vem-desc" rows="3" placeholder="Tell guests what to expect…" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box"></textarea>
+        <label class="fm-label">Description</label>
+        <textarea id="vem-desc" rows="3" placeholder="Tell guests what to expect…" class="fm-textarea"></textarea>
       </div>
       <div>
-        <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Artist(s) <span style="font-weight:400;text-transform:none;letter-spacing:0">(comma separated)</span></label>
-        <input id="vem-artists" type="text" placeholder="e.g. DJ Solea, MC Rhythm" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box"/>
+        <label class="fm-label">Artist(s) <span style="font-weight:400;text-transform:none;letter-spacing:0">(comma separated)</span></label>
+        <input id="vem-artists" type="text" placeholder="e.g. DJ Solea, MC Rhythm" class="fm-input"/>
       </div>
       <div>
-        <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Guestlist Cap <span style="font-weight:400;text-transform:none;letter-spacing:0">(0 = unlimited)</span></label>
-        <input id="vem-cap" type="number" min="0" placeholder="0" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box"/>
+        <label class="fm-label">Guestlist Cap <span style="font-weight:400;text-transform:none;letter-spacing:0">(0 = unlimited)</span></label>
+        <input id="vem-cap" type="number" min="0" placeholder="0" class="fm-input"/>
       </div>
-      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px">
+      <div class="btn-row">
         <button type="button" onclick="closeVenueModal()" style="padding:10px 20px;border-radius:8px;border:1px solid var(--border2);background:none;color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Cancel</button>
         <button type="submit" id="vem-submit-btn" style="padding:10px 24px;border-radius:8px;border:none;background:var(--gold);color:#000;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit">Submit for Approval →</button>
       </div>
@@ -3407,7 +3416,7 @@ window.renderGuestlistLookup = function(q) {
     return `<div style="display:flex;align-items:center;gap:14px;padding:12px 16px;background:var(--bg);border:1px solid ${isIn?'rgba(0,208,132,.3)':'var(--border2)'};border-radius:10px;margin-bottom:8px">
       <div style="flex:1;min-width:0">
         <div style="font-weight:700;font-size:15px;color:#fff">${esc(g.buyerName||g.name||'—')}</div>
-        <div style="font-size:12px;color:var(--text3);margin-top:2px">${esc(g.eventTitle||'—')} &nbsp;·&nbsp; ${g.qty||1} guest${(g.qty||1)>1?'s':''}</div>
+        <div class="fm-hint">${esc(g.eventTitle||'—')} &nbsp;·&nbsp; ${g.qty||1} guest${(g.qty||1)>1?'s':''}</div>
         <div style="font-family:monospace;font-size:11px;color:var(--gold);margin-top:3px">${esc(g.ref||'—')}</div>
       </div>
       ${isIn
