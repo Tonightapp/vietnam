@@ -6874,6 +6874,24 @@ async function socialSignUpJoin(provider){
     const u=result.user;
     const name=u.displayName||(u.email||'').split('@')[0];
     const email=(u.email||'').toLowerCase();
+
+    // For members: complete signup immediately — no extra step needed
+    if(_gwJoinType==='member'){
+      const {setDoc,doc,serverTimestamp}=await import(_FB_CDN+'/firebase-firestore.js');
+      const fbDb=await _getDb();
+      await setDoc(doc(fbDb,'users',u.uid),{uid:u.uid,email,fullName:name,role:'user',createdAt:serverTimestamp()},{merge:true});
+      await _saveToFirestore('community_signups',{fullName:name,email,city:filterCity||'',source:'tonight-app'});
+      const accs=_getAccounts();
+      const acc={name,email,password:_hashPw('_social_'+Math.random().toString(36).slice(2)),role:'user',joinedAt:new Date().toISOString(),source:'member',provider};
+      accs[email]=acc; _saveAccounts(accs);
+      curRole='user';
+      finishLogin(name,'Google',acc);
+      toast('Welcome, '+name.split(' ')[0]+'! Explore what\'s on tonight.','ok');
+      closeOverlay('gatewayOverlay');
+      return;
+    }
+
+    // For venue/promoter: pre-fill and let user enter their business name
     const nameEl=document.getElementById('gwName');
     const emailEl=document.getElementById('gwEmail');
     const passField=document.getElementById('gwPassword')?.closest('.fg');
@@ -6882,8 +6900,8 @@ async function socialSignUpJoin(provider){
     if(passField) passField.style.display='none';
     document.getElementById('gwConsent').checked=true;
     window._gwSocialUid=u.uid;
-    toast('✓ Google connected — tap Create Account to finish','ok');
-    setTimeout(()=>(document.getElementById('gwBiz')||document.getElementById('gwName'))?.focus(),200);
+    toast('✓ Google connected — enter your '+ (_gwJoinType==='venue'?'venue':'artist')+' name to finish','ok');
+    setTimeout(()=>document.getElementById('gwBiz')?.focus(),200);
   }catch(e){
     if(e.code==='auth/popup-closed-by-user'||e.code==='auth/cancelled-popup-request') return;
     if(e.code==='auth/popup-blocked'){toast('Allow popups then try again','err');return;}
