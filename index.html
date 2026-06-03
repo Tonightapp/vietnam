@@ -3183,19 +3183,9 @@ let LOCAL_ARTISTS=[];
 
 let VENUES=[];
 
-const PROMOTERS=[
-  {id:'pr1', name:'Solea.Rhythm', city:'Hanoi', type:'DJ / Promoter', genres:['Afrobeats','House','Latin'], bio:'Bringing Afrobeats and Latin rhythms to Hanoi\'s nightlife. Known for high-energy sets at Sacred Garden and Bi\'s Corner.', instagram:'solea.rhythm', img:null},
-  {id:'pr2', name:'Tonight Collective', city:'Hanoi', type:'Event Collective', genres:['House','Electronic','Afrobeats'], bio:'Curating Hanoi\'s best nights — from intimate garden sessions to full-scale events. The team behind Tonight\'s featured events.', instagram:'tonight.vietnam', img:null},
-];
+let PROMOTERS=[];
 
-const MAGAZINE_ARTICLES=[
-  {id:3, cat:"Tips",      title:"How to Get on the Guestlist Every Time (Legally)",                   author:"DJ Nguyen",         date:"2026-03-10",readMin:4,  img:"https://images.unsplash.com/photo-1574391884720-bbc3740c59d1?auto=format&fit=crop&w=800&q=80",excerpt:"Industry insiders share the moves that get them past the velvet rope — and how to use Tonight to skip the queue."},
-  {id:5, cat:"Guide",     title:"First Timer's Guide to Hanoi After Dark",                            author:"Mark Williams",     date:"2026-03-05",readMin:6,  img:"https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?auto=format&fit=crop&w=800&q=80",excerpt:"The capital's nightlife is nothing like the south. Here's where locals actually go when the day ends."},
-  {id:6, cat:"Culture",   title:"Meet the DJs Defining Vietnam's Electronic Music Identity",          author:"Tonight Editorial", date:"2026-02-28",readMin:8,  img:"https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=800&q=80",excerpt:"A new generation of Vietnamese DJs are blending global electronic sounds with local influences — and the world is listening."},
-  {id:8, cat:"Interview", title:"Charlotte de Witte: Asia Crowds Are the Most Honest in the World",   author:"Tonight Editorial", date:"2026-03-20",readMin:6,  img:"https://images.unsplash.com/photo-1574169208507-84376144848b?auto=format&fit=crop&w=800&q=80",excerpt:"The Belgian techno queen talks her upcoming Southeast Asia tour, all-night sets and the state of underground music."},
-  {id:9, cat:"Tips",      title:"How to Dress for Every Type of Night Out in Southeast Asia",         author:"Jade K",            date:"2026-03-16",readMin:5,  img:"https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=800&q=80",excerpt:"Rooftop bar vs garden bar vs underground club — navigating dress codes so you never get turned away."},
-  {id:10,cat:"News",      title:"Ultra Music Festival Confirms 2026 Vietnam Lineup",                  author:"Tonight News",      date:"2026-03-12",readMin:4,  img:"https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=800&q=80",excerpt:"The global EDM juggernaut has announced a stacked three-day lineup for its debut Vietnam edition this June."},
-];
+let MAGAZINE_ARTICLES=[];
 
 
 const GENRE_TAGS={
@@ -3723,47 +3713,6 @@ function renderMagazine(){
 function setMagCat(c){_magCatFilter=c;renderMagazine();}
 
 // ── MAGAZINE ARTICLE READER ──
-const ARTICLE_BODY={
-  3:`<p>The velvet rope has always been as much about knowing people as looking good. In 2026, that dynamic has evolved — promoters are more accessible than ever through social media, but the guest list is also more competitive. The key insight most people miss: guest lists are a marketing tool for promoters, not a perk for fans. Understanding that single fact changes how you approach the entire conversation.</p>
-<h3>The Right Way to Ask</h3>
-<p>Follow the event's promoter directly on Instagram, not just the venue page. Engage genuinely with their content over several weeks before making any request. When you do reach out, be specific: tell them what you do, what you can bring (a group of genuine music fans, social media coverage, a connection to local press) and keep it brief. A five-paragraph DM explaining your love of techno will be ignored. Two sentences with a clear value exchange will not.</p>
-<p>The slower route is simpler: show up consistently. Promoters notice the same faces at their events. The person who comes every night, buys drinks, stays late and treats the staff well will eventually be waved past the door without asking. It takes months, but it works in every city in the world. Use Tonight's following feature to track your favourite promoters — and always, always be respectful to door staff. They remember everyone.</p>
-<blockquote>"The people who ask for the guest list the most are usually the last ones we add. The regulars who never ask? They're always on it." — Hanoi promoter, anonymous</blockquote>`,
-
-  5:`<p>Hanoi's nightlife is nothing like Ho Chi Minh City's — and that's precisely what makes it special. Where Saigon is loud, relentless and international, Hanoi is idiosyncratic, local and quietly sophisticated. The Old Quarter's Tạ Hiện Street fills with plastic-stool drinkers from 5pm, but the night doesn't end there. Follow the music, and Hanoi will reward you with experiences that feel genuinely unlike anywhere else in Southeast Asia.</p>
-<h3>The Neighbourhoods</h3>
-<p>Start in the Old Quarter: Bê Bar on Tạ Hiện reliably hosts a jazz trio from 8pm, and the street itself becomes a de facto open-air party on weekends with no cover, no pretension and cold bia hơi from the pavement vendors. For something more curated, Manzi Art Space in Ba Đình hosts monthly events blending installation art with live music and DJs — the kind of evening that simply doesn't exist anywhere else. Tây Hồ (West Lake) is where you go later: rooftop bars like Tadioto and Sacred Garden serve some of the best cocktails in the country with views that justify every cent.</p>
-<p>The underground scene is young but serious. Kater Blau Hanoi has been building genuinely Berlin-inspired club culture around West Lake, booking local and regional selectors who understand that the music comes before everything else. Don't expect bottle service or LED walls — just a focused crowd, a committed soundsystem and nights that quietly go until 4am. Dress for the weather (Hanoi winters can be cold), bring cash, and adjust your pace accordingly. This city rewards patience over impulse.</p>`,
-
-  6:`<p>The first wave of Vietnamese electronic music was largely imitative — DJs playing Western trends for international crowds in tourist-heavy clubs. What has emerged over the past four years is something genuinely distinct: a generation of artists who have absorbed the global canon of house and techno and begun filtering it through local influences, from traditional Vietnamese scales to the rhythmic structures of folk music. The results are increasingly being noticed outside the country's borders.</p>
-<h3>The Artists to Know</h3>
-<p>DJ Useph has become one of Hanoi's most recognisable faces — a House and Afrobeats selector who brings genuine warmth and energy to every set, with a residency at Kater Blau and regular appearances at Sacred Garden. DJ Psyboost, born in Namibia and raised in South Africa, brings a genre-bending approach that spans House, Afro House, Techno and Psytrance — his sets are a masterclass in musical storytelling shaped by years of classical training. Nguyen Anh Tuan has been the most internationally recognised of Hanoi's producers, releasing on labels based in Berlin and Amsterdam.</p>
-<p>What unites them is an authenticity born from necessity. Vietnam's electronic scene developed in relative isolation from the global industry — no major labels, no established festival circuit, no talent agencies. That isolation forced artists to develop their own aesthetic rather than mirroring what was happening in Europe or America. The result is a scene that feels hungry, inventive and distinctly Vietnamese in a way that is difficult to define but impossible to miss once you've experienced it.</p>`,
-
-  8:`<p>Charlotte de Witte has played to hundreds of thousands of people across five continents, but something about Southeast Asia keeps drawing her back. Speaking to Tonight backstage after her Hanoi debut at Kater Blau — where she had just finished a four-hour set to a packed room — she's refreshingly direct about why: "The honesty. European crowds sometimes perform their enjoyment. Here, people are either completely in it or they're not. When they're in it, there's nothing like it anywhere in the world."</p>
-<h3>On Vietnam's Scene</h3>
-<p>"Vietnam specifically has surprised me more than anywhere else in the past three years," she says. "When I first heard about the Hanoi scene, I was sceptical. Now it feels fully formed. There's a real scene — local artists, venues with serious sound systems, a booking culture that respects the music. That doesn't happen by accident. People have worked very hard for this." She's measured in what she says about the broader region but becomes visibly animated when the conversation turns to the audiences themselves.</p>
-<p>De Witte is already in conversation about a return date. She hints at new material: "I've been working on something darker and more physical than what I've been releasing lately. I'm ready to test it on the right crowd." On the evidence of the Hanoi show, she has found one.</p>`,
-
-  9:`<p>Getting turned away from a venue because of how you're dressed is a uniquely deflating experience — and it happens far more often than it should, because dress codes across nightlife venues vary wildly and are rarely explained clearly in advance. The rules aren't about fashion. They're about context. A garden bar in Tay Ho has a completely different standard from a rooftop bar in Ba Dinh, which shares nothing with the dress code at a late-night techno club. Here is the Hanoi guide.</p>
-<h3>A Guide by Venue Type</h3>
-<p><strong>Garden bars and outdoor venues</strong> (Sacred Garden, Tadioto): Relaxed and creative. Light summer clothes, good sandals are fine. The test: would you feel comfortable wearing it to a nice restaurant? If yes, you're probably fine. <strong>Underground clubs</strong> (Kater Blau): All black is respected but not enforced. Trainers are almost universally acceptable. What gets you turned away: jerseys, flip-flops, anything overly formal. <strong>Hotel rooftop bars</strong> (Rooftop at Lotte): Smart casual is enforced. Collared shirts for men. No shorts after 8pm at most. Closed shoes required.</p>
-<p>The universal rule: clean, considered and appropriate to the context beats any specific dress code. A well-ironed simple outfit will get you past any door in Hanoi. Check the venue's Instagram before you go — the crowd photos tell you everything you need to know within about thirty seconds of scrolling.</p>`,
-
-  10:`<p>Ultra Music Festival has confirmed its full three-day lineup for Ultra Vietnam 2026, with Hanoi as one of the host cities. The announcement features acts across multiple stages — the main Mainstage, a Resistance underground stage and an emerging artist platform reserved exclusively for Vietnamese and Southeast Asian talent.</p>
-<h3>The Lineup</h3>
-<p>The Resistance stage — Ultra's underground-focused brand — will be headlined by Charlotte de Witte, Tale Of Us and Solomun across the weekend. Strong local representation is confirmed across all three days — a deliberate decision by the organizers to root the global event in the local scene, with Hanoi-based acts including DJ Useph and DJ Psyboost among those confirmed.</p>
-<p>Tickets are available through Tonight at three tiers: single-day passes from 1,200,000 VND, weekend passes from 2,800,000 VND and premium VIP packages from 5,500,000 VND including access to dedicated viewing platforms, separate bar facilities and artist meet-and-greet opportunities.</p>`,
-};
-
-const ARTICLE_TAGS={
-  3:['Guestlist','Tips','Promoters','Nightlife'],
-  5:['Hanoi','Guide','Old Quarter','Tay Ho'],
-  6:['Vietnam','Artists','Electronic Music','Culture'],
-  8:['Interview','Charlotte de Witte','Techno'],
-  9:['Dress Code','Tips','Beach Club','Style'],
-  10:['Ultra','Festival','News','Vietnam'],
-};
 
 function openArticle(id){
   const a=MAGAZINE_ARTICLES.find(x=>x.id===id);
@@ -3776,8 +3725,8 @@ function openArticle(id){
   heroImg.onerror=function(){this.style.display='none';};
   ol.querySelector('.mag-reader-h1').textContent=a.title;
   ol.querySelector('.mag-reader-byline').innerHTML=`<span>✍️ <strong>${a.author}</strong></span><span>📅 ${new Date(a.date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</span><span>📖 ${a.readMin} min read</span>`;
-  ol.querySelector('.mag-body').innerHTML=ARTICLE_BODY[id]||`<p>${a.excerpt}</p>`;
-  const tags=ARTICLE_TAGS[id]||[];
+  ol.querySelector('.mag-body').innerHTML=a.body||`<p>${a.excerpt}</p>`;
+  const tags=a.tags||[];
   ol.querySelector('.mag-tags-row').innerHTML=tags.map(t=>`<span class="mag-reader-tag">${t}</span>`).join('');
   const related=MAGAZINE_ARTICLES.filter(x=>x.id!==id).sort(()=>Math.random()-.5).slice(0,4);
   ol.querySelector('.mag-related-grid').innerHTML=related.map(r=>`
@@ -5387,15 +5336,8 @@ function sendSupportMsg(){
 }
 
 // ── PROMOTIONS & NOTIFICATIONS ──
-const SEED_PROMOS=[
-  {id:'promo_sacred_1',venueId:'sacred-garden',venueName:'Sacred Garden',city:'Hanoi',emoji:'🌿',img:'images/sacred-garden-cider.jpg',modalImg:'images/sacred-garden-cider.jpg',logo:'images/sacred-garden-logo.jpg',title:'2 Saigon Ciders for 99K',discount:'TODAY ONLY',badgeColor:'#22c55e',desc:'Pick up two ice-cold Saigon Ciders — Original Apple or Apple & Ginger — for just 99,000 VND. Vietnamese craft cider, gluten-free and brewed local. Show your QR at the bar.',startTime:'12:00',endTime:'23:00',active:true,address:'Tay Ho, Hanoi',createdAt:Date.now()-10000},
-  {id:'promo_bis_1',venueId:'bis-corner',venueName:"Bi's Corner",city:'Hanoi',emoji:'🍺',img:'images/bis-corner-logo.jpg',logo:'images/bis-corner-logo.jpg',title:'Free Welcome Drink',discount:'TONIGHT',badgeColor:'#f97316',desc:"Show your QR at Bi's Corner and claim a free welcome drink. Outdoor bar with a laid-back crowd, good music, and easy conversations. A small space, but always alive in the right way.",startTime:'17:00',endTime:'01:00',active:true,address:'2 Ng. 89 P. Tứ Liên, Hồng Hà, Hà Nội',createdAt:Date.now()-5000},
-];
-
 function getPromos(){
-  const stored=JSON.parse(localStorage.getItem('tn_promos')||'null');
-  if(!stored){localStorage.setItem('tn_promos',JSON.stringify(SEED_PROMOS));return SEED_PROMOS;}
-  return stored;
+  return JSON.parse(localStorage.getItem('tn_promos')||'[]');
 }
 function savePromos(p){localStorage.setItem('tn_promos',JSON.stringify(p));}
 
@@ -5515,9 +5457,7 @@ function togglePromoActive(id){
 
 // Render the live promo strip on homepage
 function renderPromoStrip(){
-  // Always use SEED_PROMOS as source of truth — bypasses stale localStorage cache
-  const extra=(() => { try{ return JSON.parse(localStorage.getItem('tn_promos_venue')||'[]'); }catch(e){ return []; } })();
-  const promos=[...SEED_PROMOS,...extra].filter(p=>p.active);
+  const promos=getPromos().filter(p=>p.active);
   const strip=document.getElementById('promoStrip');
   const scroll=document.getElementById('promoScroll');
   if(!strip||!scroll) return;
@@ -5558,12 +5498,8 @@ function renderPromoStrip(){
   }).join('');
 }
 
-// Seed initial notifications from seed promos
+// No seed promos — notifications come from Firestore-backed promos only
 function seedInitialNotifs(){
-  if(localStorage.getItem('tn_notifs_seeded')) return;
-  SEED_PROMOS.forEach(p=>{
-    addNotif({emoji:p.emoji,title:`${p.venueName}: ${p.title}`,body:`${p.discount?p.discount+' · ':''}${p.desc}`,venue:p.venueName+', '+p.city,promoId:p.id,time:p.createdAt});
-  });
   localStorage.setItem('tn_notifs_seeded','1');
 }
 
@@ -6503,6 +6439,39 @@ function _initApp(){
         try{ renderRows(); renderVenues(); }catch(_){}
       });
     }catch(e){ console.warn('[Tonight venues]',e.message); }
+  })();
+
+  // ── LIVE PROMOTERS: real-time Firestore subscription ──
+  (async()=>{
+    try{
+      const {collection,onSnapshot,query,orderBy}=await import(_FB_CDN+'/firebase-firestore.js');
+      const db=await _getDb();
+      onSnapshot(query(collection(db,'promoters'),orderBy('name','asc')), snap=>{
+        PROMOTERS=snap.docs.map(d=>{
+          const p=d.data();
+          return{id:d.id,name:p.name||'',city:p.city||'Hanoi',type:p.type||'',
+                 genres:p.genres||[],bio:p.bio||'',instagram:p.instagram||'',img:p.img||''};
+        }).filter(p=>!p.hidden);
+        try{ renderPromotersPage(); }catch(_){}
+      });
+    }catch(e){ console.warn('[Tonight promoters]',e.message); }
+  })();
+
+  // ── LIVE MAGAZINE: real-time Firestore subscription ──
+  (async()=>{
+    try{
+      const {collection,onSnapshot,query,orderBy}=await import(_FB_CDN+'/firebase-firestore.js');
+      const db=await _getDb();
+      onSnapshot(query(collection(db,'magazine'),orderBy('date','desc')), snap=>{
+        MAGAZINE_ARTICLES=snap.docs.map(d=>{
+          const a=d.data();
+          return{id:d.id,cat:a.cat||'',title:a.title||'',author:a.author||'',
+                 date:a.date||'',readMin:a.readMin||3,img:a.img||'',
+                 excerpt:a.excerpt||'',body:a.body||'',tags:a.tags||[]};
+        }).filter(a=>!a.hidden);
+        try{ renderMagazine(); }catch(_){}
+      });
+    }catch(e){ console.warn('[Tonight magazine]',e.message); }
   })();
 }
 // Guard: run immediately if DOM is ready, else wait
