@@ -2339,7 +2339,7 @@ body{background:#000;}
         <h2 class="uv-headline">Confused where<br>to party? <span class="uv-accent">Not<br>anymore.</span></h2>
         <p class="uv-sub">Tonight shows you every open spot — music, price, distance. Book your space for free and never waste a night lost again.</p>
         <div class="uv-cta-row">
-          <button class="btn btn-white" style="padding:13px 28px;font-size:14px;font-weight:600" onclick="openCommunity()">Discover Tonight's Events — Free →</button>
+          <button class="btn btn-white" style="padding:13px 28px;font-size:14px;font-weight:600" onclick="openGateway('member')">Discover Tonight's Events — Free →</button>
           <span style="font-size:12px;color:var(--text3);font-weight:300">No credit card needed</span>
         </div>
       </div>
@@ -2630,159 +2630,104 @@ body{background:#000;}
   </div>
 </div>
 
-<!-- ════ GATEWAY MODAL ════ -->
+<!-- ════ GATEWAY / JOIN MODAL ════ -->
 <div class="overlay" id="gatewayOverlay">
-  <div class="modal" style="max-width:380px;padding:0;overflow:hidden;position:relative">
-    <div style="padding:28px 24px 18px;text-align:center;border-bottom:1px solid var(--border)">
-      <button class="mclose" onclick="closeOverlay('gatewayOverlay')" style="position:absolute;top:14px;right:14px">✕</button>
-      <div style="font-size:11px;font-weight:800;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:8px">TONIGHT VIETNAM</div>
-      <h2 style="font-size:20px;font-weight:800;color:#fff;margin-bottom:4px">How would you like to join?</h2>
-      <p style="font-size:13px;color:var(--text3)">Select your account type to get started</p>
-    </div>
-    <div style="padding:20px 20px calc(20px + env(safe-area-inset-bottom))">
+  <div class="modal" style="max-width:400px;padding:0;overflow:hidden;position:relative">
 
-      <button class="gw-card" onclick="closeOverlay('gatewayOverlay');openCommunity()">
-        <div class="gw-card-inner">
-          <div class="gw-icon gw-icon-green">🎉</div>
-          <div><div class="gw-card-title">Community Member</div><div class="gw-card-sub">Discover events, guestlists &amp; what's on tonight</div></div>
-          <div class="gw-arrow">›</div>
-        </div>
-      </button>
-
-      <button class="gw-card gw-card-biz" onclick="closeOverlay('gatewayOverlay');openProSignup()">
-        <div class="gw-card-inner">
-          <div class="gw-icon gw-icon-gold">🏢</div>
-          <div><div class="gw-card-title">Venue / Promoter</div><div class="gw-card-sub">List your venue, post events &amp; manage guestlists</div></div>
-          <div class="gw-arrow">›</div>
-        </div>
-      </button>
-
-      <button class="gw-card gw-card-portal" onclick="closeOverlay('gatewayOverlay');openOverlay('portalChoiceOverlay')" style="margin-bottom:0">
-        <div class="gw-card-inner">
-          <div class="gw-icon gw-icon-purple">🔐</div>
-          <div><div class="gw-card-title">Portal Access</div><div class="gw-card-sub">Staff &amp; approved venue owners — sign in to your dashboard</div></div>
-          <div class="gw-arrow">›</div>
-        </div>
-      </button>
-
-      <p style="text-align:center;margin-top:16px;font-size:12px;color:var(--text3)">Already have an account? <a href="#" onclick="closeOverlay('gatewayOverlay');openAuth('login');return false" style="color:#fff;font-weight:600;text-decoration:none">Sign in →</a></p>
-    </div>
-  </div>
-</div>
-
-<!-- ════ PORTAL CHOICE MODAL ════ -->
-<div class="overlay" id="portalChoiceOverlay">
-  <div class="modal" style="max-width:360px;padding:0;overflow:hidden;position:relative">
-    <div style="padding:24px 24px 16px;text-align:center;border-bottom:1px solid var(--border)">
-      <button class="mclose" onclick="closeOverlay('portalChoiceOverlay')" style="position:absolute;top:14px;right:14px">✕</button>
-      <div style="font-size:11px;font-weight:800;letter-spacing:3px;color:rgba(139,92,246,.9);text-transform:uppercase;margin-bottom:8px">PORTAL ACCESS</div>
-      <h2 style="font-size:18px;font-weight:800;color:#fff;margin-bottom:4px">Which portal?</h2>
-      <p style="font-size:12px;color:var(--text3)">Log in to your management dashboard</p>
-    </div>
-    <div style="padding:20px 20px calc(20px + env(safe-area-inset-bottom))">
-      <a href="portal/index.html" class="gw-card gw-card-biz" style="text-decoration:none;margin-bottom:0">
-        <div class="gw-card-inner">
-          <div class="gw-icon gw-icon-gold">⚙️</div>
-          <div><div class="gw-card-title">Admin Portal</div><div class="gw-card-sub">Manage events, venues, artists &amp; members</div></div>
-          <div class="gw-arrow">›</div>
-        </div>
-      </a>
-    </div>
-  </div>
-</div>
-
-<!-- ════ PRO SIGN-UP MODAL ════ -->
-<div class="overlay" id="proSignupOverlay">
-  <div class="modal" style="max-width:420px;padding:0;overflow:hidden">
-    <div style="background:linear-gradient(135deg,rgba(245,200,66,.10),rgba(245,200,66,.03));border-bottom:1px solid rgba(245,200,66,.12);padding:24px 24px 20px;position:relative">
-      <button class="mclose" onclick="closeOverlay('proSignupOverlay')" style="position:absolute;top:14px;right:14px">✕</button>
-      <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(245,200,66,.12);border:1px solid rgba(245,200,66,.25);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px">Venue / Promoter</div>
-      <h2 style="font-size:20px;font-weight:800;color:#fff;margin-bottom:6px">List your venue on Tonight</h2>
-      <div style="display:flex;flex-direction:column;gap:5px;margin-top:12px">
-        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2)"><span style="color:var(--gold);font-size:14px">✓</span> Free listing — visible to all Tonight users</div>
-        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2)"><span style="color:var(--gold);font-size:14px">✓</span> Post events, deals &amp; guestlist offers</div>
-        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2)"><span style="color:var(--gold);font-size:14px">✓</span> Track RSVPs and audience interest</div>
+    <!-- Step 1: account type -->
+    <div id="gwStep1">
+      <div style="padding:26px 24px 16px;text-align:center;border-bottom:1px solid var(--border);position:relative">
+        <button class="mclose" onclick="closeOverlay('gatewayOverlay')" style="position:absolute;top:14px;right:14px">✕</button>
+        <div style="font-size:11px;font-weight:800;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:8px">TONIGHT VIETNAM</div>
+        <h2 style="font-size:20px;font-weight:800;color:#fff;margin-bottom:4px">Join Tonight</h2>
+        <p style="font-size:13px;color:var(--text3)">I'm joining as…</p>
       </div>
-    </div>
-    <div style="padding:20px 24px calc(24px + env(safe-area-inset-bottom))">
-      <div class="social-btns" style="margin-bottom:4px">
-        <button type="button" class="sbtn" onclick="socialSignUpPro('google')">
-          <span class="gicon"><svg width="14" height="14" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.5 1.2 8.9 3.2l6.6-6.6C35.5 2.5 30.1 0 24 0 14.6 0 6.6 5.4 2.5 13.3l7.7 6C12.1 13 17.6 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4 6.9-9.9 7.1-17z"/><path fill="#FBBC05" d="M10.2 28.7A14.5 14.5 0 019.5 24c0-1.6.3-3.2.7-4.7l-7.7-6A23.9 23.9 0 000 24c0 3.9.9 7.5 2.5 10.7l7.7-6z"/><path fill="#34A853" d="M24 48c6.1 0 11.2-2 14.9-5.4l-7.5-5.8c-2 1.4-4.6 2.2-7.4 2.2-6.4 0-11.9-3.5-13.8-8.4l-7.7 6C6.6 42.6 14.6 48 24 48z"/></svg></span>
-          Continue with Google
-        </button>
-        <button type="button" class="sbtn" onclick="socialSignUpPro('apple')"><span style="font-size:16px">🍎</span> Continue with Apple</button>
-      </div>
-      <div class="div-or">or sign up with email</div>
-      <form onsubmit="submitProSignup(event)">
-        <div class="fg"><label>Your Name <span class="cm-req">*</span></label><input class="fi" id="psName" type="text" placeholder="Full name" required autocomplete="name"/></div>
-        <div class="fg"><label>Business / Venue Name <span class="cm-req">*</span></label><input class="fi" id="psBiz" type="text" placeholder="e.g. Sacred Garden, Kater Blau Hanoi" required/></div>
-        <div class="fg"><label>Phone Number <span class="cm-req">*</span></label><input class="fi" id="psPhone" type="tel" placeholder="+84 9XX XXX XXX" required autocomplete="tel"/></div>
-        <div class="fg"><label>Email <span class="cm-req">*</span></label><input class="fi" id="psEmail" type="email" placeholder="you@yourvenue.com" required autocomplete="email"/></div>
-        <div class="fg"><label>Password <span class="cm-req">*</span></label>
-          <div style="position:relative">
-            <input class="fi" id="psPassword" type="password" placeholder="Min. 6 characters" required minlength="6" autocomplete="new-password" style="padding-right:44px"/>
-            <button type="button" onclick="togglePwVis('psPassword',this)" style="position:absolute;right:0;top:0;bottom:0;width:44px;background:none;border:none;color:var(--text3);cursor:pointer;padding:0;font-size:15px;display:flex;align-items:center;justify-content:center;touch-action:manipulation">👁</button>
+      <div style="padding:18px 20px calc(18px + env(safe-area-inset-bottom))">
+
+        <button class="gw-card" onclick="gwPickType('member')">
+          <div class="gw-card-inner">
+            <div class="gw-icon" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1)">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            </div>
+            <div>
+              <div class="gw-card-title">Member</div>
+              <div class="gw-card-sub">Discover events, join guestlists &amp; explore nightlife</div>
+            </div>
+            <div class="gw-arrow">›</div>
           </div>
-        </div>
-        <label class="cm-consent" style="margin-top:10px">
-          <input type="checkbox" id="psConsent" required/>
-          <span>I agree to Tonight's <a href="privacy.html" target="_blank" style="color:var(--text2)">Privacy Policy</a> and <a href="privacy.html#terms" target="_blank" style="color:var(--text2)">Terms of Service</a>.</span>
-        </label>
-        <button type="submit" class="fsub" id="psSubmitBtn" style="margin-top:10px;background:#f5c842;color:#000;border-color:transparent">Create Account &amp; Go to Dashboard →</button>
-      </form>
-      <p style="text-align:center;margin-top:12px;font-size:12px;color:var(--text3)">Already have an account? <a href="#" onclick="closeOverlay('proSignupOverlay');openAuth('login');return false" style="color:var(--text2)">Log in</a></p>
-    </div>
-  </div>
-</div>
-
-<!-- ════ COMMUNITY JOIN MODAL ════ -->
-<div class="overlay" id="communityOverlay">
-  <div class="modal" style="max-width:420px;padding:0;overflow:hidden" id="communityModal">
-    <div class="cm-header" style="padding:28px 24px 20px">
-      <div class="cm-header-glow"></div>
-      <button class="mclose" onclick="closeOverlay('communityOverlay')" style="position:absolute;top:14px;right:14px;z-index:2">✕</button>
-      <div class="cm-badge">Join the Community</div>
-      <h2 class="cm-title" style="font-size:22px;margin-bottom:6px">Be first to know what's happening tonight</h2>
-      <div class="cm-counter" id="cmCounter"><span id="cmCount">847</span> members already in</div>
-    </div>
-    <form class="cm-form" id="communityForm" onsubmit="submitCommunity(event)" style="padding:0 24px 24px">
-      <div class="social-btns" style="margin-bottom:4px">
-        <button type="button" class="sbtn" onclick="socialSignUpCommunity('google')">
-          <span class="gicon"><svg width="14" height="14" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.5 1.2 8.9 3.2l6.6-6.6C35.5 2.5 30.1 0 24 0 14.6 0 6.6 5.4 2.5 13.3l7.7 6C12.1 13 17.6 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4 6.9-9.9 7.1-17z"/><path fill="#FBBC05" d="M10.2 28.7A14.5 14.5 0 019.5 24c0-1.6.3-3.2.7-4.7l-7.7-6A23.9 23.9 0 000 24c0 3.9.9 7.5 2.5 10.7l7.7-6z"/><path fill="#34A853" d="M24 48c6.1 0 11.2-2 14.9-5.4l-7.5-5.8c-2 1.4-4.6 2.2-7.4 2.2-6.4 0-11.9-3.5-13.8-8.4l-7.7 6C6.6 42.6 14.6 48 24 48z"/></svg></span>
-          Continue with Google
         </button>
-        <button type="button" class="sbtn" onclick="socialSignUpCommunity('apple')"><span style="font-size:16px">🍎</span> Continue with Apple</button>
-      </div>
-      <div class="div-or">or sign up with email</div>
-      <div class="cm-field">
-        <label>Full Name <span class="cm-req">*</span></label>
-        <input type="text" id="cmName" placeholder="Your full name" required autocomplete="name"/>
-      </div>
-      <div class="cm-field">
-        <label>Email <span class="cm-req">*</span></label>
-        <input type="email" id="cmEmail" placeholder="your@email.com" required autocomplete="email"/>
-      </div>
-      <div class="cm-field">
-        <label>Phone Number <span style="color:var(--text3);font-weight:400;font-size:11px">(optional — for exclusive deals)</span></label>
-        <input type="tel" id="cmPhone" placeholder="+84 9XX XXX XXX" autocomplete="tel"/>
-      </div>
-      <div class="cm-field">
-        <label>Password <span class="cm-req">*</span></label>
-        <div style="position:relative">
-          <input type="password" id="cmPassword" placeholder="Min. 6 characters" required minlength="6" autocomplete="new-password" style="padding-right:44px"/>
-          <button type="button" onclick="togglePwVis('cmPassword',this)" style="position:absolute;right:0;top:0;bottom:0;width:44px;background:none;border:none;color:var(--text3);cursor:pointer;padding:0;font-size:15px;display:flex;align-items:center;justify-content:center;touch-action:manipulation">👁</button>
+
+        <button class="gw-card gw-card-biz" onclick="gwPickType('venue')">
+          <div class="gw-card-inner">
+            <div class="gw-icon gw-icon-gold">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="9" width="18" height="12" rx="1"/><path d="M8 9V6a4 4 0 0 1 8 0v3"/><line x1="12" y1="14" x2="12" y2="16"/></svg>
+            </div>
+            <div>
+              <div class="gw-card-title">Venue</div>
+              <div class="gw-card-sub">List your venue, post events &amp; manage guestlists</div>
+            </div>
+            <div class="gw-arrow">›</div>
+          </div>
+        </button>
+
+        <button class="gw-card gw-card-biz" onclick="gwPickType('promoter')" style="margin-bottom:0">
+          <div class="gw-card-inner">
+            <div class="gw-icon gw-icon-gold">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+            </div>
+            <div>
+              <div class="gw-card-title">Promoter / DJ</div>
+              <div class="gw-card-sub">Promote events, build your audience &amp; manage guestlists</div>
+            </div>
+            <div class="gw-arrow">›</div>
+          </div>
+        </button>
+
+        <div style="margin-top:16px;display:flex;align-items:center;justify-content:space-between;font-size:12px">
+          <span style="color:var(--text3)">Already a member? <a href="#" onclick="closeOverlay('gatewayOverlay');openLogin();return false" style="color:#fff;font-weight:600;text-decoration:none">Sign in →</a></span>
+          <a href="portal/index.html" style="color:var(--text3);text-decoration:none;font-size:11px">Portal ↗</a>
         </div>
       </div>
-      <label class="cm-consent" style="margin-top:12px">
-        <input type="checkbox" id="cmConsent" required/>
-        <span>I agree to Tonight's <a href="privacy.html" target="_blank">Privacy Policy</a> and event updates.</span>
-      </label>
-      <button type="submit" class="cm-submit" id="cmSubmitBtn" style="margin-top:14px">
-        <span id="cmSubmitLabel">Unlock My Nightlife Feed →</span>
-      </button>
-      <p class="cm-privacy">Free forever · No credit card · Unsubscribe anytime</p>
-      <p style="text-align:center;font-size:12px;color:var(--text3);margin-top:10px">Already have an account? <a href="#" onclick="closeOverlay('communityOverlay');openAuth('login');return false" style="color:var(--text2)">Log in</a></p>
-    </form>
+    </div>
+
+    <!-- Step 2: signup form -->
+    <div id="gwStep2" style="display:none">
+      <div style="padding:14px 20px 12px;border-bottom:1px solid var(--border);position:relative;display:flex;align-items:center;gap:10px">
+        <button onclick="gwBack()" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--text2);width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:inherit">←</button>
+        <div style="flex:1">
+          <div id="gwTypeBadge" style="font-size:10px;font-weight:700;color:var(--gold);letter-spacing:.5px;text-transform:uppercase;margin-bottom:1px"></div>
+          <div style="font-size:17px;font-weight:800;color:#fff">Create Account</div>
+        </div>
+        <button class="mclose" onclick="closeOverlay('gatewayOverlay')" style="position:absolute;top:12px;right:14px">✕</button>
+      </div>
+      <div style="padding:18px 24px calc(24px + env(safe-area-inset-bottom))">
+        <div class="social-btns" style="margin-bottom:4px">
+          <button type="button" class="sbtn" onclick="socialSignUpJoin('google')">
+            <span class="gicon"><svg width="14" height="14" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.5 1.2 8.9 3.2l6.6-6.6C35.5 2.5 30.1 0 24 0 14.6 0 6.6 5.4 2.5 13.3l7.7 6C12.1 13 17.6 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4 6.9-9.9 7.1-17z"/><path fill="#FBBC05" d="M10.2 28.7A14.5 14.5 0 019.5 24c0-1.6.3-3.2.7-4.7l-7.7-6A23.9 23.9 0 000 24c0 3.9.9 7.5 2.5 10.7l7.7-6z"/><path fill="#34A853" d="M24 48c6.1 0 11.2-2 14.9-5.4l-7.5-5.8c-2 1.4-4.6 2.2-7.4 2.2-6.4 0-11.9-3.5-13.8-8.4l-7.7 6C6.6 42.6 14.6 48 24 48z"/></svg></span>
+            Continue with Google
+          </button>
+        </div>
+        <div class="div-or">or sign up with email</div>
+        <form onsubmit="submitJoin(event)" autocomplete="on">
+          <div class="fg"><label>Full Name <span class="cm-req">*</span></label><input class="fi" id="gwName" type="text" placeholder="Your full name" required autocomplete="name"/></div>
+          <div class="fg" id="gwBizFg" style="display:none"><label id="gwBizLabel">Venue Name <span class="cm-req">*</span></label><input class="fi" id="gwBiz" type="text" placeholder="e.g. Sacred Garden"/></div>
+          <div class="fg"><label>Email <span class="cm-req">*</span></label><input class="fi" id="gwEmail" type="email" placeholder="you@example.com" required autocomplete="email"/></div>
+          <div class="fg"><label>Password <span class="cm-req">*</span></label>
+            <div style="position:relative">
+              <input class="fi" id="gwPassword" type="password" placeholder="Min. 6 characters" required minlength="6" autocomplete="new-password" style="padding-right:44px"/>
+              <button type="button" onclick="togglePwVis('gwPassword',this)" style="position:absolute;right:0;top:0;bottom:0;width:44px;background:none;border:none;color:var(--text3);cursor:pointer;padding:0;font-size:15px;display:flex;align-items:center;justify-content:center;touch-action:manipulation">👁</button>
+            </div>
+          </div>
+          <label class="cm-consent" style="margin-top:10px">
+            <input type="checkbox" id="gwConsent" required/>
+            <span>I agree to Tonight's <a href="privacy.html" target="_blank" style="color:var(--text2)">Privacy Policy</a> and Terms of Service.</span>
+          </label>
+          <button type="submit" class="fsub" id="gwSubmitBtn" style="margin-top:12px;background:#f5c842;color:#000;border-color:transparent">Create Account →</button>
+        </form>
+        <p style="text-align:center;margin-top:12px;font-size:12px;color:var(--text3)">Already a member? <a href="#" onclick="closeOverlay('gatewayOverlay');openLogin();return false" style="color:var(--text2)">Sign in</a></p>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -2889,7 +2834,7 @@ body{background:#000;}
       <h3 style="font-size:24px;font-weight:700;color:#fff;margin-bottom:10px">Ready to fill your venue?</h3>
       <p style="font-size:13px;color:var(--text3);margin-bottom:24px;font-weight:300">Free to list. No monthly fees. Tonight takes a small commission only when you sell tickets.</p>
       <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-        <button class="btn btn-white" style="padding:14px 32px;font-size:15px;font-weight:600" onclick="openProSignup()">List My Venue — Free →</button>
+        <button class="btn btn-white" style="padding:14px 32px;font-size:15px;font-weight:600" onclick="openGateway('venue')">List My Venue — Free →</button>
         <button class="btn btn-ghost" style="padding:14px 32px;font-size:15px" onclick="openGateway()">Learn More</button>
       </div>
       <p style="font-size:11px;color:var(--text3);margin-top:16px;font-weight:300">Join 47 venues already on Tonight · Setup takes under 10 minutes</p>
@@ -2915,7 +2860,7 @@ body{background:#000;}
       <div class="footer-col"><h4>Support</h4><ul>
         <li><a href="#" onclick="toast('Help Center coming soon 👋','ok');return false">Help Center</a></li>
         <li><a href="privacy.html">Refund Policy</a></li>
-        <li><a href="#" onclick="openCommunity();return false">Contact</a></li>
+        <li><a href="#" onclick="openGateway();return false">Contact</a></li>
       </ul></div>
       <div class="footer-col"><h4>Company</h4><ul>
         <li><a href="#" onclick="switchCat('magazine',document.querySelectorAll('.cat-tab')[6]);window.scrollTo(0,0);return false">About</a></li>
@@ -3013,79 +2958,39 @@ body{background:#000;}
 <!-- ════ AUTH MODAL ════ -->
 <div class="overlay" id="authOverlay">
   <div class="modal">
-    <div class="mhead"><h2 id="authTitle">Join Tonight</h2><button class="mclose" onclick="closeOverlay('authOverlay')">✕</button></div>
+    <div class="mhead"><h2 id="authTitle">Welcome Back</h2><button class="mclose" onclick="closeOverlay('authOverlay')">✕</button></div>
     <div class="mbody">
-      <div id="stepRole">
-        <p style="font-size:12px;color:var(--text2);margin-bottom:14px">Who are you joining as?</p>
-        <div class="role-grid">
-          <div class="role-card" id="rUser" onclick="pickRole('user')"><div class="ri">🎉</div><h3>Fan / Guest</h3><p>Discover events &amp; buy tickets</p></div>
-          <div class="role-card" id="rPro" onclick="pickRole('pro')"><div class="ri">🏢</div><h3>Professional</h3><p>List events &amp; sell tickets</p></div>
-        </div>
+      <div class="atabs"><div class="atab active" id="ltab" onclick="swTab('login')">Log In</div><div class="atab" id="stab" onclick="swTab('signup')">Sign Up</div></div>
+      <div class="social-btns">
+        <button class="sbtn" onclick="socialIn('Google')">
+          <span class="gicon"><svg width="14" height="14" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.5 1.2 8.9 3.2l6.6-6.6C35.5 2.5 30.1 0 24 0 14.6 0 6.6 5.4 2.5 13.3l7.7 6C12.1 13 17.6 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4 6.9-9.9 7.1-17z"/><path fill="#FBBC05" d="M10.2 28.7A14.5 14.5 0 019.5 24c0-1.6.3-3.2.7-4.7l-7.7-6A23.9 23.9 0 000 24c0 3.9.9 7.5 2.5 10.7l7.7-6z"/><path fill="#34A853" d="M24 48c6.1 0 11.2-2 14.9-5.4l-7.5-5.8c-2 1.4-4.6 2.2-7.4 2.2-6.4 0-11.9-3.5-13.8-8.4l-7.7 6C6.6 42.6 14.6 48 24 48z"/></svg></span>
+          Continue with Google
+        </button>
       </div>
-      <!-- Pro pitch — shown above the form when Business role is picked -->
-      <div id="bizPitch" style="display:none;margin-bottom:16px">
-        <div style="background:linear-gradient(135deg,rgba(0,208,132,.08),rgba(0,208,132,.03));border:1px solid rgba(0,208,132,.25);border-radius:14px;padding:16px 18px;margin-bottom:14px">
-          <div style="font-size:11px;font-weight:600;color:var(--green);letter-spacing:.4px;text-transform:uppercase;margin-bottom:6px">🟢 Live right now</div>
-          <div style="font-size:22px;font-weight:700;color:#fff;margin-bottom:4px"><span id="bizPitchCount">847</span> people deciding where to go tonight</div>
-          <div style="font-size:12px;color:var(--text3);font-weight:300">Are they finding your venue?</div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
-          <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center">
-            <div style="font-size:18px;font-weight:700;color:var(--green)">12,847</div>
-            <div style="font-size:10px;color:var(--text3);margin-top:2px;font-weight:300">Tickets this month</div>
-          </div>
-          <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center">
-            <div style="font-size:18px;font-weight:700;color:var(--green)">47</div>
-            <div style="font-size:10px;color:var(--text3);margin-top:2px;font-weight:300">Venues listed</div>
-          </div>
-          <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center">
-            <div style="font-size:18px;font-weight:700;color:var(--green)">96%</div>
-            <div style="font-size:10px;color:var(--text3);margin-top:2px;font-weight:300">Satisfaction</div>
+      <div class="div-or">or</div>
+      <div id="lf">
+        <div class="fg"><label>Email</label><input class="fi" id="loginEmail" type="email" placeholder="you@example.com" autocomplete="email"/></div>
+        <div class="fg"><label>Password</label>
+          <div style="position:relative">
+            <input class="fi" id="loginPassword" type="password" placeholder="••••••••" autocomplete="current-password" style="padding-right:44px"/>
+            <button type="button" onclick="togglePwVis('loginPassword',this)" style="position:absolute;right:0;top:0;bottom:0;width:44px;background:none;border:none;color:var(--text3);cursor:pointer;padding:0;font-size:15px;display:flex;align-items:center;justify-content:center;touch-action:manipulation">👁</button>
           </div>
         </div>
-        <div style="display:flex;flex-direction:column;gap:6px">
-          <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text2)"><span style="color:var(--green);font-size:14px">🎟</span> Sell tickets &amp; scan guests at the door from your phone</div>
-          <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text2)"><span style="color:var(--green);font-size:14px">📣</span> Push live deals to users — fill tables in minutes</div>
-          <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text2)"><span style="color:var(--green);font-size:14px">📊</span> See who's coming with full attendee details</div>
-        </div>
-        <div style="border-top:1px solid var(--border);margin-top:14px;padding-top:12px;font-size:11px;color:var(--text3);font-weight:300;line-height:1.6;font-style:italic">"We pushed a happy hour at 5PM and had 40 extra people walk in by 7PM." — Sacred Garden, Hanoi</div>
+        <button class="fsub" onclick="doIn()">Log In</button>
+        <p style="text-align:center;margin-top:10px;font-size:11px;color:var(--text3)"><a href="#" onclick="forgotPassword();return false" style="color:var(--text2)">Forgot password?</a></p>
       </div>
-
-      <div id="stepForm" style="display:none">
-        <div class="atabs"><div class="atab active" id="ltab" onclick="swTab('login')">Log In</div><div class="atab" id="stab" onclick="swTab('signup')">Sign Up</div></div>
-        <div class="social-btns">
-          <button class="sbtn" onclick="socialIn('Google')">
-            <span class="gicon"><svg width="14" height="14" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.5 1.2 8.9 3.2l6.6-6.6C35.5 2.5 30.1 0 24 0 14.6 0 6.6 5.4 2.5 13.3l7.7 6C12.1 13 17.6 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4 6.9-9.9 7.1-17z"/><path fill="#FBBC05" d="M10.2 28.7A14.5 14.5 0 019.5 24c0-1.6.3-3.2.7-4.7l-7.7-6A23.9 23.9 0 000 24c0 3.9.9 7.5 2.5 10.7l7.7-6z"/><path fill="#34A853" d="M24 48c6.1 0 11.2-2 14.9-5.4l-7.5-5.8c-2 1.4-4.6 2.2-7.4 2.2-6.4 0-11.9-3.5-13.8-8.4l-7.7 6C6.6 42.6 14.6 48 24 48z"/></svg></span>
-            Continue with Google
-          </button>
-          <button class="sbtn" onclick="socialIn('Apple')"><span style="font-size:16px">🍎</span> Continue with Apple</button>
-        </div>
-        <div class="div-or">or</div>
-        <div id="lf">
-          <div class="fg"><label>Email</label><input class="fi" id="loginEmail" type="email" placeholder="you@example.com" autocomplete="email"/></div>
-          <div class="fg"><label>Password</label>
-            <div style="position:relative">
-              <input class="fi" id="loginPassword" type="password" placeholder="••••••••" autocomplete="current-password" style="padding-right:44px"/>
-              <button type="button" onclick="togglePwVis('loginPassword',this)" style="position:absolute;right:0;top:0;bottom:0;width:44px;background:none;border:none;color:var(--text3);cursor:pointer;padding:0;font-size:15px;display:flex;align-items:center;justify-content:center;touch-action:manipulation">👁</button>
-            </div>
+      <div id="sf" style="display:none">
+        <div class="fg"><label>Full Name</label><input class="fi" id="sfName" type="text" placeholder="Your name" autocomplete="name"/></div>
+        <div class="fg"><label>Email</label><input class="fi" id="sfEmail" type="email" placeholder="you@example.com" autocomplete="email"/></div>
+        <div class="fg"><label>Password</label>
+          <div style="position:relative">
+            <input class="fi" id="sfPassword" type="password" placeholder="At least 6 characters" autocomplete="new-password" style="padding-right:44px"/>
+            <button type="button" onclick="togglePwVis('sfPassword',this)" style="position:absolute;right:0;top:0;bottom:0;width:44px;background:none;border:none;color:var(--text3);cursor:pointer;padding:0;font-size:15px;display:flex;align-items:center;justify-content:center;touch-action:manipulation">👁</button>
           </div>
-          <button class="fsub" onclick="doIn()">Log In</button>
-          <p style="text-align:center;margin-top:10px;font-size:11px;color:var(--text3)"><a href="#" onclick="forgotPassword();return false" style="color:var(--text2)">Forgot password?</a></p>
         </div>
-        <div id="sf" style="display:none">
-          <div class="fg"><label>Full Name</label><input class="fi" id="sfName" type="text" placeholder="Your name" autocomplete="name"/></div>
-          <div class="fg" id="bizFg" style="display:none"><label>Business Name</label><input class="fi" id="sfBiz" placeholder="e.g. Sacred Garden, Kater Blau Hanoi"/></div>
-          <div class="fg"><label>Email</label><input class="fi" id="sfEmail" type="email" placeholder="you@example.com" autocomplete="email"/></div>
-          <div class="fg"><label>Password</label>
-            <div style="position:relative">
-              <input class="fi" id="sfPassword" type="password" placeholder="At least 8 characters" autocomplete="new-password" style="padding-right:44px"/>
-              <button type="button" onclick="togglePwVis('sfPassword',this)" style="position:absolute;right:0;top:0;bottom:0;width:44px;background:none;border:none;color:var(--text3);cursor:pointer;padding:0;font-size:15px;display:flex;align-items:center;justify-content:center;touch-action:manipulation">👁</button>
-            </div>
-          </div>
-          <button class="fsub" onclick="doIn()">Create Account</button>
-        </div>
-        <p style="text-align:center;margin-top:12px;font-size:11px;color:var(--text3)"><a href="#" onclick="backRole()" style="color:var(--text2)">← Change role</a></p>
+        <button class="fsub" onclick="doIn()">Create Account</button>
       </div>
+      <p style="text-align:center;margin-top:12px;font-size:12px;color:var(--text3)">Venue or promoter? <a href="#" onclick="closeOverlay('authOverlay');openGateway();return false" style="color:var(--text2)">Join here →</a></p>
     </div>
   </div>
 </div>
@@ -4517,46 +4422,14 @@ document.addEventListener('keydown',e=>{
 
 // ── AUTH ──
 function openAuth(tab){
-  document.getElementById('stepRole').style.display='';
-  document.getElementById('stepForm').style.display='none';
-  document.getElementById('authTitle').textContent='Join Tonight';
-  document.getElementById('rUser').classList.remove('sel');
-  document.getElementById('rPro').classList.remove('sel');
+  if(tab==='signup') curRole='user';
+  document.getElementById('authTitle').textContent=(tab==='signup')?'Create Account':'Welcome Back';
   swTab(tab||'login');
   openOverlay('authOverlay');
 }
 function openLogin(){
-  if(!curRole) curRole='user';
-  document.getElementById('stepRole').style.display='none';
-  document.getElementById('stepForm').style.display='';
-  document.getElementById('bizPitch').style.display='none';
-  document.getElementById('bizFg').style.display='none';
-  document.getElementById('authTitle').textContent='Welcome Back';
-  swTab('login');
-  openOverlay('authOverlay');
-}
-function pickRole(r){
-  curRole=r;
-  document.getElementById('rUser').classList.toggle('sel',r==='user');
-  document.getElementById('rPro').classList.toggle('sel',r==='pro');
-  document.getElementById('stepRole').style.display='none';
-  document.getElementById('stepForm').style.display='';
-  document.getElementById('bizFg').style.display=r==='pro'?'':'none';
-  document.getElementById('authTitle').textContent=r==='pro'?'List Your Venue on Tonight':'Welcome Back';
-  // show business pitch only for Pro signup
-  const pitch=document.getElementById('bizPitch');
-  if(pitch){
-    pitch.style.display=r==='pro'?'':'none';
-    const pc=document.getElementById('bizPitchCount');
-    if(pc) pc.textContent=_liveBase.toLocaleString();
-  }
-  if(r==='pro') swTab('signup');
-}
-function backRole(){
-  document.getElementById('stepRole').style.display='';
-  document.getElementById('stepForm').style.display='none';
-  document.getElementById('bizPitch').style.display='none';
-  document.getElementById('authTitle').textContent='Join Tonight';
+  curRole='user';
+  openAuth('login');
 }
 function swTab(t){
   document.getElementById('ltab').classList.toggle('active',t==='login');
@@ -5802,7 +5675,7 @@ function initSwipeDismiss(overlayId){
     startY=0;currentY=0;modal=null;
   });
 }
-['listEventOverlay','dealOverlay','gatewayOverlay','portalChoiceOverlay','proSignupOverlay','communityOverlay','authOverlay','evtOverlay','tktOverlay','waitlistOverlay'].forEach(id=>{
+['listEventOverlay','dealOverlay','gatewayOverlay','authOverlay','evtOverlay','tktOverlay','waitlistOverlay'].forEach(id=>{
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>initSwipeDismiss(id),{once:false});
   else initSwipeDismiss(id);
 });
@@ -6625,7 +6498,6 @@ function getDeviceType(){
 }
 
 function openListEvent(){
-  closeOverlay('communityOverlay');
   leSetStep(1);
   openOverlay('listEventOverlay');
   const d = document.getElementById('le_date');
@@ -6893,294 +6765,131 @@ function forgotPassword(){
   })();
 }
 
-// ── GATEWAY ──
-function openGateway(){
+// ── GATEWAY / JOIN ──
+let _gwJoinType='member';
+
+function openGateway(preType){
   if(loggedIn){
     if(curRole==='pro') openPro();
     else openUser();
     return;
   }
+  const s1=document.getElementById('gwStep1');
+  const s2=document.getElementById('gwStep2');
+  if(s1) s1.style.display='';
+  if(s2) s2.style.display='none';
   openOverlay('gatewayOverlay');
+  if(preType) gwPickType(preType);
 }
-function openProSignup(){
-  openOverlay('proSignupOverlay');
+function openCommunity(){ openGateway('member'); }
+function openProSignup(){ openGateway('venue'); }
+
+function gwPickType(type){
+  _gwJoinType=type;
+  const cfg={
+    member:{badge:'MEMBER',       biz:false},
+    venue: {badge:'VENUE',        biz:true, bizPlaceholder:'e.g. Sacred Garden, Kater Blau'},
+    promoter:{badge:'PROMOTER / DJ', biz:true, bizPlaceholder:'e.g. DJ Useph, Tonight Collective'},
+  }[type]||{badge:'MEMBER',biz:false};
+  const badge=document.getElementById('gwTypeBadge');
+  const bizFg=document.getElementById('gwBizFg');
+  const bizLabel=document.getElementById('gwBizLabel');
+  const bizInput=document.getElementById('gwBiz');
+  if(badge) badge.textContent=cfg.badge;
+  if(bizFg) bizFg.style.display=cfg.biz?'':'none';
+  if(bizLabel) bizLabel.innerHTML=(type==='venue'?'Venue Name':'Artist / Promo Name')+' <span class="cm-req">*</span>';
+  if(bizInput){ bizInput.required=cfg.biz; bizInput.placeholder=cfg.bizPlaceholder||''; }
+  document.getElementById('gwStep1').style.display='none';
+  document.getElementById('gwStep2').style.display='';
+  ['gwName','gwEmail','gwPassword','gwBiz'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const consent=document.getElementById('gwConsent'); if(consent) consent.checked=false;
+  const passField=document.getElementById('gwPassword')?.closest('.fg'); if(passField) passField.style.display='';
+  const btn=document.getElementById('gwSubmitBtn'); if(btn){btn.disabled=false;btn.textContent='Create Account →';}
+  window._gwSocialUid=null;
+  setTimeout(()=>document.getElementById('gwName')?.focus(),120);
 }
-async function submitProSignup(e){
+function gwBack(){
+  document.getElementById('gwStep1').style.display='';
+  document.getElementById('gwStep2').style.display='none';
+}
+async function submitJoin(e){
   e.preventDefault();
-  const btn   = document.getElementById('psSubmitBtn');
-  const name  = document.getElementById('psName').value.trim();
-  const biz   = document.getElementById('psBiz').value.trim();
-  const phone = document.getElementById('psPhone').value.trim();
-  const email = document.getElementById('psEmail').value.trim().toLowerCase();
-  const pass  = document.getElementById('psPassword').value;
-
-  btn.disabled = true;
-  btn.textContent = 'Creating account…';
-
-  try {
-    // 1. Get Firebase UID — from social sign-in if available, otherwise create account
-    let uid;
-    if(window._proSocialUid){
-      uid = window._proSocialUid;
-      window._proSocialUid = null;
-      window._proSocialProvider = null;
-    } else {
-      const {createUserWithEmailAndPassword} = await import(_FB_CDN+'/firebase-auth.js');
-      const auth = await _getAuth();
-      const cred = await createUserWithEmailAndPassword(auth, email, pass);
-      uid = cred.user.uid;
+  const btn   = document.getElementById('gwSubmitBtn');
+  const name  = document.getElementById('gwName').value.trim();
+  const biz   = (document.getElementById('gwBiz')||{value:''}).value.trim();
+  const email = document.getElementById('gwEmail').value.trim().toLowerCase();
+  const pass  = document.getElementById('gwPassword').value;
+  const type  = _gwJoinType;
+  btn.disabled=true; btn.textContent='Creating account…';
+  try{
+    const {createUserWithEmailAndPassword,sendEmailVerification}=await import(_FB_CDN+'/firebase-auth.js');
+    const {setDoc,doc,serverTimestamp}=await import(_FB_CDN+'/firebase-firestore.js');
+    const fbAuth=await _getAuth();
+    const fbDb=await _getDb();
+    let fbUid=window._gwSocialUid||null;
+    window._gwSocialUid=null;
+    if(!fbUid){
+      try{
+        const cred=await createUserWithEmailAndPassword(fbAuth,email,pass);
+        fbUid=cred.user.uid;
+        sendEmailVerification(cred.user).catch(()=>{});
+      }catch(err){
+        if(err.code==='auth/email-already-in-use'){toast('Email already registered — sign in instead','err');btn.disabled=false;btn.textContent='Create Account →';return;}
+        throw err;
+      }
     }
-
-    // 2. Create venue_requests doc (status: pending — staff must approve)
-    await _saveToFirestore('venue_requests',{
-      email, contactName:name, venueName:biz, phone,
-      uid,
-      status:'pending',
-      source:'main-app-signup',
-    });
-
-    // 3. Also save to local accounts so user is logged into main app
-    const accs = _getAccounts();
-    const acc = {name, email, password:_hashPw(pass), businessName:biz, role:'pro', joinedAt:new Date().toISOString(), source:'pro'};
-    accs[email] = acc;
-    _saveAccounts(accs);
-
-    curRole = 'pro';
-    finishLogin(name, 'Tonight', acc);
-    btn.textContent = '✓ Account created!';
-    toast('Application submitted! Staff will review and approve your venue within 24 hours.','ok');
-    setTimeout(()=>closeOverlay('proSignupOverlay'), 800);
-  } catch(err) {
-    if(err.code === 'auth/email-already-in-use'){
-      toast('Email already registered — log in instead','err');
-    } else {
-      toast(err.message || 'Could not create account','err');
+    if(fbUid){
+      await setDoc(doc(fbDb,'users',fbUid),{uid:fbUid,email,fullName:name,role:'user',createdAt:serverTimestamp()},{merge:true});
     }
-    btn.disabled = false;
-    btn.textContent = 'Create Account & Go to Dashboard →';
+    if(type==='member'){
+      await _saveToFirestore('community_signups',{fullName:name,email,city:filterCity||'',source:'tonight-app'});
+    } else {
+      await _saveToFirestore('venue_requests',{email,contactName:name,venueName:biz,uid:fbUid||'',type,status:'pending',source:'main-app-signup'});
+    }
+    const accs=_getAccounts();
+    const acc={name,email,password:_hashPw(pass),role:'user',joinedAt:new Date().toISOString(),source:type};
+    accs[email]=acc; _saveAccounts(accs);
+    curRole='user';
+    finishLogin(name,'Tonight',acc);
+    if(type==='member'){
+      toast('Welcome, '+name.split(' ')[0]+'! Explore what\'s on tonight.','ok');
+    } else {
+      toast('Application sent! We\'ll review your '+(type==='venue'?'venue':'promoter')+' profile within 24 hours.','ok');
+    }
+    closeOverlay('gatewayOverlay');
+  }catch(err){
+    toast(err.message||'Could not create account','err');
+    btn.disabled=false; btn.textContent='Create Account →';
   }
 }
-
-function openCommunity(){
-  openOverlay('communityOverlay');
-  animateCmCounter();
-}
-
-async function socialSignIn(provider){
+async function socialSignUpJoin(provider){
   try{
     const {GoogleAuthProvider,OAuthProvider,signInWithPopup}=await import(_FB_CDN+'/firebase-auth.js');
     const fbAuth=await _getAuth();
     let prov;
-    if(provider==='google')        prov=new GoogleAuthProvider();
-    else if(provider==='apple')   {prov=new OAuthProvider('apple.com');prov.addScope('email');prov.addScope('name');}
-    else if(provider==='microsoft'){prov=new OAuthProvider('microsoft.com');prov.addScope('email');}
-    else{toast('Unknown provider','err');return;}
+    if(provider==='google') prov=new GoogleAuthProvider();
+    else if(provider==='apple'){prov=new OAuthProvider('apple.com');prov.addScope('email');prov.addScope('name');}
+    else return;
     const result=await signInWithPopup(fbAuth,prov);
     const u=result.user;
-    _prefillSocialForm(u.displayName||(u.email||'').split('@')[0], u.email||'', provider==='google'?'Google':provider==='apple'?'Apple':'Microsoft');
+    const name=u.displayName||(u.email||'').split('@')[0];
+    const email=(u.email||'').toLowerCase();
+    const nameEl=document.getElementById('gwName');
+    const emailEl=document.getElementById('gwEmail');
+    const passField=document.getElementById('gwPassword')?.closest('.fg');
+    if(nameEl){nameEl.value=name;nameEl.style.borderColor='rgba(245,200,66,.4)';}
+    if(emailEl){emailEl.value=email;emailEl.style.borderColor='rgba(245,200,66,.4)';}
+    if(passField) passField.style.display='none';
+    document.getElementById('gwConsent').checked=true;
+    window._gwSocialUid=u.uid;
+    toast('✓ Google connected — tap Create Account to finish','ok');
+    setTimeout(()=>(document.getElementById('gwBiz')||document.getElementById('gwName'))?.focus(),200);
   }catch(e){
     if(e.code==='auth/popup-closed-by-user'||e.code==='auth/cancelled-popup-request') return;
-    if(e.code==='auth/popup-blocked'){toast('Allow popups for this site then try again','err');return;}
-    // Provider not enabled in Firebase Console — fall back to email prompt
-    if(e.code==='auth/operation-not-supported-in-this-environment'||e.code==='auth/unauthorized-domain'||e.code==='auth/internal-error'){
-      _socialEmailPrompt(provider); return;
-    }
+    if(e.code==='auth/popup-blocked'){toast('Allow popups then try again','err');return;}
     toast(e.message||'Sign-in failed','err');
   }
 }
-
-// Fallback: ask for email only, then prefill the form
-function _socialEmailPrompt(provider){
-  const providerName = provider === 'google' ? 'Google' : provider === 'apple' ? 'iCloud / Apple' : 'Outlook / Microsoft';
-  const icon = provider === 'google' ? '🔵' : provider === 'apple' ? '🍎' : '📧';
-  // Show a quick inline prompt inside the form
-  const existing = document.getElementById('_socialPrompt');
-  if(existing) existing.remove();
-  const div = document.createElement('div');
-  div.id = '_socialPrompt';
-  div.innerHTML = `
-    <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px">
-      <div style="font-size:13px;font-weight:600;color:#fff">${icon} Continue with ${providerName}</div>
-      <div style="font-size:12px;color:var(--text3)">Enter your ${providerName.split('/')[0].trim()} email address:</div>
-      <input id="_socialEmail" type="email" placeholder="${provider==='google'?'you@gmail.com':provider==='apple'?'you@icloud.com / me.com':'you@outlook.com / hotmail.com'}"
-        style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:10px 12px;color:#fff;font-size:13px;font-family:inherit;outline:none;width:100%"/>
-      <div style="display:flex;gap:8px">
-        <button type="button" onclick="
-          const em=document.getElementById('_socialEmail').value.trim();
-          if(!em||!em.includes('@')){return;}
-          const name=em.split('@')[0].replace(/[._]/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
-          _prefillSocialForm(name,em,'${providerName}');
-          document.getElementById('_socialPrompt').remove();
-        " style="flex:1;padding:9px;border-radius:8px;background:#f5c842;color:#000;font-weight:700;font-size:13px;border:none;cursor:pointer;font-family:inherit">
-          Continue →
-        </button>
-        <button type="button" onclick="document.getElementById('_socialPrompt').remove()"
-          style="padding:9px 14px;border-radius:8px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:var(--text3);font-size:12px;cursor:pointer;font-family:inherit">
-          Cancel
-        </button>
-      </div>
-    </div>`;
-  // Insert after the divider
-  const form = document.getElementById('communityForm');
-  const divider = form.querySelector('.cm-divider');
-  if(divider) divider.after(div); else form.prepend(div);
-  setTimeout(()=>document.getElementById('_socialEmail')?.focus(), 100);
-}
-
-// Pre-fill the form with social profile data, then scroll to remaining fields
-function _prefillSocialForm(name, email, provider){
-  const nameEl  = document.getElementById('cmName');
-  const emailEl = document.getElementById('cmEmail');
-  const pwEl    = document.getElementById('cmPassword');
-  const consent = document.getElementById('cmConsent');
-  if(nameEl)  nameEl.value  = name;
-  if(emailEl) emailEl.value = email;
-  // Auto-generate a password for social sign-ins (user can change in profile)
-  const autoPw = '_social_' + Math.random().toString(36).slice(2);
-  if(pwEl){ pwEl.value = autoPw; pwEl.removeAttribute('required'); }
-  if(consent) consent.checked = true;
-  // Highlight pre-filled fields
-  [nameEl, emailEl].forEach(el=>{
-    if(!el) return;
-    el.style.borderColor = 'rgba(0,208,132,.5)';
-    el.style.background  = 'rgba(0,208,132,.06)';
-  });
-  // Auto-submit if we have everything
-  if(name && email){
-    toast(`✓ ${provider} connected — creating your account…`, 'ok');
-    setTimeout(()=>document.getElementById('communityForm')?.requestSubmit(), 600);
-  }
-}
-
-// Animate the member counter up from a base number (social proof)
-function animateCmCounter(){
-  const el = document.getElementById('cmCount');
-  if(!el || el._animated) return;
-  el._animated = true;
-  const target = 847 + Math.floor(Math.random()*30);
-  let current = target - 60;
-  const step = ()=>{ current+=3; el.textContent=current.toLocaleString(); if(current<target) requestAnimationFrame(step); else el.textContent=target.toLocaleString(); };
-  requestAnimationFrame(step);
-}
-
-// Genre chip toggle (max 3)
-document.addEventListener('click', e=>{
-  const chip = e.target.closest('.cm-genre-chip');
-  if(!chip) return;
-  const selected = document.querySelectorAll('.cm-genre-chip.selected');
-  if(!chip.classList.contains('selected') && selected.length >= 3) return;
-  chip.classList.toggle('selected');
-});
-
-async function submitCommunity(e){
-  e.preventDefault();
-  const btn   = document.getElementById('cmSubmitBtn');
-  const label = document.getElementById('cmSubmitLabel');
-
-  const name     = document.getElementById('cmName').value.trim();
-  const email    = document.getElementById('cmEmail').value.trim().toLowerCase();
-  const phone    = (document.getElementById('cmPhone')||{}).value.trim()||'';
-  const password = (document.getElementById('cmPassword')||{}).value||'';
-
-  // Save locally first (resilient — never lose a lead)
-  const lead = { name, email, source:'tonight-app', userAgent:navigator.userAgent, ts: new Date().toISOString() };
-  try { const q=JSON.parse(localStorage.getItem('_cmQueue')||'[]'); q.push(lead); localStorage.setItem('_cmQueue',JSON.stringify(q)); } catch(_){}
-
-  btn.disabled = true;
-  label.textContent = 'Joining…';
-
-  // Create account in localStorage
-  const accs=_getAccounts();
-  if(!accs[email]){
-    accs[email]={name,email,password:password?_hashPw(password):'',role:'guest',joinedAt:new Date().toISOString(),source:'community'};
-    _saveAccounts(accs);
-  }
-
-  // Create real Firebase Auth account so the user has a system-wide identity
-  if(password && password.length >= 6){
-    try{
-      const {createUserWithEmailAndPassword,signInWithEmailAndPassword}=await import(_FB_CDN+'/firebase-auth.js');
-      const {setDoc,doc,serverTimestamp}=await import(_FB_CDN+'/firebase-firestore.js');
-      const fbAuth=await _getAuth();
-      const fbDb=await _getDb();
-      let fbUid=null;
-      try{
-        const cred=await createUserWithEmailAndPassword(fbAuth,email,password);
-        fbUid=cred.user.uid;
-      }catch(e){
-        if(e.code==='auth/email-already-in-use'){
-          try{ const c=await signInWithEmailAndPassword(fbAuth,email,password); fbUid=c.user.uid; }catch(_){}
-        }
-      }
-      if(fbUid){
-        await setDoc(doc(fbDb,'users',fbUid),{
-          uid:fbUid, email, fullName:name, phone, role:'user', createdAt:serverTimestamp()
-        },{merge:true});
-      }
-    }catch(_){}  // Firebase errors never block the community sign-up flow
-  }
-
-  // Save to Firestore community_signups — Cloud Functions use this for email blasts
-  await _saveToFirestore('community_signups',{
-    fullName:name, email, phone, city:filterCity||'',
-    genres:[...document.querySelectorAll('.cm-genre-chip.selected')].map(c=>c.textContent.trim()),
-    source:'tonight-app', userAgent:navigator.userAgent
-  });
-
-  // Auto-login the new member
-  curRole='guest';
-  const profile=accs[email];
-  loggedIn=true; curUser={...profile};
-  _saveSession(curUser);
-  const init=name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-  try{
-    document.getElementById('navAuth').innerHTML=`
-      <div class="nav-user" onclick="openUser()">
-        <div class="nav-av">${init}</div>
-        <span class="nav-uname">${name.split(' ')[0]}</span>
-      </div>`;
-    const bell=document.getElementById('notifBell');
-    const sibBtn=document.getElementById('navSignInBtn');
-    const mobSignup=document.getElementById('navMobSignup');
-    if(bell) bell.style.display='flex';
-    if(sibBtn) sibBtn.style.display='none';
-    if(mobSignup) mobSignup.style.display='none';
-  }catch(_){}
-
-  // Success UI
-  label.textContent = '✓ You\'re in!';
-  btn.style.background = '#f5c842'; btn.style.color = '#000';
-  document.getElementById('communityForm').innerHTML = `
-    <div style="text-align:center;padding:32px 16px">
-      <div style="font-size:52px;margin-bottom:16px">🎉</div>
-      <h3 style="font-size:20px;font-weight:800;color:#fff;margin-bottom:10px">Welcome to the community!</h3>
-      <p style="font-size:14px;color:var(--text3);line-height:1.6;margin-bottom:24px">
-        Hey <strong style="color:#f5c842">${name.split(' ')[0]}</strong>, your account is ready.<br>
-        Browse events, join guestlists and tap your avatar to view your profile.
-      </p>
-      <button class="btn btn-white" style="padding:12px 28px" onclick="closeOverlay('communityOverlay')">Start Exploring →</button>
-    </div>`;
-
-  // Retry any queued leads in background
-  retryQueue();
-}
-
-// Retry leads that failed to send (e.g. offline at time of submit)
-async function retryQueue(){
-  try{
-    const q = JSON.parse(localStorage.getItem('_cmQueue')||'[]');
-    if(!q.length) return;
-    const remaining = [];
-    for(const lead of q){
-      try{ await _sendToEmail(lead); } catch(_){ remaining.push(lead); }
-    }
-    localStorage.setItem('_cmQueue', JSON.stringify(remaining));
-  } catch(_){}
-}
-
-// Retry on page load and when connectivity is restored
-window.addEventListener('load', ()=>setTimeout(retryQueue, 3000), {once:true});
-window.addEventListener('online', retryQueue);
 </script>
 
 <!-- SIGN-IN NUDGE BAR -->
@@ -7315,74 +7024,6 @@ function ageFail(){
     }
   }
 })();
-
-// ── SOCIAL SIGN-UP: Community ─────────────────────────────────────────────────
-async function socialSignUpCommunity(provider){
-  try{
-    const {GoogleAuthProvider,OAuthProvider,signInWithPopup}=await import(_FB_CDN+'/firebase-auth.js');
-    const fbAuth=await _getAuth();
-    let prov;
-    if(provider==='google')    prov=new GoogleAuthProvider();
-    else if(provider==='apple'){prov=new OAuthProvider('apple.com');prov.addScope('email');prov.addScope('name');}
-    else return;
-    const result=await signInWithPopup(fbAuth,prov);
-    const u=result.user;
-    const name=u.displayName||(u.email||'').split('@')[0];
-    const email=(u.email||'').toLowerCase();
-    // Save to local accounts
-    const accs=_getAccounts();
-    if(!accs[email]){
-      accs[email]={name,email,password:_hashPw('_social_'+Math.random().toString(36).slice(2)),role:'guest',joinedAt:new Date().toISOString(),provider};
-      _saveAccounts(accs);
-    }
-    // Save to Firestore community list
-    try{ await _saveToFirestore('community_signups',{fullName:name,email,city:'',joinedAt:new Date().toISOString(),provider,source:'tonight-app'}); }catch(_){}
-    curRole=accs[email].role||'guest';
-    finishLogin(name,provider,accs[email]);
-    closeOverlay('communityOverlay');
-    toast('Welcome '+name.split(' ')[0]+'! You\'re in 🎉','ok');
-  }catch(e){
-    if(e.code==='auth/popup-closed-by-user'||e.code==='auth/cancelled-popup-request') return;
-    if(e.code==='auth/popup-blocked'){toast('Allow popups for this site then try again','err');return;}
-    toast(e.message||'Sign-in failed','err');
-  }
-}
-
-// ── SOCIAL SIGN-UP: Pro / Venue ───────────────────────────────────────────────
-async function socialSignUpPro(provider){
-  try{
-    const {GoogleAuthProvider,OAuthProvider,signInWithPopup}=await import(_FB_CDN+'/firebase-auth.js');
-    const fbAuth=await _getAuth();
-    let prov;
-    if(provider==='google')    prov=new GoogleAuthProvider();
-    else if(provider==='apple'){prov=new OAuthProvider('apple.com');prov.addScope('email');prov.addScope('name');}
-    else return;
-    const result=await signInWithPopup(fbAuth,prov);
-    const u=result.user;
-    const name=u.displayName||(u.email||'').split('@')[0];
-    const email=(u.email||'').toLowerCase();
-    // Pre-fill form
-    const nameEl=document.getElementById('psName');
-    const emailEl=document.getElementById('psEmail');
-    const passWrap=document.getElementById('psPassword')?.closest('.fg');
-    const consentEl=document.getElementById('psConsent');
-    if(nameEl){nameEl.value=name;nameEl.style.borderColor='rgba(0,208,132,.4)';}
-    if(emailEl){emailEl.value=email;emailEl.style.borderColor='rgba(0,208,132,.4)';}
-    if(passWrap) passWrap.style.display='none';
-    if(consentEl) consentEl.checked=true;
-    // Store uid so submitProSignup skips createUserWithEmailAndPassword
-    window._proSocialUid=u.uid;
-    window._proSocialProvider=provider;
-    const provLabel=provider==='google'?'Google':'Apple';
-    toast(`✓ ${provLabel} connected — enter your venue name and submit`,'ok');
-    const bizEl=document.getElementById('psBiz');
-    if(bizEl){bizEl.style.borderColor='rgba(245,200,66,.5)';setTimeout(()=>bizEl.focus(),200);}
-  }catch(e){
-    if(e.code==='auth/popup-closed-by-user'||e.code==='auth/cancelled-popup-request') return;
-    if(e.code==='auth/popup-blocked'){toast('Allow popups for this site then try again','err');return;}
-    toast(e.message||'Sign-in failed','err');
-  }
-}
 
 // ── GDPR / COOKIE CONSENT ─────────────────────────────────────────────────────
 function initGDPR(){
