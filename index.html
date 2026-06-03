@@ -3181,10 +3181,7 @@ const STATIC_EVENTS=[]; // no hardcoded fallback — portal manages everything
 let ARTISTS=[];
 let LOCAL_ARTISTS=[];
 
-let VENUES=[
-  {id:31,name:"Sacred Garden",      city:"Hanoi", area:"Tay Ho",        type:"Garden Bar", capacity:150,  genres:["House","Afrobeats","Indie"], open:"11am",close:"12am", img:"images/sacred-garden-logo.jpg", logo:"images/sacred-garden-logo.jpg", desc:"A lush hidden garden bar in the heart of Tay Ho. Sacred Garden blends open-air greenery with craft drinks, good music and a relaxed crowd. Known for afternoon sessions that stretch into late-night vibes. Home of Saigon Cider in Hanoi."},
-  {id:32,name:"Bi's Corner",        city:"Hanoi", area:"Tay Ho",        type:"Outdoor Bar", capacity:80,   genres:["House","Afrobeats","Chill"],  open:"5pm", close:"1am",  img:"images/bis-corner-logo.jpg",    logo:"images/bis-corner-logo.jpg",    desc:"Outdoor bar with a laid-back crowd, good music, and easy conversations. A small space, but always alive in the right way.", address:"2 Ng. 89 P. Tứ Liên, Hồng Hà, Hà Nội", photos:["images/bis-corner-venue.jpg"]},
-];
+let VENUES=[];
 
 const PROMOTERS=[
   {id:'pr1', name:'Solea.Rhythm', city:'Hanoi', type:'DJ / Promoter', genres:['Afrobeats','House','Latin'], bio:'Bringing Afrobeats and Latin rhythms to Hanoi\'s nightlife. Known for high-energy sets at Sacred Garden and Bi\'s Corner.', instagram:'solea.rhythm', img:null},
@@ -6490,22 +6487,20 @@ function _initApp(){
     }catch(e){ console.warn('[Tonight artists]',e.message); }
   })();
 
-  // ── LIVE VENUES: Firestore overrides hardcoded fallback ──
+  // ── LIVE VENUES: Firestore is the single source of truth ──
   (async()=>{
     try{
       const {collection,onSnapshot,query,orderBy,where}=await import(_FB_CDN+'/firebase-firestore.js');
       const db=await _getDb();
       onSnapshot(query(collection(db,'venues'),where('status','!=','hidden'),orderBy('status'),orderBy('name','asc')), snap=>{
-        if(snap.docs.length>0){
-          VENUES=snap.docs.map(d=>{
-            const v=d.data();
-            return{id:d.id,name:v.name||'',city:v.city||'',area:v.area||'',
-                   type:v.type||'',capacity:v.capacity||0,genres:v.genres||[],
-                   open:v.open||'',close:v.close||'',img:v.img||'',logo:v.logo||'',
-                   desc:v.desc||'',address:v.address||'',instagram:v.instagram||'',photos:v.photos||[]};
-          });
-          try{ renderRows(); renderVenues(); }catch(_){}
-        }
+        VENUES=snap.docs.map(d=>{
+          const v=d.data();
+          return{id:d.id,name:v.name||'',city:v.city||'',area:v.area||'',
+                 type:v.type||'',capacity:v.capacity||0,genres:v.genres||[],
+                 open:v.open||'',close:v.close||'',img:v.img||'',logo:v.logo||'',
+                 desc:v.desc||'',address:v.address||'',instagram:v.instagram||'',photos:v.photos||[]};
+        });
+        try{ renderRows(); renderVenues(); }catch(_){}
       });
     }catch(e){ console.warn('[Tonight venues]',e.message); }
   })();
