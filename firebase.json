@@ -1,11 +1,19 @@
 {
   "hosting": {
     "site": "tonight-vietnam",
-    "public": "portal",
-    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "public": ".",
+    "ignore": [
+      "firebase.json", ".firebaserc",
+      "**/.*", "**/node_modules/**",
+      "firestore.rules", "firestore.indexes.json",
+      "functions/**", "package.json", "package-lock.json",
+      "**/*.md", "**/*.TM.blf", "**/*.TMContainer*",
+      "ntuser*", "NTUSER*"
+    ],
     "rewrites": [
-      { "source": "/", "destination": "/landing.html" },
-      { "source": "**", "destination": "/landing.html" }
+      { "source": "/browse", "destination": "/browse.html" },
+      { "source": "/", "destination": "/portal/landing.html" },
+      { "source": "**", "destination": "/portal/landing.html" }
     ],
     "headers": [
       {
