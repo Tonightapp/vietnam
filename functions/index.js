@@ -1,5 +1,5 @@
 /**
- * Tonight Vietnam — Firebase Cloud Functions
+ * Tonight Vietnam — Firebase Cloud Functions v2
  *
  * Two core functions:
  *  1. onEventApproved  — fires when admin approves an event → emails all users in that city
