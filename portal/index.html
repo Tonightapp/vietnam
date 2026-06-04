@@ -639,6 +639,9 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
 .fm-input{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box}
 .fm-textarea{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box}
 .fm-hint{font-size:12px;color:var(--text3);margin-top:2px}
+.amenity-chip{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:20px;border:1px solid var(--border2);background:var(--bg);color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;transition:.15s;user-select:none}
+.amenity-chip:hover{border-color:var(--gold);color:#fff}
+.amenity-chip.active{background:rgba(245,200,66,.15);border-color:var(--gold);color:var(--gold)}
 .grid-2col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .form-h3{font-size:18px;font-weight:800;color:#fff}
 .btn-row{display:flex;gap:10px;justify-content:flex-end;margin-top:4px}
@@ -1472,6 +1475,33 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
               <input id="vn-address" type="text" placeholder="2 Ng. 89 P. Tứ Liên, Hà Nội…" class="fm-input"/></div>
             <div><label class="fm-label">Description</label>
               <textarea id="vn-desc" rows="3" placeholder="Short venue description…" class="fm-textarea"></textarea></div>
+            <div>
+              <label class="fm-label">Amenities</label>
+              <div class="fm-hint" style="margin-bottom:10px">Click to toggle what this venue offers</div>
+              <div id="vn-amenities" style="display:flex;flex-wrap:wrap;gap:8px">
+                <span class="amenity-chip" data-amenity="Pool">🏊 Pool</span>
+                <span class="amenity-chip" data-amenity="AC">❄️ AC</span>
+                <span class="amenity-chip" data-amenity="Garden">🌿 Garden</span>
+                <span class="amenity-chip" data-amenity="Outdoor Seating">☀️ Outdoor</span>
+                <span class="amenity-chip" data-amenity="Gaming">🎮 Gaming</span>
+                <span class="amenity-chip" data-amenity="Billiards">🎱 Billiards</span>
+                <span class="amenity-chip" data-amenity="PlayStation">🕹️ PlayStation</span>
+                <span class="amenity-chip" data-amenity="Karaoke">🎤 Karaoke</span>
+                <span class="amenity-chip" data-amenity="Live Music">🎵 Live Music</span>
+                <span class="amenity-chip" data-amenity="Dance Floor">🕺 Dance Floor</span>
+                <span class="amenity-chip" data-amenity="Full Bar">🍸 Full Bar</span>
+                <span class="amenity-chip" data-amenity="Food Menu">🍽️ Food</span>
+                <span class="amenity-chip" data-amenity="Live Sports">📺 Live Sports</span>
+                <span class="amenity-chip" data-amenity="VIP Room">🛋️ VIP Room</span>
+                <span class="amenity-chip" data-amenity="Darts">🎯 Darts</span>
+                <span class="amenity-chip" data-amenity="Board Games">🃏 Board Games</span>
+                <span class="amenity-chip" data-amenity="Table Tennis">🏓 Table Tennis</span>
+                <span class="amenity-chip" data-amenity="WiFi">📶 WiFi</span>
+                <span class="amenity-chip" data-amenity="Parking">🅿️ Parking</span>
+                <span class="amenity-chip" data-amenity="Smoking Area">🚬 Smoking Area</span>
+                <span class="amenity-chip" data-amenity="Accessible">♿ Accessible</span>
+              </div>
+            </div>
             <div class="btn-row">
               <button type="button" onclick="window.closeAddVenue()" style="padding:10px 20px;border-radius:8px;border:1px solid var(--border2);background:none;color:var(--text2);font-size:13px;font-weight:600;cursor:pointer">Cancel</button>
               <button type="submit" id="vn-submit-btn" style="padding:10px 24px;border-radius:8px;border:none;background:var(--gold);color:#000;font-size:13px;font-weight:800;cursor:pointer">Save Venue →</button>
@@ -3780,6 +3810,10 @@ window.openEditVenue = function(id) {
   document.getElementById('vn-instagram').value = v.instagram || '';
   document.getElementById('vn-address').value   = v.address   || '';
   document.getElementById('vn-desc').value      = v.desc      || '';
+  const saved = v.amenities || [];
+  document.querySelectorAll('#vn-amenities .amenity-chip').forEach(c => {
+    c.classList.toggle('active', saved.includes(c.dataset.amenity));
+  });
   document.getElementById('vn-submit-btn').textContent = 'Update Venue →';
   document.getElementById('add-venue-card').style.display = 'block';
   document.getElementById('add-venue-card').scrollIntoView({behavior:'smooth'});
@@ -3788,7 +3822,14 @@ window.openEditVenue = function(id) {
 window.closeAddVenue = function() {
   editingVenueId = null;
   document.getElementById('add-venue-card').style.display = 'none';
+  document.querySelectorAll('#vn-amenities .amenity-chip').forEach(c => c.classList.remove('active'));
 };
+
+// Toggle amenity chips
+document.getElementById('vn-amenities').addEventListener('click', e => {
+  const chip = e.target.closest('.amenity-chip');
+  if (chip) chip.classList.toggle('active');
+});
 
 window.submitVenue = async function(e) {
   e.preventDefault();
@@ -3797,6 +3838,8 @@ window.submitVenue = async function(e) {
   const btn = document.getElementById('vn-submit-btn');
   btn.disabled = true; btn.textContent = 'Saving…';
   const imgVal = document.getElementById('vn-img').value.trim();
+  const amenities = [...document.querySelectorAll('#vn-amenities .amenity-chip.active')]
+    .map(c => c.dataset.amenity);
   const data = {
     name,
     type:      document.getElementById('vn-type').value.trim(),
@@ -3810,6 +3853,7 @@ window.submitVenue = async function(e) {
     instagram: document.getElementById('vn-instagram').value.trim(),
     address:   document.getElementById('vn-address').value.trim(),
     desc:      document.getElementById('vn-desc').value.trim(),
+    amenities,
     status:    'active',
   };
   try {

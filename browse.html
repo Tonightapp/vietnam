@@ -3636,6 +3636,9 @@ function closeMagReader(){
 }
 
 // ── VENUE DETAIL MODAL ──
+const _amenityEmoji={'Pool':'🏊','AC':'❄️','Garden':'🌿','Outdoor Seating':'☀️','Gaming':'🎮','Billiards':'🎱','PlayStation':'🕹️','Karaoke':'🎤','Live Music':'🎵','Dance Floor':'🕺','Full Bar':'🍸','Food Menu':'🍽️','Live Sports':'📺','VIP Room':'🛋️','Darts':'🎯','Board Games':'🃏','Table Tennis':'🏓','WiFi':'📶','Parking':'🅿️','Smoking Area':'🚬','Accessible':'♿'};
+function amenityEmoji(a){return _amenityEmoji[a]||'✓';}
+
 function openVenue(id){
   const v=VENUES.find(x=>String(x.id)===String(id));
   if(!v) return;
@@ -3662,6 +3665,7 @@ function openVenue(id){
         <div class="venue-modal-stat"><div class="venue-modal-stat-label">Capacity</div><div class="venue-modal-stat-val">👥 ${v.capacity.toLocaleString()}</div></div>
       </div>
       <div class="venue-modal-genres">${v.genres.map(g=>`<span class="venue-modal-genre">${g}</span>`).join('')}</div>
+      ${v.amenities&&v.amenities.length?`<div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px">${v.amenities.map(a=>`<span style="display:inline-flex;align-items:center;gap:4px;padding:5px 11px;border-radius:20px;border:1px solid var(--border);background:rgba(255,255,255,.04);font-size:12px;color:var(--text2);font-weight:500">${amenityEmoji(a)} ${a}</span>`).join('')}</div>`:''}
       <div class="venue-modal-desc">${v.desc}</div>
       <div class="venue-modal-events-label">Upcoming Events</div>
       ${evts.length?evts.map(e=>`
@@ -6269,7 +6273,8 @@ function _initApp(){
           return{id:d.id,name:v.name||'',city:v.city||'',area:v.area||'',
                  type:v.type||'',capacity:v.capacity||0,genres:v.genres||[],
                  open:v.open||'',close:v.close||'',img:v.img||'',logo:v.logo||'',
-                 desc:v.desc||'',address:v.address||'',instagram:v.instagram||'',photos:v.photos||[]};
+                 desc:v.desc||'',address:v.address||'',instagram:v.instagram||'',
+                 photos:v.photos||[],amenities:v.amenities||[]};
         });
         try{ renderRows(); renderVenues(); }catch(_){}
       });
