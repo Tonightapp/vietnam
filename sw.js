@@ -1,4 +1,4 @@
-const CACHE = 'tonight-v6';
+const CACHE = 'tonight-v7';
 const STATIC_ASSETS = [
   '/manifest.json',
   '/icons/icon-192.png',
@@ -23,6 +23,15 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   const url = new URL(e.request.url);
+
+  // Never intercept portal or function requests — always go to network
+  if (
+    url.pathname.startsWith('/portal') ||
+    url.hostname.includes('cloudfunctions.net') ||
+    url.hostname.includes('firebaseapp.com') ||
+    url.hostname.includes('firebase') ||
+    url.hostname.includes('googleapis.com') && !url.hostname.includes('fonts')
+  ) return;
 
   // Stale-while-revalidate for Unsplash images
   if (url.hostname === 'images.unsplash.com') {
