@@ -1185,3 +1185,45 @@ exports.promoterScan = onRequest(
     });
   }
 );
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ONE-TIME SETUP: setupPromoterAccount
+// Creates venue owner account + links event. DELETE after first use.
+// ══════════════════════════════════════════════════════════════════════════════
+exports.setupPromoterAccount = onRequest(
+  { cors: true, region: 'asia-southeast1' },
+  async (req, res) => {
+    if (req.query.secret !== 'tonight-setup-2026') return res.status(403).json({ error: 'Forbidden' });
+    const adminAuth = getAdminAuth();
+    const email     = 'youssefouasbi@gmail.com';
+    const eventId   = '44';
+    const fullName  = 'Excursion x Wet Dynasty';
+
+    let uid;
+    try {
+      const u = await adminAuth.createUser({ email, emailVerified: false });
+      uid = u.uid;
+    } catch(e) {
+      if (e.code === 'auth/email-already-exists') {
+        uid = (await adminAuth.getUserByEmail(email)).uid;
+      } else return res.status(500).json({ error: e.message });
+    }
+
+    await db.collection('users').doc(uid).set({
+      uid, email, fullName, role: 'venue_owner', createdAt: Timestamp.now(),
+    }, { merge: true });
+
+    await db.collection('venue_requests').add({
+      email, venueName: fullName, status: 'approved',
+      uid, authCreated: true, createdAt: Timestamp.now(),
+    });
+
+    await db.collection('events').doc(eventId).update({
+      publishedBy: uid, ownerEmail: email,
+    });
+
+    const resetLink = await adminAuth.generatePasswordResetLink(email);
+
+    res.json({ uid, email, resetLink, message: 'Account created and event linked.' });
+  }
+);
