@@ -117,10 +117,13 @@ service cloud.firestore {
                     && request.resource.data.ref.size() <= 50
                     && request.resource.data.eventTitle is string
                     && request.resource.data.eventTitle.size() <= 200;
-      // Venue owners can only read guestlist entries for their own events.
-      allow read: if isStaff()
-                  || (isVenueOwner() && resource.data.venueOwnerId == request.auth.uid);
-      allow update, delete: if isStaff();
+      allow read: if isStaff() || isVenueOwner();
+      // Venue owners can only flip checkedIn — no other fields
+      allow update: if isStaff()
+                    || (isVenueOwner()
+                        && request.resource.data.diff(resource.data).affectedKeys()
+                             .hasOnly(['checkedIn','checkedInAt','checkedInBy']));
+      allow delete: if isStaff();
     }
 
     // ── deals/{id} ────────────────────────────────────────────────────────────

@@ -1628,6 +1628,10 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
       My Guests
       <span id="vtab-guests-count" style="background:var(--card2);color:var(--text3);border-radius:20px;padding:2px 8px;font-size:11px;font-weight:600">0</span>
     </button>
+    <button id="vtab-scan" class="venue-tab-btn" onclick="venueTab('scan',this)"
+      style="background:none;border:none;border-bottom:2px solid transparent;padding:14px 20px;color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:8px">
+      📷 Door Scan
+    </button>
   </div>
 
   <!-- Content -->
@@ -1682,6 +1686,71 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
           <table class="data-table" style="margin:0">
             <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Event</th><th>Ref</th><th>Signed Up</th></tr></thead>
             <tbody id="venue-guests-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SCAN PANEL ── -->
+    <div id="vpanel-scan" style="display:none">
+      <!-- Event selector -->
+      <div style="margin-bottom:16px">
+        <label class="fm-label" style="margin-bottom:8px;display:block">Select event to scan for</label>
+        <select id="vscan-event-select" class="fm-input" onchange="vscanSelectEvent(this.value)" style="max-width:420px">
+          <option value="">— Choose an event —</option>
+        </select>
+      </div>
+
+      <!-- Stats bar (hidden until event selected) -->
+      <div id="vscan-stats" style="display:none;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px">
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center">
+          <div id="vscan-total" style="font-size:26px;font-weight:800">0</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px">Total</div>
+        </div>
+        <div style="background:var(--card);border:1px solid rgba(34,197,94,.3);border-radius:10px;padding:14px;text-align:center">
+          <div id="vscan-in" style="font-size:26px;font-weight:800;color:var(--green)">0</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px">✓ Checked In</div>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center">
+          <div id="vscan-waiting" style="font-size:26px;font-weight:800;color:var(--text2)">0</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px">Waiting</div>
+        </div>
+      </div>
+
+      <!-- Camera box -->
+      <div id="vscan-cambox" style="display:none;position:relative;width:100%;max-width:420px;aspect-ratio:1;background:#000;border-radius:16px;overflow:hidden;margin-bottom:16px">
+        <video id="vscan-video" autoplay playsinline muted style="width:100%;height:100%;object-fit:cover"></video>
+        <canvas id="vscan-canvas" style="display:none"></canvas>
+        <!-- Scan frame corners -->
+        <div style="position:absolute;inset:0;pointer-events:none">
+          <div style="position:absolute;top:15%;left:15%;width:60px;height:60px;border-top:3px solid #f5c842;border-left:3px solid #f5c842;border-radius:4px 0 0 0"></div>
+          <div style="position:absolute;top:15%;right:15%;width:60px;height:60px;border-top:3px solid #f5c842;border-right:3px solid #f5c842;border-radius:0 4px 0 0"></div>
+          <div style="position:absolute;bottom:15%;left:15%;width:60px;height:60px;border-bottom:3px solid #f5c842;border-left:3px solid #f5c842;border-radius:0 0 0 4px"></div>
+          <div style="position:absolute;bottom:15%;right:15%;width:60px;height:60px;border-bottom:3px solid #f5c842;border-right:3px solid #f5c842;border-radius:0 0 4px 0"></div>
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:12px;color:rgba(255,255,255,.5)">Aim at QR code</div>
+        </div>
+        <!-- Result overlay -->
+        <div id="vscan-overlay" style="display:none;position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:20px;text-align:center">
+          <div id="vscan-res-icon" style="font-size:52px"></div>
+          <div id="vscan-res-status" style="font-size:18px;font-weight:800"></div>
+          <div id="vscan-res-name" style="font-size:22px;font-weight:700;color:#fff"></div>
+          <div id="vscan-res-detail" style="font-size:14px;color:rgba(255,255,255,.65)"></div>
+        </div>
+      </div>
+
+      <!-- Scan button -->
+      <div id="vscan-btn-row" style="display:none;display:flex;gap:10px;max-width:420px;margin-bottom:20px">
+        <button id="vscan-start-btn" onclick="vscanStart()" style="flex:1;padding:13px;background:var(--gold);color:#000;font-size:14px;font-weight:800;border:none;border-radius:10px;cursor:pointer">📷 Open Camera</button>
+        <button id="vscan-stop-btn" onclick="vscanStop()" style="display:none;padding:13px 18px;background:var(--card2);color:var(--text2);font-size:14px;font-weight:700;border:1px solid var(--border2);border-radius:10px;cursor:pointer">Stop</button>
+      </div>
+
+      <!-- Guest list for selected event -->
+      <div id="vscan-list-wrap" style="display:none">
+        <div style="font-size:14px;font-weight:700;margin-bottom:10px">Guest List</div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden">
+          <table class="data-table" style="margin:0">
+            <thead><tr><th>Name</th><th>Ref</th><th>Ticket</th><th>Status</th><th></th></tr></thead>
+            <tbody id="vscan-guests-tbody"></tbody>
           </table>
         </div>
       </div>
@@ -1778,7 +1847,7 @@ import { getAuth, signInWithEmailAndPassword,
          sendPasswordResetEmail }                  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { getFirestore, collection, doc,
          query, orderBy, where, limit,
-         onSnapshot, updateDoc, addDoc, setDoc, deleteDoc,
+         onSnapshot, getDocs, updateDoc, addDoc, setDoc, deleteDoc,
          getDoc, serverTimestamp, writeBatch }     from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 // ── 🔧 PASTE YOUR FIREBASE CONFIG HERE ───────────────────
@@ -2037,8 +2106,192 @@ window.venueTab = function(tab, btn) {
   btn.style.fontWeight = '700';
   document.getElementById('vpanel-events').style.display    = tab === 'events'    ? 'block' : 'none';
   document.getElementById('vpanel-guestlist').style.display = tab === 'guestlist' ? 'block' : 'none';
+  document.getElementById('vpanel-scan').style.display      = tab === 'scan'      ? 'block' : 'none';
   if (tab === 'guestlist') renderVenueGuestlist();
+  if (tab === 'scan')      vscanInit();
+  if (tab !== 'scan')      vscanStop();
 };
+
+// ── DOOR SCANNER ─────────────────────────────────────────────────────────────
+let _vsStream = null, _vsRaf = null, _vsActive = false, _vsCooldown = false;
+let _vsEventTitle = '', _vsGuests = [];
+
+function vscanInit() {
+  const sel = document.getElementById('vscan-event-select');
+  sel.innerHTML = '<option value="">— Choose an event —</option>' +
+    venueEvents.filter(e => e.status === 'approved').map(e =>
+      `<option value="${e.id}">${e.title} · ${e.date||''}</option>`
+    ).join('');
+}
+
+function vscanSelectEvent(eventId) {
+  vscanStop();
+  document.getElementById('vscan-stats').style.display    = 'none';
+  document.getElementById('vscan-cambox').style.display   = 'none';
+  document.getElementById('vscan-btn-row').style.display  = 'none';
+  document.getElementById('vscan-list-wrap').style.display= 'none';
+  if (!eventId) return;
+  const ev = venueEvents.find(e => e.id === eventId);
+  if (!ev) return;
+  _vsEventTitle = ev.title;
+  document.getElementById('vscan-stats').style.display    = 'grid';
+  document.getElementById('vscan-cambox').style.display   = 'block';
+  document.getElementById('vscan-btn-row').style.display  = 'flex';
+  document.getElementById('vscan-list-wrap').style.display= 'block';
+  vscanLoadGuests();
+}
+
+async function vscanLoadGuests() {
+  if (!_vsEventTitle) return;
+  try {
+    const snap = await getDocs(query(
+      collection(db,'guestlist'),
+      where('eventTitle','==',_vsEventTitle),
+      orderBy('createdAt','desc')
+    ));
+    _vsGuests = snap.docs.map(d=>({id:d.id,...d.data(),
+      checkedInAt: d.data().checkedInAt?.toDate?.()?.toISOString()||null}));
+    vscanRenderStats();
+    vscanRenderList();
+  } catch(e){ console.warn('vscan load',e.message); }
+}
+
+function vscanRenderStats() {
+  const total = _vsGuests.reduce((s,g)=>s+(g.qty||1),0);
+  const inC   = _vsGuests.filter(g=>g.checkedIn).reduce((s,g)=>s+(g.qty||1),0);
+  document.getElementById('vscan-total').textContent   = total;
+  document.getElementById('vscan-in').textContent      = inC;
+  document.getElementById('vscan-waiting').textContent = total - inC;
+}
+
+function vscanRenderList() {
+  const tbody = document.getElementById('vscan-guests-tbody');
+  if (!_vsGuests.length) { tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:24px">No guests yet</td></tr>`; return; }
+  const sorted = [..._vsGuests].sort((a,b)=>a.checkedIn===b.checkedIn?0:a.checkedIn?1:-1);
+  tbody.innerHTML = sorted.map(g=>{
+    const time = g.checkedIn && g.checkedInAt ? new Date(g.checkedInAt).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}) : '';
+    return `<tr>
+      <td style="font-weight:600">${esc(g.buyerName||'—')}</td>
+      <td style="font-family:monospace;font-size:12px;color:var(--text3)">${esc(g.ref||'—')}</td>
+      <td>${esc(g.ticketType||'Guestlist')} ×${g.qty||1}</td>
+      <td>${g.checkedIn
+        ? `<span style="background:rgba(34,197,94,.15);color:var(--green);font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px">✓ IN ${time}</span>`
+        : `<span style="background:var(--card2);color:var(--text3);font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px">—</span>`}</td>
+      <td>${!g.checkedIn?`<button onclick="vscanManualCheckIn('${g.id}')" style="padding:5px 12px;background:var(--card2);color:var(--text);border:1px solid var(--border2);border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">Check In</button>`:''}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function vscanStart() {
+  document.getElementById('vscan-start-btn').style.display = 'none';
+  document.getElementById('vscan-stop-btn').style.display  = 'inline-block';
+  vscanHideOverlay();
+  _vsActive = true;
+  try {
+    _vsStream = await navigator.mediaDevices.getUserMedia({
+      video:{facingMode:'environment',width:{ideal:1280},height:{ideal:720}}
+    });
+    const vid = document.getElementById('vscan-video');
+    vid.srcObject = _vsStream;
+    await vid.play();
+    requestAnimationFrame(_vscanTick);
+  } catch(e) {
+    toast('Camera access denied — please allow camera permission','err');
+    vscanStop();
+  }
+}
+
+function vscanStop() {
+  _vsActive = false;
+  if (_vsRaf) { cancelAnimationFrame(_vsRaf); _vsRaf = null; }
+  if (_vsStream) { _vsStream.getTracks().forEach(t=>t.stop()); _vsStream = null; }
+  const vid = document.getElementById('vscan-video');
+  if (vid) vid.srcObject = null;
+  document.getElementById('vscan-start-btn').style.display = 'inline-block';
+  document.getElementById('vscan-stop-btn').style.display  = 'none';
+}
+
+function _vscanTick() {
+  if (!_vsActive) return;
+  _vsRaf = requestAnimationFrame(_vscanTick);
+  if (_vsCooldown || typeof jsQR === 'undefined') return;
+  const vid = document.getElementById('vscan-video');
+  const can = document.getElementById('vscan-canvas');
+  if (!vid || vid.readyState !== vid.HAVE_ENOUGH_DATA) return;
+  can.width = vid.videoWidth; can.height = vid.videoHeight;
+  const ctx = can.getContext('2d');
+  ctx.drawImage(vid, 0, 0, can.width, can.height);
+  const img  = ctx.getImageData(0, 0, can.width, can.height);
+  const code = jsQR(img.data, img.width, img.height, {inversionAttempts:'dontInvert'});
+  if (code?.data) _vsHandleQR(code.data);
+}
+
+async function _vsHandleQR(raw) {
+  _vsCooldown = true;
+  const ref = raw.replace(/^TONIGHT:/i,'').trim();
+  if (!ref) { _vsCooldown = false; return; }
+  try {
+    navigator.vibrate?.([40]);
+    const snap = await getDocs(query(collection(db,'guestlist'),where('ref','==',ref)));
+    if (snap.empty) {
+      vscanShowOverlay('err','❌','Not Found',`Ref: ${ref}`,'Ticket not in system');
+      navigator.vibrate?.([100,40,100]);
+      setTimeout(()=>{vscanHideOverlay();_vsCooldown=false;},3000); return;
+    }
+    const d = snap.docs[0]; const g = d.data();
+    // Verify this ticket belongs to their event
+    if (g.eventTitle && _vsEventTitle && g.eventTitle !== _vsEventTitle) {
+      vscanShowOverlay('warn','⚠️','Wrong Event',g.buyerName||'Guest',`This ticket is for: ${g.eventTitle}`);
+      navigator.vibrate?.([200]);
+      setTimeout(()=>{vscanHideOverlay();_vsCooldown=false;},3500); return;
+    }
+    if (g.checkedIn) {
+      const t = g.checkedInAt ? new Date(g.checkedInAt.toDate()).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}) : '';
+      vscanShowOverlay('warn','⚠️','Already In',g.buyerName||'Guest',`Checked in at ${t} · ${g.ticketType||'Guestlist'} ×${g.qty||1}`);
+      navigator.vibrate?.([150]);
+      setTimeout(()=>{vscanHideOverlay();_vsCooldown=false;},3500); return;
+    }
+    await updateDoc(doc(db,'guestlist',d.id),{checkedIn:true,checkedInAt:serverTimestamp(),checkedInBy:'venue-portal'});
+    vscanShowOverlay('ok','✅','Welcome In!',g.buyerName||'Guest',`${g.ticketType||'Guestlist'} ×${g.qty||1}`);
+    navigator.vibrate?.([40,20,40]);
+    // Update local list
+    const local = _vsGuests.find(x=>x.id===d.id);
+    if (local) { local.checkedIn=true; local.checkedInAt=new Date().toISOString(); }
+    vscanRenderStats(); vscanRenderList();
+    setTimeout(()=>{vscanHideOverlay();_vsCooldown=false;},3000);
+  } catch(e) {
+    vscanShowOverlay('err','⚠️','Error',e.message,'');
+    setTimeout(()=>{vscanHideOverlay();_vsCooldown=false;},3000);
+  }
+}
+
+async function vscanManualCheckIn(docId) {
+  const g = _vsGuests.find(x=>x.id===docId);
+  if (!g||g.checkedIn) return;
+  if (!confirm(`Check in ${g.buyerName||'Guest'}?`)) return;
+  try {
+    await updateDoc(doc(db,'guestlist',docId),{checkedIn:true,checkedInAt:serverTimestamp(),checkedInBy:'venue-portal-manual'});
+    g.checkedIn=true; g.checkedInAt=new Date().toISOString();
+    vscanRenderStats(); vscanRenderList();
+    toast(`✅ ${g.buyerName||'Guest'} checked in`);
+  } catch(e){ toast('Error: '+e.message,'err'); }
+}
+
+function vscanShowOverlay(type, icon, status, name, detail) {
+  const ov = document.getElementById('vscan-overlay');
+  ov.style.display='flex';
+  ov.style.background = type==='ok'?'rgba(5,46,22,.92)':type==='warn'?'rgba(28,17,7,.92)':'rgba(28,5,5,.92)';
+  document.getElementById('vscan-res-icon').textContent   = icon;
+  document.getElementById('vscan-res-status').textContent = status;
+  document.getElementById('vscan-res-status').style.color = type==='ok'?'#22c55e':type==='warn'?'#f59e0b':'#ef4444';
+  document.getElementById('vscan-res-name').textContent   = name;
+  document.getElementById('vscan-res-detail').textContent = detail;
+}
+function vscanHideOverlay() {
+  const ov = document.getElementById('vscan-overlay');
+  if (ov) ov.style.display='none';
+}
 
 // Venue event form helpers
 const VLABEL = 'font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px';
@@ -4084,5 +4337,6 @@ window.toast = function(msg) {
 };
 
 </script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 </body>
 </html>
