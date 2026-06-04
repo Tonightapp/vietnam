@@ -1,8 +1,5 @@
-const CACHE = 'tonight-v5';
-const ASSETS = [
-  '/',
-  '/index.html',
-  '/privacy.html',
+const CACHE = 'tonight-v6';
+const STATIC_ASSETS = [
   '/manifest.json',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
@@ -11,7 +8,7 @@ const ASSETS = [
 
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting())
+    caches.open(CACHE).then(c => c.addAll(STATIC_ASSETS)).then(() => self.skipWaiting())
   );
 });
 
@@ -27,7 +24,7 @@ self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   const url = new URL(e.request.url);
 
-  // Stale-while-revalidate for Unsplash images — serve cache instantly, update in background
+  // Stale-while-revalidate for Unsplash images
   if (url.hostname === 'images.unsplash.com') {
     e.respondWith(
       caches.open(CACHE).then(c =>
@@ -36,7 +33,6 @@ self.addEventListener('fetch', e => {
             if (res.ok) c.put(e.request, res.clone());
             return res;
           }).catch(() => null);
-          // Return cached immediately if available; otherwise wait for network
           return cached || fresh;
         })
       )
@@ -44,7 +40,24 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // Cache-first for our own static assets (icons, fonts)
+  // Network-first for HTML pages — always serve fresh content
+  if (
+    url.hostname === self.location.hostname &&
+    (url.pathname === '/' || url.pathname.endsWith('.html'))
+  ) {
+    e.respondWith(
+      fetch(e.request).then(res => {
+        if (res.ok) {
+          const clone = res.clone();
+          caches.open(CACHE).then(c => c.put(e.request, clone));
+        }
+        return res;
+      }).catch(() => caches.match(e.request).then(c => c || caches.match('/browse.html')))
+    );
+    return;
+  }
+
+  // Cache-first for static assets (icons, fonts)
   if (
     url.hostname === self.location.hostname ||
     url.hostname === 'fonts.gstatic.com' ||
@@ -59,13 +72,13 @@ self.addEventListener('fetch', e => {
             caches.open(CACHE).then(c => c.put(e.request, clone));
           }
           return res;
-        }).catch(() => caches.match('/index.html'));
+        }).catch(() => caches.match('/browse.html'));
       })
     );
     return;
   }
 
-  // Network-first for everything else, fallback to cache
+  // Network-first for everything else
   e.respondWith(
     fetch(e.request).catch(() => caches.match(e.request))
   );
