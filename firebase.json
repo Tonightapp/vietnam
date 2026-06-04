@@ -11,8 +11,6 @@
       "ntuser*", "NTUSER*"
     ],
     "rewrites": [
-      { "source": "/browse", "destination": "/browse.html" },
-      { "source": "/landing", "destination": "/portal/landing.html" },
       { "source": "/**", "destination": "/browse.html" }
     ],
     "headers": [
