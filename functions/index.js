@@ -24,7 +24,8 @@ const { onSchedule }                 = require('firebase-functions/v2/scheduler'
 const { initializeApp }              = require('firebase-admin/app');
 const { getFirestore, Timestamp }    = require('firebase-admin/firestore');
 const nodemailer                     = require('nodemailer');
-const QRCode                         = require('qrcode');
+// QR codes are generated via api.qrserver.com — hosted URLs work in all email clients
+// (base64 data URIs are stripped by Gmail and most email providers)
 
 initializeApp();
 const db = getFirestore();
@@ -602,6 +603,8 @@ exports.onGuestlistCreate = onDocumentCreated(
       ? new Date(tk.date).toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' })
       : '';
 
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent('TONIGHT:' + ref)}&bgcolor=FFFFFF&color=000000&margin=10&format=png`;
+
     const html = `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"/></head>
 <body style="margin:0;padding:0;background:#080810;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
@@ -624,12 +627,12 @@ exports.onGuestlistCreate = onDocumentCreated(
       <div style="font-size:13px;color:rgba(255,255,255,0.7)">🎟 ${escHtml(tk.ticketType || 'Guestlist')} × ${tk.qty || 1}</div>
     </div>
   </td></tr>
-  <tr><td style="padding:0 32px 24px;text-align:center">
-    <div style="background:#fff;border-radius:12px;padding:20px;display:inline-block">
-      <img src="__QR__" width="200" height="200" alt="QR Code" style="display:block;border-radius:4px"/>
-      <div style="margin-top:8px;font-size:10px;font-weight:700;letter-spacing:1.5px;color:#333;font-family:monospace">${escHtml(ref)}</div>
+  <tr><td style="padding:0 32px 28px;text-align:center">
+    <div style="background:#fff;border-radius:16px;padding:24px;display:inline-block;box-shadow:0 4px 24px rgba(0,0,0,.4)">
+      <img src="${qrUrl}" width="220" height="220" alt="Your QR Code" style="display:block"/>
+      <div style="margin-top:12px;font-size:11px;font-weight:700;letter-spacing:2px;color:#111;font-family:monospace">${escHtml(ref)}</div>
     </div>
-    <div style="font-size:12px;color:rgba(255,255,255,0.35);margin-top:10px">Show this QR at venue entry · Staff scans to check you in</div>
+    <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:14px;letter-spacing:.3px">Screenshot this ticket · Show QR at venue entry</div>
   </td></tr>
   <tr><td style="background:rgba(255,255,255,0.03);border-top:1px solid rgba(255,255,255,0.06);padding:18px 32px;text-align:center">
     <div style="font-size:11px;color:rgba(255,255,255,0.25)">Guestlist registration · Entry subject to organiser confirmation<br/>
@@ -640,13 +643,11 @@ exports.onGuestlistCreate = onDocumentCreated(
 </body></html>`;
 
     try {
-      const qrDataUrl = await QRCode.toDataURL('TONIGHT:' + ref, { width: 200, margin: 1 });
-      const htmlFinal = html.replace('__QR__', qrDataUrl);
       await transporter.sendMail({
         from:    fromLabel,
         to:      tk.buyerEmail,
         subject: `🎫 Your Tonight Ticket — ${tk.eventTitle || 'Guestlist Confirmed'}`,
-        html:    htmlFinal,
+        html,
       });
       await event.data.ref.update({ emailSent: true, emailSentAt: Timestamp.now() });
       console.log(`[onGuestlistCreate] QR ticket sent to ${tk.buyerEmail} ref=${ref}`);
@@ -678,6 +679,8 @@ exports.onDealCreate = onDocumentCreated(
     const firstName   = (dl.guestName || 'Guest').split(' ')[0];
     const window_     = (dl.startTime && dl.endTime) ? `${dl.startTime}–${dl.endTime}` : 'tonight';
 
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrData)}&bgcolor=FFFFFF&color=000000&margin=10&format=png`;
+
     const html = `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"/></head>
 <body style="margin:0;padding:0;background:#080810;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
@@ -700,12 +703,12 @@ exports.onDealCreate = onDocumentCreated(
       <div style="font-size:13px;color:rgba(255,255,255,0.7)">🕐 Valid ${escHtml(window_)}</div>
     </div>
   </td></tr>
-  <tr><td style="padding:0 32px 24px;text-align:center">
-    <div style="background:#fff;border-radius:12px;padding:20px;display:inline-block">
-      <img src="__QR__" width="200" height="200" alt="QR Code" style="display:block;border-radius:4px"/>
-      <div style="margin-top:8px;font-size:10px;font-weight:700;letter-spacing:1.5px;color:#333;font-family:monospace">${escHtml(code)}</div>
+  <tr><td style="padding:0 32px 28px;text-align:center">
+    <div style="background:#fff;border-radius:16px;padding:24px;display:inline-block;box-shadow:0 4px 24px rgba(0,0,0,.4)">
+      <img src="${qrUrl}" width="220" height="220" alt="Your QR Code" style="display:block"/>
+      <div style="margin-top:12px;font-size:11px;font-weight:700;letter-spacing:2px;color:#111;font-family:monospace">${escHtml(code)}</div>
     </div>
-    <div style="font-size:12px;color:rgba(255,255,255,0.35);margin-top:10px">Show this QR at the venue · Staff scans to unlock your deal</div>
+    <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:14px;letter-spacing:.3px">Screenshot this voucher · Show QR at the venue</div>
   </td></tr>
   <tr><td style="background:rgba(255,255,255,0.03);border-top:1px solid rgba(255,255,255,0.06);padding:18px 32px;text-align:center">
     <div style="font-size:11px;color:rgba(255,255,255,0.25)">Deal subject to venue availability<br/>
@@ -716,13 +719,11 @@ exports.onDealCreate = onDocumentCreated(
 </body></html>`;
 
     try {
-      const qrDataUrl = await QRCode.toDataURL(qrData, { width: 200, margin: 1 });
-      const htmlFinal = html.replace('__QR__', qrDataUrl);
       await transporter.sendMail({
         from:    fromLabel,
         to:      dl.guestEmail,
         subject: `🎫 Your Tonight Deal — ${dl.dealTitle || 'Deal Confirmed'} at ${dl.venueName || ''}`,
-        html:    htmlFinal,
+        html,
       });
       await event.data.ref.update({ emailSent: true, emailSentAt: Timestamp.now() });
       console.log(`[onDealCreate] Deal voucher sent to ${dl.guestEmail} code=${code}`);
