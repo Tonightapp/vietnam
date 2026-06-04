@@ -6808,8 +6808,9 @@ async function submitJoin(e){
     if(fbUid){
       await setDoc(doc(fbDb,'users',fbUid),{uid:fbUid,email,fullName:name,role:'user',createdAt:serverTimestamp()},{merge:true});
     }
+    // Always write community_signups for members — fires admin notification regardless of Auth outcome
     if(type==='member'){
-      await _saveToFirestore('community_signups',{fullName:name,email,city:filterCity||'',source:'tonight-app'});
+      _saveToFirestore('community_signups',{fullName:name,email,city:filterCity||'Hanoi',source:'tonight-app'});
     } else {
       await _saveToFirestore('venue_requests',{email,contactName:name,venueName:biz,uid:fbUid||'',type,status:'pending',source:'main-app-signup'});
     }

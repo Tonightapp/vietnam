@@ -366,6 +366,210 @@ function buildReminderEmail(ev, user) {
 </html>`;
 }
 
+// ══════════════════════════════════════════════════════════════════════════════
+// FUNCTION 9: notifyAdminNewUser
+// Fallback trigger on users/{uid} with role='user' — catches member signups
+// that go through Firebase Auth but don't write to community_signups.
+// ══════════════════════════════════════════════════════════════════════════════
+exports.notifyAdminNewUser = onDocumentCreated(
+  { document: 'users/{uid}', region: 'asia-southeast1' },
+  async (event) => {
+    const u = event.data.data();
+    if (!u.email || u.role !== 'user') return;
+    const transporter = makeTransporter(EMAIL_USER.value(), EMAIL_PASS.value());
+    const fromLabel   = EMAIL_FROM.value() || `Tonight Vietnam <${EMAIL_USER.value()}>`;
+    const joinedAt    = new Date().toLocaleString('en-GB', { timeZone: 'Asia/Ho_Chi_Minh' });
+    try {
+      await transporter.sendMail({
+        from: fromLabel, to: ADMIN_EMAIL,
+        subject: `🎉 New member joined — ${u.fullName || u.email}`,
+        html: adminAlertHtml('🎉', 'rgba(34,197,94,.3)', 'New Member Joined', [
+          ['Name',      u.fullName || '—'],
+          ['Email',     u.email],
+          ['Joined at', joinedAt + ' (VN time)'],
+        ]),
+      });
+      console.log(`[notifyAdminNewUser] Admin notified: ${u.email}`);
+    } catch (err) { console.error(`[notifyAdminNewUser] ${err.message}`); }
+  }
+);
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FUNCTION 10: notifyAdminGuestlist
+// Fires when someone joins a guestlist → emails admin.
+// ══════════════════════════════════════════════════════════════════════════════
+exports.notifyAdminGuestlist = onDocumentCreated(
+  { document: 'guestlist/{id}', region: 'asia-southeast1' },
+  async (event) => {
+    const g = event.data.data();
+    if (!g.buyerEmail) return;
+    const transporter = makeTransporter(EMAIL_USER.value(), EMAIL_PASS.value());
+    const fromLabel   = EMAIL_FROM.value() || `Tonight Vietnam <${EMAIL_USER.value()}>`;
+    const at = new Date().toLocaleString('en-GB', { timeZone: 'Asia/Ho_Chi_Minh' });
+    try {
+      await transporter.sendMail({
+        from: fromLabel, to: ADMIN_EMAIL,
+        subject: `🎫 Guestlist join — ${g.eventTitle || 'Event'}`,
+        html: adminAlertHtml('🎫', 'rgba(139,92,246,.3)', 'New Guestlist Entry', [
+          ['Guest',     g.buyerName  || '—'],
+          ['Email',     g.buyerEmail],
+          ['Event',     g.eventTitle || '—'],
+          ['Ticket',    `${g.ticketType || 'Guestlist'} × ${g.qty || 1}`],
+          ['Ref',       g.ref        || '—'],
+          ['At',        at + ' (VN time)'],
+        ]),
+      });
+      console.log(`[notifyAdminGuestlist] Admin notified: ${g.buyerEmail}`);
+    } catch (err) { console.error(`[notifyAdminGuestlist] ${err.message}`); }
+  }
+);
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FUNCTION 11: notifyAdminDealClaimed
+// Fires when someone claims a deal → emails admin.
+// ══════════════════════════════════════════════════════════════════════════════
+exports.notifyAdminDealClaimed = onDocumentCreated(
+  { document: 'deals/{id}', region: 'asia-southeast1' },
+  async (event) => {
+    const d = event.data.data();
+    if (!d.guestEmail && !d.dealTitle) return;
+    const transporter = makeTransporter(EMAIL_USER.value(), EMAIL_PASS.value());
+    const fromLabel   = EMAIL_FROM.value() || `Tonight Vietnam <${EMAIL_USER.value()}>`;
+    const at = new Date().toLocaleString('en-GB', { timeZone: 'Asia/Ho_Chi_Minh' });
+    try {
+      await transporter.sendMail({
+        from: fromLabel, to: ADMIN_EMAIL,
+        subject: `🏷️ Deal claimed — ${d.dealTitle || 'Deal'}`,
+        html: adminAlertHtml('🏷️', 'rgba(245,200,66,.3)', 'Deal Claimed', [
+          ['Guest',   d.guestName  || '—'],
+          ['Email',   d.guestEmail || '—'],
+          ['Deal',    d.dealTitle  || '—'],
+          ['Venue',   d.venueName  || '—'],
+          ['Code',    d.code       || '—'],
+          ['At',      at + ' (VN time)'],
+        ]),
+      });
+      console.log(`[notifyAdminDealClaimed] Admin notified: deal=${d.dealTitle}`);
+    } catch (err) { console.error(`[notifyAdminDealClaimed] ${err.message}`); }
+  }
+);
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FUNCTION 12: notifyAdminEventSubmitted
+// Fires when a new event is created with status='pending' → emails admin.
+// ══════════════════════════════════════════════════════════════════════════════
+exports.notifyAdminEventSubmitted = onDocumentCreated(
+  { document: 'events/{id}', region: 'asia-southeast1' },
+  async (event) => {
+    const ev = event.data.data();
+    if (ev.status !== 'pending') return;
+    const transporter = makeTransporter(EMAIL_USER.value(), EMAIL_PASS.value());
+    const fromLabel   = EMAIL_FROM.value() || `Tonight Vietnam <${EMAIL_USER.value()}>`;
+    const at = new Date().toLocaleString('en-GB', { timeZone: 'Asia/Ho_Chi_Minh' });
+    try {
+      await transporter.sendMail({
+        from: fromLabel, to: ADMIN_EMAIL,
+        subject: `📋 New event submitted — ${ev.title || 'Event'} (awaiting approval)`,
+        html: adminAlertHtml('📋', 'rgba(59,130,246,.3)', 'New Event Awaiting Approval', [
+          ['Title',   ev.title     || '—'],
+          ['Venue',   ev.venueName || '—'],
+          ['City',    ev.city      || '—'],
+          ['Date',    ev.date      || '—'],
+          ['Genre',   ev.genre     || '—'],
+          ['Submitted', at + ' (VN time)'],
+        ]),
+      });
+      console.log(`[notifyAdminEventSubmitted] Admin notified: ${ev.title}`);
+    } catch (err) { console.error(`[notifyAdminEventSubmitted] ${err.message}`); }
+  }
+);
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FUNCTION 13: notifyAdminInquiry
+// Fires when a new inquiry is submitted → emails admin.
+// ══════════════════════════════════════════════════════════════════════════════
+exports.notifyAdminInquiry = onDocumentCreated(
+  { document: 'inquiries/{id}', region: 'asia-southeast1' },
+  async (event) => {
+    const inq = event.data.data();
+    if (!inq.email) return;
+    const transporter = makeTransporter(EMAIL_USER.value(), EMAIL_PASS.value());
+    const fromLabel   = EMAIL_FROM.value() || `Tonight Vietnam <${EMAIL_USER.value()}>`;
+    const at = new Date().toLocaleString('en-GB', { timeZone: 'Asia/Ho_Chi_Minh' });
+    try {
+      await transporter.sendMail({
+        from: fromLabel, to: ADMIN_EMAIL,
+        subject: `📩 New inquiry from ${inq.name || inq.email}`,
+        html: adminAlertHtml('📩', 'rgba(236,72,153,.3)', 'New Inquiry', [
+          ['Name',    inq.name    || '—'],
+          ['Email',   inq.email],
+          ['Type',    inq.type    || '—'],
+          ['Message', inq.message || '—'],
+          ['At',      at + ' (VN time)'],
+        ]),
+      });
+      console.log(`[notifyAdminInquiry] Admin notified: ${inq.email}`);
+    } catch (err) { console.error(`[notifyAdminInquiry] ${err.message}`); }
+  }
+);
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FUNCTION 14: notifyAdminProSignup
+// Fires when a promoter / DJ signs up → emails admin.
+// ══════════════════════════════════════════════════════════════════════════════
+exports.notifyAdminProSignup = onDocumentCreated(
+  { document: 'pro_signups/{id}', region: 'asia-southeast1' },
+  async (event) => {
+    const p = event.data.data();
+    if (!p.email) return;
+    const transporter = makeTransporter(EMAIL_USER.value(), EMAIL_PASS.value());
+    const fromLabel   = EMAIL_FROM.value() || `Tonight Vietnam <${EMAIL_USER.value()}>`;
+    const at = new Date().toLocaleString('en-GB', { timeZone: 'Asia/Ho_Chi_Minh' });
+    try {
+      await transporter.sendMail({
+        from: fromLabel, to: ADMIN_EMAIL,
+        subject: `🎧 New promoter/DJ signup — ${p.name || p.email}`,
+        html: adminAlertHtml('🎧', 'rgba(245,158,11,.3)', 'New Promoter / DJ Signup', [
+          ['Name',  p.name  || '—'],
+          ['Email', p.email],
+          ['Type',  p.type  || '—'],
+          ['At',    at + ' (VN time)'],
+        ]),
+      });
+      console.log(`[notifyAdminProSignup] Admin notified: ${p.email}`);
+    } catch (err) { console.error(`[notifyAdminProSignup] ${err.message}`); }
+  }
+);
+
+// ── Shared admin alert email template ────────────────────────────────────────
+function adminAlertHtml(icon, borderColor, title, rows) {
+  const rowsHtml = rows.map(([label, val]) => `
+    <tr><td style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.07)">
+      <span style="color:#475569;font-size:11px;text-transform:uppercase;letter-spacing:1px">${escHtml(label)}</span><br/>
+      <span style="color:#f1f5f9;font-size:14px;font-weight:600;word-break:break-all">${escHtml(String(val))}</span>
+    </td></tr>`).join('');
+  return `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"/></head>
+<body style="margin:0;padding:0;background:#080810;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#080810;padding:32px 16px">
+<tr><td align="center">
+<table width="480" cellpadding="0" cellspacing="0" style="max-width:480px;background:#13131f;border:1px solid ${borderColor};border-radius:20px;overflow:hidden">
+  <tr><td style="background:linear-gradient(135deg,${borderColor},transparent);padding:24px 32px;text-align:center;border-bottom:1px solid rgba(255,255,255,.07)">
+    <div style="font-size:32px;margin-bottom:6px">${icon}</div>
+    <div style="color:#fff;font-size:16px;font-weight:800">${escHtml(title)}</div>
+    <div style="color:rgba(255,255,255,.4);font-size:11px;margin-top:3px">Tonight Vietnam Admin Alert</div>
+  </td></tr>
+  <tr><td style="padding:20px 32px">
+    <table width="100%" cellpadding="0" cellspacing="0">${rowsHtml}</table>
+    <div style="text-align:center;margin-top:24px">
+      <a href="https://tonightvietnam.com/portal/" style="display:inline-block;background:#f5c842;color:#000;font-size:13px;font-weight:700;padding:12px 28px;border-radius:10px;text-decoration:none">Open Admin Portal →</a>
+    </div>
+  </td></tr>
+</table>
+</td></tr></table>
+</body></html>`;
+}
+
 function escHtml(str) {
   return String(str || '')
     .replace(/&/g, '&amp;')
