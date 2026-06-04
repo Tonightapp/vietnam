@@ -1182,6 +1182,15 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
               <label class="fm-label">Ticket URL (optional)</label>
               <input id="ae-ticketurl" type="url" placeholder="https://..." class="fm-input"/>
             </div>
+            <div class="grid-2col">
+              <div>
+                <label class="fm-label">Promoter PIN <span style="color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0">(for door scanner)</span></label>
+                <input id="ae-pin" type="text" maxlength="6" placeholder="e.g. 1234 (leave blank for auto)" class="fm-input" style="letter-spacing:4px;font-weight:700"/>
+              </div>
+              <div style="display:flex;align-items:flex-end">
+                <button type="button" id="ae-scan-link-btn" onclick="copyScanLink()" style="display:none;width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--bg);color:var(--text2);font-size:12px;font-weight:700;cursor:pointer">📋 Copy Scan Link</button>
+              </div>
+            </div>
             <div style="display:flex;gap:24px;margin-top:4px">
               <div style="display:flex;align-items:center;gap:10px">
                 <input type="checkbox" id="ae-featured" style="width:16px;height:16px;accent-color:var(--gold)"/>
@@ -3024,6 +3033,7 @@ window.openAddEvent = function() {
 window.closeAddEvent = function() {
   document.getElementById('add-event-modal').style.display = 'none';
   document.getElementById('add-event-form').reset();
+  document.getElementById('ae-scan-link-btn').style.display = 'none';
   _aeFlyerShow('');
   editingEventId = null;
 };
@@ -3053,9 +3063,22 @@ window.openEditEvent = function(eventId) {
   document.getElementById('ae-ticketurl').value = ev.ticketUrl||'';
   document.getElementById('ae-featured').checked = !!ev.featured;
   document.getElementById('ae-soldout').checked   = !!ev.soldOut;
+  document.getElementById('ae-pin').value         = ev.promoterPin || '';
+  document.getElementById('ae-scan-link-btn').style.display = 'block';
   document.getElementById('ae-modal-title').textContent = 'Edit Event';
   document.getElementById('ae-submit-btn').textContent = 'Save Changes →';
   document.getElementById('add-event-modal').style.display = 'block';
+};
+
+window.copyScanLink = function() {
+  if (!editingEventId) { toast('Save the event first to get the scan link'); return; }
+  const pin = document.getElementById('ae-pin').value.trim() || editingEventId.slice(-4).toUpperCase();
+  const url = `${location.origin}/portal/scan.html?event=${editingEventId}`;
+  navigator.clipboard.writeText(url).then(() => {
+    toast(`✅ Scan link copied! PIN: ${pin}`);
+  }).catch(() => {
+    prompt('Copy this link:', url);
+  });
 };
 
 window.submitAddEvent = async function(e) {
@@ -3086,8 +3109,9 @@ window.submitAddEvent = async function(e) {
     area:        document.getElementById('ae-area').value.trim(),
     organizer:   document.getElementById('ae-organizer').value.trim(),
     ticketUrl:   document.getElementById('ae-ticketurl').value.trim(),
-    featured:    document.getElementById('ae-featured').checked,
-    soldOut:     document.getElementById('ae-soldout').checked,
+    featured:     document.getElementById('ae-featured').checked,
+    soldOut:      document.getElementById('ae-soldout').checked,
+    promoterPin:  document.getElementById('ae-pin').value.trim().toUpperCase() || null,
   };
   try {
     if (editingEventId) {

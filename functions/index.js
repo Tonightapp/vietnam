@@ -21,6 +21,7 @@
 const { onDocumentUpdated,
         onDocumentCreated }          = require('firebase-functions/v2/firestore');
 const { onSchedule }                 = require('firebase-functions/v2/scheduler');
+const { onRequest }                  = require('firebase-functions/v2/https');
 const { initializeApp }              = require('firebase-admin/app');
 const { getFirestore, Timestamp }    = require('firebase-admin/firestore');
 const nodemailer                     = require('nodemailer');
@@ -1100,3 +1101,87 @@ function buildWelcomeEmail(signup, firstName) {
 </body>
 </html>`;
 }
+
+// ══════════════════════════════════════════════════════════════════════════════
+// HTTP: promoterVerify
+// POST { eventId, pin } → validates PIN, returns event + full guestlist
+// ══════════════════════════════════════════════════════════════════════════════
+exports.promoterVerify = onRequest(
+  { cors: true, region: 'asia-southeast1' },
+  async (req, res) => {
+    if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+    const { eventId, pin } = req.body || {};
+    if (!eventId || !pin) return res.status(400).json({ error: 'Missing eventId or pin' });
+
+    const eventDoc = await db.collection('events').doc(eventId).get();
+    if (!eventDoc.exists) return res.status(404).json({ error: 'Event not found' });
+    const ev = eventDoc.data();
+
+    const expected = String(ev.promoterPin || eventId.slice(-4)).toUpperCase();
+    if (String(pin).toUpperCase() !== expected) {
+      return res.status(403).json({ error: 'Wrong PIN' });
+    }
+
+    const snap = await db.collection('guestlist')
+      .where('eventTitle', '==', ev.title)
+      .orderBy('createdAt', 'desc')
+      .limit(500)
+      .get();
+
+    const guests = snap.docs.map(d => {
+      const g = d.data();
+      return {
+        id: d.id, ref: g.ref || '', name: g.buyerName || '—',
+        email: g.buyerEmail || '', ticketType: g.ticketType || 'Guestlist',
+        qty: g.qty || 1, checkedIn: g.checkedIn || false,
+        checkedInAt: g.checkedInAt ? g.checkedInAt.toDate().toISOString() : null,
+      };
+    });
+
+    res.json({
+      event: { id: eventId, title: ev.title||'', venue: ev.venueName||'', date: ev.date||'', time: ev.time||'', city: ev.city||'' },
+      guests,
+    });
+  }
+);
+
+// ══════════════════════════════════════════════════════════════════════════════
+// HTTP: promoterScan
+// POST { ref, eventId, pin } → validates PIN + ref, marks checkedIn
+// ══════════════════════════════════════════════════════════════════════════════
+exports.promoterScan = onRequest(
+  { cors: true, region: 'asia-southeast1' },
+  async (req, res) => {
+    if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+    const { ref, eventId, pin } = req.body || {};
+    if (!ref || !eventId || !pin) return res.status(400).json({ error: 'Missing fields' });
+
+    const eventDoc = await db.collection('events').doc(eventId).get();
+    if (!eventDoc.exists) return res.status(404).json({ error: 'Event not found' });
+    const ev = eventDoc.data();
+    const expected = String(ev.promoterPin || eventId.slice(-4)).toUpperCase();
+    if (String(pin).toUpperCase() !== expected) return res.status(403).json({ error: 'Wrong PIN' });
+
+    const snap = await db.collection('guestlist').where('ref', '==', ref).limit(1).get();
+    if (snap.empty) return res.status(404).json({ error: 'Ticket not found', ref });
+
+    const doc = snap.docs[0];
+    const guest = doc.data();
+
+    if (guest.checkedIn) {
+      return res.json({
+        status: 'already_in', name: guest.buyerName||'—',
+        ticketType: guest.ticketType||'Guestlist', qty: guest.qty||1,
+        checkedInAt: guest.checkedInAt ? guest.checkedInAt.toDate().toISOString() : null,
+      });
+    }
+
+    await doc.ref.update({ checkedIn: true, checkedInAt: Timestamp.now(), checkedInBy: `promoter:${eventId}` });
+
+    res.json({
+      status: 'success', name: guest.buyerName||'—',
+      email: guest.buyerEmail||'', ticketType: guest.ticketType||'Guestlist',
+      qty: guest.qty||1, eventTitle: guest.eventTitle||'',
+    });
+  }
+);
