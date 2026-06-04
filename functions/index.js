@@ -643,8 +643,159 @@ exports.onVenueApproved = onDocumentUpdated(
   }
 );
 
+const ADMIN_EMAIL = 'app.tonight1@gmail.com';
+
 // ══════════════════════════════════════════════════════════════════════════════
-// FUNCTION 6: onCommunitySignup
+// FUNCTION 6: notifyAdminNewMember
+// Fires when a new community_signups doc is created → emails admin instantly.
+// ══════════════════════════════════════════════════════════════════════════════
+exports.notifyAdminNewMember = onDocumentCreated(
+  {
+    document: 'community_signups/{id}',
+    region:   'asia-southeast1',
+  },
+  async (event) => {
+    const signup = event.data.data();
+    if (!signup.email) return;
+
+    const transporter = makeTransporter(EMAIL_USER.value(), EMAIL_PASS.value());
+    const fromLabel   = EMAIL_FROM.value() || `Tonight Vietnam <${EMAIL_USER.value()}>`;
+    const name        = signup.fullName || signup.name || 'Unknown';
+    const city        = signup.city || '—';
+    const joinedAt    = new Date().toLocaleString('en-GB', { timeZone: 'Asia/Ho_Chi_Minh' });
+
+    try {
+      await transporter.sendMail({
+        from:    fromLabel,
+        to:      ADMIN_EMAIL,
+        subject: `🎉 New member joined — ${name}`,
+        html: `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"/></head>
+<body style="margin:0;padding:0;background:#080810;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#080810;padding:32px 16px">
+<tr><td align="center">
+<table width="520" cellpadding="0" cellspacing="0" style="max-width:520px;background:#13131f;border:1px solid rgba(34,197,94,0.3);border-radius:20px;overflow:hidden">
+  <tr><td style="background:linear-gradient(135deg,rgba(34,197,94,0.15),rgba(34,197,94,0.05));padding:28px 32px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.07)">
+    <div style="font-size:36px;margin-bottom:8px">🎉</div>
+    <div style="color:#22c55e;font-size:18px;font-weight:800;letter-spacing:1px">New Member Joined</div>
+    <div style="color:rgba(255,255,255,0.4);font-size:12px;margin-top:4px">Tonight Vietnam</div>
+  </td></tr>
+  <tr><td style="padding:28px 32px">
+    <table width="100%" cellpadding="0" cellspacing="0">
+      <tr><td style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.07)">
+        <span style="color:#475569;font-size:12px;text-transform:uppercase;letter-spacing:1px">Name</span><br/>
+        <span style="color:#f1f5f9;font-size:15px;font-weight:600">${escHtml(name)}</span>
+      </td></tr>
+      <tr><td style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.07)">
+        <span style="color:#475569;font-size:12px;text-transform:uppercase;letter-spacing:1px">Email</span><br/>
+        <span style="color:#f1f5f9;font-size:15px;font-weight:600">${escHtml(signup.email)}</span>
+      </td></tr>
+      <tr><td style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.07)">
+        <span style="color:#475569;font-size:12px;text-transform:uppercase;letter-spacing:1px">City</span><br/>
+        <span style="color:#f1f5f9;font-size:15px;font-weight:600">${escHtml(city)}</span>
+      </td></tr>
+      <tr><td style="padding:10px 0">
+        <span style="color:#475569;font-size:12px;text-transform:uppercase;letter-spacing:1px">Joined at</span><br/>
+        <span style="color:#f1f5f9;font-size:15px;font-weight:600">${escHtml(joinedAt)} (VN time)</span>
+      </td></tr>
+    </table>
+    <div style="text-align:center;margin-top:28px">
+      <a href="https://tonightvietnam.com/portal/" style="display:inline-block;background:#f5c842;color:#000;font-size:14px;font-weight:700;padding:14px 32px;border-radius:12px;text-decoration:none">
+        View in Admin Portal →
+      </a>
+    </div>
+  </td></tr>
+</table>
+</td></tr></table>
+</body></html>`,
+      });
+      console.log(`[notifyAdminNewMember] Admin notified of new member: ${signup.email}`);
+    } catch (err) {
+      console.error(`[notifyAdminNewMember] Error: ${err.message}`);
+    }
+  }
+);
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FUNCTION 7: notifyAdminVenueApplied
+// Fires when a new venue_requests doc is created → emails admin instantly.
+// ══════════════════════════════════════════════════════════════════════════════
+exports.notifyAdminVenueApplied = onDocumentCreated(
+  {
+    document: 'venue_requests/{reqId}',
+    region:   'asia-southeast1',
+  },
+  async (event) => {
+    const req = event.data.data();
+    if (!req.venueName) return;
+
+    const transporter = makeTransporter(EMAIL_USER.value(), EMAIL_PASS.value());
+    const fromLabel   = EMAIL_FROM.value() || `Tonight Vietnam <${EMAIL_USER.value()}>`;
+    const appliedAt   = new Date().toLocaleString('en-GB', { timeZone: 'Asia/Ho_Chi_Minh' });
+    const portalUrl   = 'https://tonightvietnam.com/portal/';
+
+    try {
+      await transporter.sendMail({
+        from:    fromLabel,
+        to:      ADMIN_EMAIL,
+        subject: `🏢 New venue application — ${req.venueName}`,
+        html: `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"/></head>
+<body style="margin:0;padding:0;background:#080810;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#080810;padding:32px 16px">
+<tr><td align="center">
+<table width="520" cellpadding="0" cellspacing="0" style="max-width:520px;background:#13131f;border:1px solid rgba(245,200,66,0.3);border-radius:20px;overflow:hidden">
+  <tr><td style="background:linear-gradient(135deg,rgba(245,200,66,0.15),rgba(245,200,66,0.05));padding:28px 32px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.07)">
+    <div style="font-size:36px;margin-bottom:8px">🏢</div>
+    <div style="color:#f5c842;font-size:18px;font-weight:800;letter-spacing:1px">New Venue Application</div>
+    <div style="color:rgba(255,255,255,0.4);font-size:12px;margin-top:4px">Awaiting your review</div>
+  </td></tr>
+  <tr><td style="padding:28px 32px">
+    <table width="100%" cellpadding="0" cellspacing="0">
+      <tr><td style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.07)">
+        <span style="color:#475569;font-size:12px;text-transform:uppercase;letter-spacing:1px">Venue Name</span><br/>
+        <span style="color:#f1f5f9;font-size:15px;font-weight:600">${escHtml(req.venueName)}</span>
+      </td></tr>
+      <tr><td style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.07)">
+        <span style="color:#475569;font-size:12px;text-transform:uppercase;letter-spacing:1px">Contact Email</span><br/>
+        <span style="color:#f1f5f9;font-size:15px;font-weight:600">${escHtml(req.email || '—')}</span>
+      </td></tr>
+      ${req.phone ? `<tr><td style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.07)">
+        <span style="color:#475569;font-size:12px;text-transform:uppercase;letter-spacing:1px">Phone</span><br/>
+        <span style="color:#f1f5f9;font-size:15px;font-weight:600">${escHtml(req.phone)}</span>
+      </td></tr>` : ''}
+      ${req.city ? `<tr><td style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.07)">
+        <span style="color:#475569;font-size:12px;text-transform:uppercase;letter-spacing:1px">City</span><br/>
+        <span style="color:#f1f5f9;font-size:15px;font-weight:600">${escHtml(req.city)}</span>
+      </td></tr>` : ''}
+      ${req.description ? `<tr><td style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.07)">
+        <span style="color:#475569;font-size:12px;text-transform:uppercase;letter-spacing:1px">Description</span><br/>
+        <span style="color:#f1f5f9;font-size:14px;line-height:1.6">${escHtml(req.description)}</span>
+      </td></tr>` : ''}
+      <tr><td style="padding:10px 0">
+        <span style="color:#475569;font-size:12px;text-transform:uppercase;letter-spacing:1px">Applied at</span><br/>
+        <span style="color:#f1f5f9;font-size:15px;font-weight:600">${escHtml(appliedAt)} (VN time)</span>
+      </td></tr>
+    </table>
+    <div style="text-align:center;margin-top:28px">
+      <a href="${portalUrl}" style="display:inline-block;background:#f5c842;color:#000;font-size:14px;font-weight:700;padding:14px 32px;border-radius:12px;text-decoration:none">
+        Review in Admin Portal →
+      </a>
+    </div>
+  </td></tr>
+</table>
+</td></tr></table>
+</body></html>`,
+      });
+      console.log(`[notifyAdminVenueApplied] Admin notified of venue application: ${req.venueName}`);
+    } catch (err) {
+      console.error(`[notifyAdminVenueApplied] Error: ${err.message}`);
+    }
+  }
+);
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FUNCTION 8: onCommunitySignup
 // Fires when someone joins the community — sends a branded welcome email.
 // ══════════════════════════════════════════════════════════════════════════════
 exports.onCommunitySignup = onDocumentCreated(
