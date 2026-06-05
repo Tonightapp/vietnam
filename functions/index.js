@@ -1186,40 +1186,4 @@ exports.promoterScan = onRequest(
   }
 );
 
-// ONE-TIME: createDemoVenueOwner — remove after use
-exports.createDemoVenueOwner = onRequest(
-  { cors: true, region: 'asia-southeast1' },
-  async (req, res) => {
-    if (req.query.secret !== 'tonight-demo-2026') return res.status(403).end();
-    const adminAuth = getAdminAuth();
-    const email = 'demo.sacredgarden@tonightvietnam.com';
-    const pass  = 'SacredDemo2026!';
-
-    let uid;
-    try {
-      const u = await adminAuth.createUser({ email, password: pass, displayName: 'Sacred Garden', emailVerified: true });
-      uid = u.uid;
-    } catch(e) {
-      if (e.code === 'auth/email-already-exists') {
-        uid = (await adminAuth.getUserByEmail(email)).uid;
-        await adminAuth.updateUser(uid, { password: pass });
-      } else return res.status(500).json({ error: e.message });
-    }
-
-    await db.collection('users').doc(uid).set({
-      uid, email, fullName: 'Sacred Garden', role: 'venue_owner', createdAt: Timestamp.now(),
-    }, { merge: true });
-
-    await db.collection('venue_requests').doc('demo-sacred-garden').set({
-      email, venueName: 'Sacred Garden', status: 'approved',
-      uid, authCreated: true, createdAt: Timestamp.now(),
-    });
-
-    await db.collection('venues').doc('a3K6ldlQFiQhbkgNJSnK').update({
-      publishedBy: uid, ownerEmail: email,
-    });
-
-    res.json({ email, password: pass, portal: 'https://www.tonightvietnam.com/portal/' });
-  }
-);
 
