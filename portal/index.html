@@ -418,9 +418,15 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
     background:var(--surface);flex-shrink:0;order:1;width:100%;
   }
   #app.on{flex-direction:column}
-  .main{order:0}
-  .content{padding:12px}
+  .main{order:0;min-height:0}
+  .content{padding:12px 12px 80px}
   .stats-row{grid-template-columns:1fr 1fr}
+  /* ensure tables scroll horizontally on phones */
+  .data-table-wrap,.section-card{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:480px}
+  /* venue portal table */
+  #venue-app .content{padding:12px 12px 80px}
+  #venue-app table{min-width:400px}
 
   /* Topbar: hide desktop title, show mobile brand */
   .topbar{padding:0 16px;height:54px;background:var(--bg);border-bottom:1px solid var(--border)}
@@ -2014,33 +2020,61 @@ function showErr(msg) {
 }
 
 // ── VENUE OWNER PORTAL ────────────────────────────────────
+let _venueOwnerName = '';
+
 function showVenueApp(user, userData) {
   venueUid = user.uid;
+  _venueOwnerName = userData?.fullName || userData?.venueName || user.displayName || '';
   document.getElementById('login').classList.add('hide');
   document.getElementById('venue-app').style.display = 'block';
-  document.getElementById('venue-user-name').textContent  = userData?.fullName || userData?.venueName || user.displayName || 'My Venue';
-  document.getElementById('venue-user-email').textContent = user.email;
+  setEl('venue-user-name',  _venueOwnerName || 'My Venue');
+  setEl('venue-user-email', user.email);
   subscribeVenue(user.uid);
+}
+
+// null-safe DOM setter used throughout
+function setEl(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
 }
 
 function subscribeVenue(uid) {
   venueUnsubs.forEach(u => u()); venueUnsubs = [];
+
+  // Query 1: events owned by this uid OR with matching venueName
+  const evQ = _venueOwnerName
+    ? query(collection(db,'events'), where('venueName','==',_venueOwnerName), orderBy('createdAt','desc'))
+    : query(collection(db,'events'), where('publishedBy','==',uid), orderBy('createdAt','desc'));
+
   venueUnsubs.push(
-    onSnapshot(query(collection(db,'events'), where('publishedBy','==',uid)), snap => {
-      venueEvents = snap.docs.map(d => ({id:d.id,...d.data()})).sort((a,b) => {
-        const ta = a.createdAt?.toMillis?.() || a.createdAt?.seconds*1000 || 0;
-        const tb = b.createdAt?.toMillis?.() || b.createdAt?.seconds*1000 || 0;
+    onSnapshot(evQ, snap => {
+      const byUid  = [];
+      const byName = [];
+      snap.docs.forEach(d => {
+        const ev = {id:d.id,...d.data()};
+        if (ev.publishedBy === uid) byUid.push(ev);
+        else byName.push(ev);
+      });
+      venueEvents = [...byUid, ...byName].sort((a,b) => {
+        const ta = a.createdAt?.toMillis?.() || (a.createdAt?.seconds||0)*1000;
+        const tb = b.createdAt?.toMillis?.() || (b.createdAt?.seconds||0)*1000;
         return tb - ta;
       });
       renderVenueStats();
       renderVenueEvents();
-      renderVenueGuestlist();
-    }, err => { toast('Events error: ' + err.message); }),
-    onSnapshot(query(collection(db,'guestlist'), where('venueOwnerId','==',uid), orderBy('createdAt','desc')), snap => {
-      venueGuestlist = snap.docs.map(d => ({id:d.id,...d.data()}));
-      document.getElementById('vtab-guests-count').textContent = venueGuestlist.length;
-      if (document.getElementById('vpanel-guestlist').style.display !== 'none') renderVenueGuestlist();
-    }, err => { toast('Guestlist error: ' + err.message); })
+      vscanInit();
+    }, err => toast('Events: ' + err.message)),
+
+    // Guestlist by event titles matching this venue's events
+    onSnapshot(query(collection(db,'guestlist'), orderBy('createdAt','desc'), limit(500)), snap => {
+      const myTitles = new Set(venueEvents.map(e => e.title));
+      venueGuestlist = snap.docs
+        .map(d => ({id:d.id,...d.data()}))
+        .filter(g => myTitles.size === 0 || myTitles.has(g.eventTitle));
+      setEl('vtab-guests-count', venueGuestlist.length);
+      const gp = document.getElementById('vpanel-guestlist');
+      if (gp && gp.style.display !== 'none') renderVenueGuestlist();
+    }, err => toast('Guestlist: ' + err.message))
   );
 }
 
@@ -2515,34 +2549,31 @@ function updateBadge(id, count) {
 
 // ── STATS ─────────────────────────────────────────────────
 function renderStats() {
-  const weekAgo = Date.now() - 7*24*60*60*1000;
-  const unified = getUnifiedMembers();
-  const newThisWeek = unified.filter(m => {
-    const ms = m.createdAt?.toMillis?.() || m.createdAt?.seconds*1000 || 0;
-    return ms > weekAgo;
-  }).length;
-  const pending = allRequests.filter(r => r.status === 'pending').length;
+  try {
+    const weekAgo = Date.now() - 7*24*60*60*1000;
+    const unified = getUnifiedMembers();
+    const newThisWeek = unified.filter(m => {
+      const ms = m.createdAt?.toMillis?.() || (m.createdAt?.seconds||0)*1000;
+      return ms > weekAgo;
+    }).length;
+    const pending   = allRequests.filter(r => r.status === 'pending').length;
+    const glTotal   = allGuestlist.length;
+    const glArrived = allGuestlist.filter(g => g.checkedIn || g.status === 'arrived').length;
 
-  document.getElementById('s-members').textContent   = unified.length;
-  document.getElementById('s-week').textContent       = newThisWeek;
-  document.getElementById('s-week-label').textContent = `+${newThisWeek} this week`;
-  document.getElementById('s-events').textContent     = allEvents.filter(e => e.status === 'approved').length;
-  const glTotal   = allGuestlist.length;
-  const glArrived = allGuestlist.filter(g => g.status === 'arrived').length;
-  document.getElementById('s-guestlist').textContent    = glTotal;
-  document.getElementById('s-checkin-label').textContent= `${glArrived} arrived`;
+    setEl('s-members',       unified.length);
+    setEl('s-week',          newThisWeek);
+    setEl('s-week-label',    `+${newThisWeek} this week`);
+    setEl('s-events',        allEvents.filter(e => e.status === 'approved').length);
+    setEl('s-guestlist',     glTotal);
+    setEl('s-checkin-label', `${glArrived} checked in`);
 
-  // Badge
-  const badge  = document.getElementById('venues-badge');
-  const mbadge = document.getElementById('m-venue-badge');
-  if (pending > 0) {
-    badge.textContent = pending; badge.classList.remove('hide');
-    mbadge.classList.remove('hide');
-  } else {
-    badge.classList.add('hide'); mbadge.classList.add('hide');
-  }
-  const pc = document.getElementById('s-pending-card');
-  if (pc) pc.className = pending > 0 ? 'stat-card alert' : 'stat-card';
+    const badge  = document.getElementById('venues-badge');
+    const mbadge = document.getElementById('m-venue-badge');
+    if (badge)  { badge.textContent = pending; badge.classList.toggle('hide', pending === 0); }
+    if (mbadge) { mbadge.classList.toggle('hide', pending === 0); }
+    const pc = document.getElementById('s-pending-card');
+    if (pc) pc.className = pending > 0 ? 'stat-card alert' : 'stat-card';
+  } catch(e) { console.warn('[renderStats]', e.message); }
 }
 
 // ── BARS (approved venues) ────────────────────────────────
