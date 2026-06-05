@@ -805,6 +805,11 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
         <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"/></svg>
         Banner Order
       </button>
+      <button class="nav-item" onclick="nav('portals',this)">
+        <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 4l5 2.18V11c0 3.5-2.33 6.79-5 7.93-2.67-1.14-5-4.43-5-7.93V7.18L12 5zm-1 3v4h-2l3 4 3-4h-2V8h-2z"/></svg>
+        Portals
+        <span class="nav-badge hide" id="portals-badge"></span>
+      </button>
     </nav>
 
     <div class="sidebar-footer">
@@ -1543,6 +1548,20 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
         </div>
       </div>
 
+      <!-- ── PORTALS ── -->
+      <div class="panel" id="panel-portals">
+        <div class="section-card">
+          <div class="section-head">
+            <div>
+              <div class="section-title">Venue Portals</div>
+              <div class="fm-hint">All active venue/promoter accounts — send password reset without seeing credentials</div>
+            </div>
+            <div class="count-pill" id="portals-count">—</div>
+          </div>
+          <div id="portals-list"></div>
+        </div>
+      </div>
+
     </div><!-- /content -->
 
     <!-- Mobile Tab Bar -->
@@ -1592,6 +1611,10 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
       <button onclick="nav('banner',this)">
         <svg viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14z"/></svg>
         Banner
+      </button>
+      <button onclick="nav('portals',this)">
+        <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+        Portals
       </button>
     </div>
   </div><!-- /main -->
@@ -4184,6 +4207,79 @@ window.deleteVenue = async function(id, name) {
 };
 
 // ── BANNER ORDER PANEL ────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════════════
+// PORTALS PANEL — venue owner account management
+// ══════════════════════════════════════════════════════════════════════════════
+let _portalAccounts = [];
+
+function loadPortalsPanel() {
+  const el = document.getElementById('portals-list');
+  if (!el) return;
+  el.innerHTML = `<div style="color:var(--text3);padding:24px;text-align:center">Loading accounts…</div>`;
+
+  getDocs(query(collection(db,'users'), where('role','in',['venue_owner','admin'])))
+    .then(snap => {
+      _portalAccounts = snap.docs.map(d => ({id:d.id,...d.data()}))
+        .filter(u => u.email && u.email !== ADMIN_EMAIL)
+        .sort((a,b) => (a.fullName||'').localeCompare(b.fullName||''));
+      renderPortalsPanel();
+    })
+    .catch(e => {
+      if (el) el.innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-title">${e.message}</div></div>`;
+    });
+}
+
+function renderPortalsPanel() {
+  const el = document.getElementById('portals-list');
+  if (!el) return;
+  setEl('portals-count', _portalAccounts.length);
+
+  if (!_portalAccounts.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">🔐</div><div class="empty-title">No venue portals yet</div><div class="empty-sub">Accounts appear here once you create a venue owner</div></div>`;
+    return;
+  }
+
+  el.innerHTML = `<table class="data-table" style="margin:0">
+    <thead><tr>
+      <th>Venue / Name</th>
+      <th>Email</th>
+      <th>Role</th>
+      <th>Created</th>
+      <th style="text-align:right">Actions</th>
+    </tr></thead>
+    <tbody>
+    ${_portalAccounts.map(u => {
+      const created = u.createdAt?.toDate?.()
+        ? u.createdAt.toDate().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})
+        : '—';
+      const roleLabel = u.role === 'venue_owner' ? '🏢 Venue Owner' : '⚡ Promoter';
+      return `<tr>
+        <td><strong>${esc(u.fullName||'—')}</strong></td>
+        <td style="font-size:12px;color:var(--text2)">${esc(u.email)}</td>
+        <td><span style="background:rgba(245,200,66,.12);color:var(--gold);font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px">${roleLabel}</span></td>
+        <td style="font-size:12px;color:var(--text3)">${created}</td>
+        <td style="text-align:right">
+          <button onclick="sendPortalReset('${esc(u.email)}','${esc(u.fullName||u.email)}')"
+            style="background:none;border:1px solid var(--border2);border-radius:7px;padding:6px 12px;color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap">
+            🔑 Send Reset
+          </button>
+        </td>
+      </tr>`;
+    }).join('')}
+    </tbody>
+  </table>`;
+}
+
+window.sendPortalReset = async function(email, name) {
+  if (!confirm(`Send password reset email to ${name} (${email})?`)) return;
+  try {
+    await sendPasswordResetEmail(auth, email);
+    toast(`✅ Reset email sent to ${email}`);
+  } catch(e) {
+    toast(`Error: ${e.message}`, 'err');
+  }
+};
+
 function renderBannerPanel() {
   const featured    = allEvents.filter(e => e.featured).sort((a,b) => (a.featuredOrder||999) - (b.featuredOrder||999));
   const unfeatured  = allEvents.filter(e => !e.featured && e.status === 'approved').slice(0,30);
@@ -4282,7 +4378,7 @@ function downloadCSV(rows, filename) {
 }
 
 // ── NAV ───────────────────────────────────────────────────
-const TITLES = { overview:'Overview', members:'Members', venues:'Venue Applications', events:'Event Approvals', artists:'Artists', leads:'Leads & Data', guestlist:'Guestlist', deals:'Claimed Deals', inquiries:'Inquiries', magazine:'Magazine Articles', promoters:'Promoters', 'venues-list':'Venue Listing', banner:'Hero Banner Order' };
+const TITLES = { overview:'Overview', members:'Members', venues:'Venue Applications', events:'Event Approvals', artists:'Artists', leads:'Leads & Data', guestlist:'Guestlist', deals:'Claimed Deals', inquiries:'Inquiries', magazine:'Magazine Articles', promoters:'Promoters', 'venues-list':'Venue Listing', banner:'Hero Banner Order', portals:'Venue Portals' };
 window.navTo = function(page) {
   const btn = document.querySelector(`.nav-item[onclick="nav('${page}',this)"]`) ||
               document.querySelector(`.mobile-tabbar button[onclick="nav('${page}',this)"]`);
@@ -4311,7 +4407,8 @@ window.nav = function(page, btn) {
     magazine:  () => renderMagazinePanel(),
     promoters:     () => renderPromotersPanel(),
     'venues-list': () => renderVenuesListPanel(),
-    banner:        () => renderBannerPanel()
+    banner:        () => renderBannerPanel(),
+    portals:       () => loadPortalsPanel()
   })[page]?.();
 };
 
