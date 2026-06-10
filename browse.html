@@ -1042,6 +1042,9 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
 .crm-filter-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
 .crm-fchip{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:500;background:transparent;border:1px solid var(--border);color:var(--text3);cursor:pointer;transition:.15s;font-family:inherit;}
 .crm-fchip:hover,.crm-fchip.active{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2);color:#fff;}
+.pp-chip{padding:6px 12px;border-radius:20px;font-size:12px;font-weight:500;border:1px solid var(--border);color:var(--text3);cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:5px;user-select:none;font-family:inherit;}
+.pp-chip:hover{color:var(--text2);border-color:rgba(255,255,255,.2);}
+.pp-chip.active{background:rgba(245,200,66,.12);border-color:rgba(245,200,66,.45);color:var(--gold);}
 .crm-empty{text-align:center;padding:48px 20px;color:var(--text3);}
 
 /* Analytics */
@@ -4698,6 +4701,24 @@ function openPro(){
   document.body.style.width='100%';
   showPro('overview',document.querySelector('.ditem.active'));
   history.pushState({tnScreen:'pro-dash'},'Pro Dashboard','#pro');
+  if(curUser?.pendingApproval) _checkProApproval();
+}
+async function _checkProApproval(){
+  try{
+    const fbAuth=await _getAuth();
+    const uid=fbAuth.currentUser?.uid;
+    if(!uid) return;
+    const {doc,getDoc}=await import(_FB_CDN+'/firebase-firestore.js');
+    const db=await _getDb();
+    const snap=await getDoc(doc(db,'users',uid));
+    if(snap.exists()&&snap.data().role==='venue_owner'){
+      curUser.pendingApproval=false;
+      _saveSession(curUser);
+      const accs=_getAccounts();
+      if(curUser.email&&accs[curUser.email]){accs[curUser.email].pendingApproval=false;_saveAccounts(accs);}
+      showPro('overview',document.querySelector('.ditem.active'));
+    }
+  }catch(_){}
 }
 function closeProDash(){
   document.getElementById('proDash').classList.remove('open');
@@ -4725,6 +4746,7 @@ function showPro(page,el){
       {e:'🎷',g:'grad-indigo',t:'Jazz & Neon Hanoi',d:'Apr 22, 2026',views:210,joins:63,cap:300,genre:'Jazz'},
     ];
     m.innerHTML=`
+    ${curUser?.pendingApproval?`<div style="background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.25);border-radius:10px;padding:14px 16px;margin-bottom:16px;display:flex;align-items:flex-start;gap:10px"><span style="font-size:20px;flex-shrink:0;margin-top:1px">⏳</span><div><div style="font-size:13px;font-weight:700;color:#f97316;margin-bottom:4px">Pending Approval</div><div style="font-size:12px;color:var(--text2);font-weight:300;line-height:1.6">Your application is under review. Once approved your venue will go live on the main page. You can already set up your <span onclick="showPro('profile',null)" style="color:var(--gold);cursor:pointer;text-decoration:underline">profile &amp; amenities</span> while you wait.</div></div></div>`:''}
     <div class="dhead"><h2>Overview</h2><button class="btn btn-white" onclick="showPro('add',null)">+ Add Event</button></div>
     <div class="overview-actions">
       <div class="ov-action" onclick="showPro('scanner',document.querySelectorAll('.ditem')[8])"><div class="oa-ico">📷</div><div><div style="font-weight:700">Scan Tickets</div><div style="font-size:11px;color:var(--text3)">Check guests in at the door</div></div></div>
@@ -4838,8 +4860,35 @@ function showPro(page,el){
         <div class="full fg"><label>About your venue</label><textarea class="fta" id="pp_about" placeholder="Tell us about your venue — music style, vibe, capacity, typical nights…">${p.about||''}</textarea></div>
         <div class="full fg"><label>Typical Opening Hours</label><input class="fi" id="pp_hours" placeholder="e.g. Wed–Sat 9pm–3am" value="${p.hours||''}"/></div>
       </div>
-      <button class="fsub" style="width:auto;padding:10px 28px;margin-top:10px" onclick="saveProProfile()">Save Profile</button>
-    </div>`;}
+    </div>
+    <div class="dsec" style="margin-top:16px">
+      <h3>✅ Amenities & Features</h3>
+      <p style="font-size:12px;color:var(--text3);margin-bottom:12px;font-weight:300">Tap each item to toggle what your venue offers</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px" id="pp_amenity_chips">
+        ${['Pool','AC','Garden','Outdoor Seating','Gaming','Billiards','PlayStation','Karaoke','Live Music','Dance Floor','Full Bar','Food Menu','Live Sports','VIP Room','Darts','Board Games','Table Tennis','WiFi','Parking','Smoking Area','Accessible'].map(a=>{const on=(p.amenities||[]).includes(a);const emoji=_amenityEmoji[a]||'✓';return `<span class="pp-chip${on?' active':''}" onclick="this.classList.toggle('active');ppToggleFood()" data-am="${a}">${emoji} ${a}</span>`;}).join('')}
+      </div>
+      <div id="pp_food_wrap" style="margin-top:16px;display:${(p.amenities||[]).includes('Food Menu')?'block':'none'}">
+        <label style="font-size:11px;font-weight:600;color:var(--text2);letter-spacing:.5px;text-transform:uppercase;display:block;margin-bottom:8px">Food Type</label>
+        <div style="display:flex;flex-wrap:wrap;gap:7px" id="pp_food_chips">
+          ${['Vietnamese','Western','Japanese','Korean','BBQ','Snacks Only','Full Dining Menu','Vegetarian Friendly','Pizza & Burgers','Seafood'].map(f=>{const on=(p.foodTypes||[]).includes(f);return `<span class="pp-chip${on?' active':''}" data-food="${f}">${f}</span>`;}).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="dsec" style="margin-top:16px">
+      <h3>🏛 Interior Photos</h3>
+      <p style="font-size:12px;color:var(--text3);margin-bottom:10px;font-weight:300">Show guests what your venue looks like inside</p>
+      <div class="upload-z" onclick="document.getElementById('pp_int_input').click()" style="margin-bottom:10px">
+        <div style="font-size:28px;margin-bottom:6px">📷</div>
+        <p style="font-size:13px;color:var(--text2)">Upload interior photos</p>
+        <p style="font-size:11px;color:var(--text3);margin-top:3px">JPG, PNG · up to 8 · max 5MB each</p>
+      </div>
+      <input type="file" id="pp_int_input" multiple accept="image/*" style="display:none" onchange="prevInteriorImgs(this)"/>
+      <div class="img-prev" id="pp_int_prev">${(p.interiorPhotos||[]).map((src,i)=>`<div class="ithumb" style="position:relative"><img src="${src}" style="width:100%;height:80px;object-fit:cover;border-radius:8px"/><button type="button" onclick="removeInteriorImg(${i})" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.7);border:none;color:#fff;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:10px;line-height:1;padding:0">✕</button></div>`).join('')}</div>
+    </div>
+      <button class="fsub" style="width:auto;padding:10px 28px;margin-top:16px" onclick="saveProProfile()">Save Profile</button>
+    </div>`;
+    window._ppInteriorPhotos=[...(p.interiorPhotos||[])];
+  }
   if(page==='guests'){
     const allTkts=getTickets();
     const _crmFilter=window._crmFilter||'';
@@ -5258,11 +5307,40 @@ function saveProProfile(){
     facebook:(document.getElementById('pp_fb')||{}).value||'',
     about:(document.getElementById('pp_about')||{}).value||'',
     hours:(document.getElementById('pp_hours')||{}).value||'',
+    amenities:[...(document.querySelectorAll('#pp_amenity_chips .pp-chip.active')||[])].map(c=>c.dataset.am),
+    foodTypes:[...(document.querySelectorAll('#pp_food_chips .pp-chip.active')||[])].map(c=>c.dataset.food),
+    interiorPhotos:window._ppInteriorPhotos||[],
   };
   if(!p.name.trim()){toast('Please enter your business name','err');return;}
   if(!p.contact.trim()||!p.phone.trim()){toast('Contact name and phone are required','err');return;}
   localStorage.setItem('tn_pro_profile',JSON.stringify(p));
   toast('Profile saved','ok');
+  // Sync profile to Firestore so the main page reflects it
+  (async()=>{
+    try{
+      const fbAuth=await _getAuth();
+      const uid=fbAuth.currentUser?.uid;
+      if(!uid) return;
+      const {doc,updateDoc,query,collection,where,getDocs}=await import(_FB_CDN+'/firebase-firestore.js');
+      const db=await _getDb();
+      const fsData={
+        name:p.name, type:p.type, city:p.city, address:p.address,
+        contact:p.contact, phone:p.phone, email:p.email,
+        website:p.website||'', instagram:p.instagram||'', facebook:p.facebook||'',
+        desc:p.about, open:p.hours,
+        amenities:p.amenities||[], foodTypes:p.foodTypes||[],
+      };
+      if(curUser?.pendingApproval){
+        // Still pending — update the venue_request so admin sees the completed profile
+        const snap=await getDocs(query(collection(db,'venue_requests'),where('userId','==',uid)));
+        snap.docs.forEach(d=>updateDoc(doc(db,'venue_requests',d.id),fsData).catch(()=>{}));
+      } else {
+        // Approved — update the live venues listing
+        const snap=await getDocs(query(collection(db,'venues'),where('userId','==',uid)));
+        snap.docs.forEach(d=>updateDoc(doc(db,'venues',d.id),fsData).catch(()=>{}));
+      }
+    }catch(_){}
+  })();
 }
 
 // ── SUPPORT THREAD ──
@@ -5655,6 +5733,29 @@ function processScan(data){
 }
 function addTrow(){const r=document.createElement('div');r.className='trow';r.innerHTML=`<input class="fi" placeholder="Ticket name" style="flex:2"/><input class="fi" type="number" placeholder="Price"/><input class="fi" type="number" placeholder="Qty"/><button type="button" class="tdel" onclick="this.closest('.trow').remove()">✕</button>`;document.getElementById('trows').appendChild(r);}
 function prevImgs(inp){const p=document.getElementById('iprev');[...inp.files].forEach(f=>{const d=document.createElement('div');d.className='ithumb';d.innerHTML=`<img src="${URL.createObjectURL(f)}"/>`;p.appendChild(d);});}
+function ppToggleFood(){const w=document.getElementById('pp_food_wrap');if(!w)return;const has=[...(document.querySelectorAll('#pp_amenity_chips .pp-chip.active')||[])].some(c=>c.dataset.am==='Food Menu');w.style.display=has?'block':'none';}
+function prevInteriorImgs(inp){
+  const prev=document.getElementById('pp_int_prev');if(!prev)return;
+  if(!window._ppInteriorPhotos)window._ppInteriorPhotos=[];
+  [...inp.files].forEach(f=>{
+    if(f.size>5*1024*1024){toast('Image too large (max 5MB)','err');return;}
+    if(window._ppInteriorPhotos.length>=8){toast('Max 8 interior photos','err');return;}
+    const r=new FileReader();
+    r.onload=e=>{
+      window._ppInteriorPhotos.push(e.target.result);
+      const i=window._ppInteriorPhotos.length-1;
+      const d=document.createElement('div');d.className='ithumb';d.style.position='relative';
+      d.innerHTML=`<img src="${e.target.result}" style="width:100%;height:80px;object-fit:cover;border-radius:8px"/><button type="button" onclick="removeInteriorImg(${i})" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.7);border:none;color:#fff;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:10px;line-height:1;padding:0">✕</button>`;
+      prev.appendChild(d);
+    };r.readAsDataURL(f);
+  });inp.value='';
+}
+function removeInteriorImg(idx){
+  if(!window._ppInteriorPhotos)return;
+  window._ppInteriorPhotos.splice(idx,1);
+  const prev=document.getElementById('pp_int_prev');if(!prev)return;
+  prev.innerHTML=window._ppInteriorPhotos.map((src,i)=>`<div class="ithumb" style="position:relative"><img src="${src}" style="width:100%;height:80px;object-fit:cover;border-radius:8px"/><button type="button" onclick="removeInteriorImg(${i})" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.7);border:none;color:#fff;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:10px;line-height:1;padding:0">✕</button></div>`).join('');
+}
 
 // ── USER DASHBOARD ──
 function openUser(){
@@ -6391,7 +6492,7 @@ function _initApp(){
                  type:v.type||'',capacity:v.capacity||0,genres:v.genres||[],
                  open:v.open||'',close:v.close||'',img:v.img||'',logo:v.logo||'',
                  desc:v.desc||'',address:v.address||'',instagram:v.instagram||'',
-                 photos:v.photos||[],amenities:v.amenities||[]};
+                 photos:v.photos||[],amenities:v.amenities||[],foodTypes:v.foodTypes||[]};
         });
         try{ renderRows(); renderVenues(); }catch(_){}
       });
@@ -6929,17 +7030,18 @@ async function submitJoin(e){
     if(type==='member'){
       _saveToFirestore('community_signups',{fullName:name,email,city:filterCity||'Hanoi',source:'tonight-app'});
     } else {
-      await _saveToFirestore('venue_requests',{email,contactName:name,venueName:biz,uid:fbUid||'',type,status:'pending',source:'main-app-signup'});
+      await _saveToFirestore('venue_requests',{email,contactName:name,venueName:biz,userId:fbUid||'',type,status:'pending',source:'main-app-signup'});
     }
     const accs=_getAccounts();
-    const acc={name,email,password:_hashPw(pass),role:'user',joinedAt:new Date().toISOString(),source:type};
+    const isPro=type==='venue'||type==='promoter';
+    const acc={name,email,password:_hashPw(pass),role:isPro?'pro':'user',pendingApproval:isPro,joinedAt:new Date().toISOString(),source:type};
     accs[email]=acc; _saveAccounts(accs);
-    curRole='user';
+    curRole=isPro?'pro':'user';
     finishLogin(name,'Tonight',acc);
     if(type==='member'){
       toast('Welcome, '+name.split(' ')[0]+'! Explore what\'s on tonight.','ok');
     } else {
-      toast('Application sent! We\'ll review your '+(type==='venue'?'venue':'promoter')+' profile within 24 hours.','ok');
+      toast('Application sent! We\'ll review your '+(type==='venue'?'venue':'promoter')+' profile within 24 hours — set up your listing while you wait.','ok');
     }
     closeOverlay('gatewayOverlay');
   }catch(err){

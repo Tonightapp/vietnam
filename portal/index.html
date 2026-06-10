@@ -2797,13 +2797,36 @@ window.approveVenue = async function(reqId, userId, name) {
     if (!confirm(`Warning: no user ID linked to this application.\nThe account role cannot be updated automatically.\nContinue anyway?`)) return;
   }
   try {
+    const req = allRequests.find(r => r.id === reqId) || {};
     const batch = writeBatch(db);
     batch.update(doc(db,'venue_requests',reqId), { status:'approved', reviewedAt: serverTimestamp() });
     if (userId) {
       batch.update(doc(db,'users',userId), { role:'venue_owner', approvedAt: serverTimestamp() });
     }
     await batch.commit();
-    toast(`✅ ${name} approved — venue owner role granted`);
+    // Create the venue listing so it appears on the main page
+    const venueName = req.venueName || req.venue_name || name;
+    await addDoc(collection(db,'venues'), {
+      name: venueName,
+      city: req.city || 'Hanoi',
+      area: req.area || '',
+      type: req.type === 'promoter' ? 'Event Promoter' : (req.venueType || 'Club / Venue'),
+      status: 'active',
+      email: req.email || '',
+      contact: req.contactName || '',
+      userId: userId || '',
+      genres: [],
+      amenities: [],
+      capacity: 0,
+      open: '', close: '',
+      img: '', logo: '',
+      desc: req.description || '',
+      address: req.address || '',
+      instagram: req.instagram || '',
+      photos: [],
+      createdAt: serverTimestamp(),
+    });
+    toast(`✅ ${venueName} approved and live on the main page`);
   } catch(e) { toast(`Error: ${e.message}`); }
 };
 
