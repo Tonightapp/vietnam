@@ -4136,48 +4136,165 @@ function _tktStepBar(steps){
     </div>${i<steps.length-1?`<div class="tline ${i+1<tStep?'done':''}"></div>`:''}`).join('')}</div>`;
 }
 function _tktDoneBlock(tk){
-  const heroStyle=tk.img?`background-image:url('${tk.img}')`:'';
-  const isGL=tk.ticketType==='Guestlist';
+  const dateStr  = tk.date ? new Date(tk.date).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'}) : '—';
+  const timeStr  = tk.time || activeEv?.time || '9:00 PM';
+  const qrSrc    = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent('TONIGHT:'+tk.ref)}&bgcolor=ffffff&color=000000&margin=6&format=png`;
+  const isGL     = tk.ticketType==='Guestlist';
+  const firstName= tk.buyerName.split(' ')[0];
+
   return `
-  <div style="text-align:center;padding:4px 0 14px">
-    <div style="font-size:34px;margin-bottom:6px">🎉</div>
-    <h3 style="font-weight:800;margin-bottom:4px;font-size:17px;color:#fff">You're on the list!</h3>
-    <p style="font-size:12px;color:var(--text3);line-height:1.5">QR ticket sent to <strong style="color:#f5c842">${tk.buyerEmail}</strong></p>
+  <!-- Confirmation header -->
+  <div style="text-align:center;padding:4px 0 16px">
+    <div style="font-size:30px;margin-bottom:6px">🎉</div>
+    <div style="font-size:17px;font-weight:800;color:#fff;margin-bottom:4px">You're on the list, ${firstName}!</div>
+    <div style="font-size:12px;color:var(--text3)">Boarding pass sent to <span style="color:#f5c842;font-weight:600">${tk.buyerEmail}</span></div>
   </div>
-  <div class="tkt-card" style="margin-bottom:14px">
-    <div class="tkt-hero" style="${heroStyle}">
-      <div class="tkt-hero-grad"></div>
-      <div class="tkt-brand">TONIGHT VIETNAM · OFFICIAL TICKET</div>
-      <span class="tkt-badge tkt-badge-valid">${isGL?'GUESTLIST':'✓ CONFIRMED'}</span>
-      <div class="tkt-hero-info">
-        <div class="tkt-event-name">${tk.eventTitle}</div>
-        <div class="tkt-event-meta">${fmt(tk.date)} &nbsp;·&nbsp; ${tk.venue}</div>
+
+  <!-- ═══ BOARDING PASS ═══ -->
+  <div id="boardingPassCard" style="background:#0a0b0f;border:1px solid rgba(245,200,66,.25);border-radius:18px;overflow:hidden;margin-bottom:14px;box-shadow:0 8px 32px rgba(0,0,0,.5)">
+
+    <!-- TOP BAR: logo + badge -->
+    <div style="background:linear-gradient(135deg,#120f00,#0a0b0f);padding:14px 18px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(245,200,66,.1)">
+      <div>
+        <div style="font-size:13px;font-weight:900;letter-spacing:3px;color:#f5c842">🌙 TONIGHT</div>
+        <div style="font-size:9px;letter-spacing:2px;color:rgba(255,255,255,.3);margin-top:1px">VIETNAM · BOARDING PASS</div>
+      </div>
+      <div style="background:rgba(245,200,66,.15);border:1px solid rgba(245,200,66,.35);border-radius:20px;padding:4px 12px">
+        <span style="font-size:10px;font-weight:800;color:#f5c842;letter-spacing:1px">${isGL?'GUESTLIST ✓':'CONFIRMED ✓'}</span>
       </div>
     </div>
-    <div class="tkt-tear"><div class="tkt-notch tkt-notch-l"></div><div class="tkt-notch tkt-notch-r"></div></div>
-    <div class="tkt-body">
-      <div class="tkt-qr-box" id="tktQrCanvas"></div>
-      <div class="tkt-details">
-        <div class="tkt-detail-row"><div class="tkt-detail-label">GUEST</div><div class="tkt-detail-val">${tk.buyerName}</div></div>
-        <div class="tkt-detail-row"><div class="tkt-detail-label">PARTY SIZE</div><div class="tkt-detail-val">${tk.qty} ${tk.qty===1?'person':'people'}</div></div>
-        <div class="tkt-detail-row"><div class="tkt-detail-label">TYPE</div><div class="tkt-detail-val">${tk.ticketType}</div></div>
-        <div class="tkt-detail-row"><div class="tkt-detail-label">ISSUED</div><div class="tkt-detail-val tkt-detail-sm">${new Date(tk.issuedAt).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</div></div>
+
+    <!-- MAIN BODY: left info + right QR -->
+    <div style="display:flex;align-items:stretch">
+
+      <!-- LEFT: details -->
+      <div style="flex:1;min-width:0;padding:16px 0 16px 18px">
+
+        <div style="margin-bottom:14px">
+          <div style="font-size:8px;letter-spacing:2px;color:rgba(245,200,66,.5);text-transform:uppercase;margin-bottom:3px">Passenger</div>
+          <div style="font-size:15px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${tk.buyerName}</div>
+        </div>
+
+        <div style="margin-bottom:12px">
+          <div style="font-size:8px;letter-spacing:2px;color:rgba(245,200,66,.5);text-transform:uppercase;margin-bottom:3px">Event</div>
+          <div style="font-size:13px;font-weight:700;color:#fff;line-height:1.3;text-transform:uppercase">${tk.eventTitle}</div>
+        </div>
+
+        <div style="display:flex;gap:16px;margin-bottom:12px">
+          <div>
+            <div style="font-size:8px;letter-spacing:2px;color:rgba(245,200,66,.5);text-transform:uppercase;margin-bottom:3px">Date</div>
+            <div style="font-size:12px;font-weight:700;color:#fff">${dateStr}</div>
+          </div>
+          <div>
+            <div style="font-size:8px;letter-spacing:2px;color:rgba(245,200,66,.5);text-transform:uppercase;margin-bottom:3px">Doors</div>
+            <div style="font-size:12px;font-weight:700;color:#fff">${timeStr}</div>
+          </div>
+        </div>
+
+        <div style="margin-bottom:12px">
+          <div style="font-size:8px;letter-spacing:2px;color:rgba(245,200,66,.5);text-transform:uppercase;margin-bottom:3px">Venue</div>
+          <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.75);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${tk.venue||'—'}</div>
+          <div style="font-size:10px;color:rgba(255,255,255,.35);margin-top:1px">${tk.city||'Hanoi'}, Vietnam</div>
+        </div>
+
+        <div style="display:flex;gap:16px">
+          <div>
+            <div style="font-size:8px;letter-spacing:2px;color:rgba(245,200,66,.5);text-transform:uppercase;margin-bottom:3px">Class</div>
+            <div style="font-size:12px;font-weight:700;color:#f5c842">${tk.ticketType}</div>
+          </div>
+          <div>
+            <div style="font-size:8px;letter-spacing:2px;color:rgba(245,200,66,.5);text-transform:uppercase;margin-bottom:3px">Guests</div>
+            <div style="font-size:12px;font-weight:700;color:#fff">${tk.qty} ${tk.qty===1?'person':'people'}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DASHED DIVIDER -->
+      <div style="width:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <div style="width:1px;height:85%;background:repeating-linear-gradient(to bottom,rgba(245,200,66,.3) 0,rgba(245,200,66,.3) 6px,transparent 6px,transparent 12px)"></div>
+      </div>
+
+      <!-- RIGHT: QR -->
+      <div style="padding:16px 18px 16px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0">
+        <div style="background:#fff;border-radius:12px;padding:8px">
+          <img src="${qrSrc}" width="110" height="110" alt="QR" style="display:block;border-radius:4px"/>
+        </div>
+        <div style="font-size:8px;font-weight:700;letter-spacing:1.5px;color:rgba(245,200,66,.5);margin-top:7px;font-family:monospace;text-align:center">${tk.ref}</div>
       </div>
     </div>
-    <div class="tkt-footer">
-      <div class="tkt-ref-sub">Show QR at venue entry · Staff will scan to check you in</div>
+
+    <!-- TEAR LINE -->
+    <div style="position:relative;margin:0 -1px">
+      <div style="border-top:2px dashed rgba(245,200,66,.15)"></div>
+      <div style="position:absolute;top:-9px;left:-1px;width:18px;height:18px;border-radius:50%;background:var(--bg)"></div>
+      <div style="position:absolute;top:-9px;right:-1px;width:18px;height:18px;border-radius:50%;background:var(--bg)"></div>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="padding:10px 18px;display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,.3)">
+      <div style="font-size:10px;color:rgba(255,255,255,.25)">tonightvietnam.com</div>
+      <div style="font-size:10px;color:rgba(255,255,255,.25)">Show QR at door · Entry subject to confirmation</div>
     </div>
   </div>
-  <button class="fsub" style="background:rgba(245,200,66,.12);color:#f5c842;border:1px solid rgba(245,200,66,.25);margin-bottom:10px" onclick="sendTicketEmail('${tk.ref}');this.textContent='📧 Resent ✓';this.disabled=true">📧 Resend QR to email</button>
-  ${loggedIn
-    ? `<div style="display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 0 2px;font-size:12px;color:var(--green)"><span>✓</span> Saved — find it in <strong style="cursor:pointer;text-decoration:underline" onclick="closeOverlay('tktOverlay');openUser();showUTab('tickets',null)">My Tickets</strong></div>`
-    : `<div style="background:rgba(0,208,132,.07);border:1px solid rgba(0,208,132,.15);border-radius:10px;padding:12px;margin-bottom:8px;text-align:center">
-        <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:3px">📱 Access your QR anytime</div>
-        <div style="font-size:11px;color:var(--text3);margin-bottom:10px">Sign in to find your ticket even after closing this page.</div>
-        <button class="fsub" style="margin:0;padding:9px 20px;font-size:13px;background:linear-gradient(135deg,#fff,#f0f0f0);color:#000;font-weight:700" onclick="closeOverlay('tktOverlay');openGateway()">Sign In →</button>
-      </div>`
+
+  <!-- ACTION BUTTONS -->
+  <div style="display:flex;gap:10px;margin-bottom:10px">
+    <button onclick="downloadBoardingPass('${tk.ref}')" style="flex:1;padding:12px;background:#f5c842;color:#000;font-size:13px;font-weight:800;border:none;border-radius:12px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+      Save Ticket
+    </button>
+    <button onclick="shareBoardingPass('${tk.ref}')" style="flex:1;padding:12px;background:rgba(245,200,66,.1);color:#f5c842;font-size:13px;font-weight:700;border:1px solid rgba(245,200,66,.25);border-radius:12px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+      Share
+    </button>
+  </div>
+  <button class="fsub" style="background:rgba(255,255,255,.04);color:var(--text2);border:1px solid var(--border);margin-bottom:8px;font-size:13px" onclick="sendTicketEmail('${tk.ref}');this.textContent='📧 Sent ✓';this.disabled=true">📧 Resend to email</button>
+  <p style="font-size:10px;color:rgba(255,255,255,.2);text-align:center;margin:4px 0 0;line-height:1.5">Screenshot or save this page — show QR at the door 🚪</p>`;
+}
+
+async function downloadBoardingPass(ref) {
+  const el = document.getElementById('boardingPassCard');
+  if (!el) return;
+  const btn = event.currentTarget;
+  const orig = btn.innerHTML;
+  btn.innerHTML = '⏳ Generating…'; btn.disabled = true;
+  try {
+    // Load html2canvas lazily
+    if (!window.html2canvas) {
+      await new Promise((res, rej) => {
+        const s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+        s.onload = res; s.onerror = rej;
+        document.head.appendChild(s);
+      });
+    }
+    const canvas = await window.html2canvas(el, {
+      backgroundColor: '#0a0b0f', scale: 2,
+      useCORS: true, allowTaint: true, logging: false,
+    });
+    const link = document.createElement('a');
+    link.download = `tonight-ticket-${ref}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    btn.innerHTML = '✅ Saved!';
+    setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 2500);
+  } catch(e) {
+    // Fallback: open in new tab for screenshot
+    const w = window.open('');
+    w.document.write('<body style="background:#0a0b0f;padding:20px">' + el.outerHTML + '</body>');
+    btn.innerHTML = orig; btn.disabled = false;
+    toast('Screenshot the ticket in the new tab', 'ok');
   }
-  <p style="font-size:10px;color:rgba(255,255,255,.2);text-align:center;margin-top:6px;line-height:1.5">Entry is confirmed by the organiser at the door.</p>`;
+}
+
+async function shareBoardingPass(ref) {
+  const tk = getTickets().find(t => t.ref === ref) || lastTicket;
+  const text = `🎫 My ticket for ${tk?.eventTitle || 'tonight'}\n📅 ${tk?.date ? new Date(tk.date).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}) : ''}\n📍 ${tk?.venue || ''}\nRef: ${ref}\ntonightvietnam.com`;
+  if (navigator.share) {
+    try { await navigator.share({ title: 'Tonight Vietnam Ticket', text }); return; } catch(_) {}
+  }
+  // Fallback: copy to clipboard
+  navigator.clipboard?.writeText(text).then(() => toast('Ticket info copied to clipboard', 'ok'));
 }
 
 function renderTkt(){
@@ -4214,7 +4331,6 @@ function renderTkt(){
     b+=_tktDoneBlock(lastTicket);
   }
   document.getElementById('tktBody').innerHTML=b;
-  if(tStep===2) setTimeout(()=>renderQR('tktQrCanvas','TONIGHT:'+lastTicket.ref,160),80);
 }
 
 function chQty(d){
@@ -4238,6 +4354,7 @@ function confirmBooking(){
     venue:ev.venue,
     city:ev.city,
     date:ev.date,
+    time:ev.time||null,
     img:ev.img||null,
     ticketType:tBookType==='guestlist'?'Guestlist':'Entry',
     qty:tQty,
@@ -4266,7 +4383,7 @@ async function sendTicketEmail(ref){
   const ok=await _saveToFirestore('guestlist',{
     ref:tk.ref, buyerName:tk.buyerName, buyerEmail:tk.buyerEmail,
     buyerPhone:tk.buyerPhone, eventTitle:tk.eventTitle,
-    date:tk.date, venue:tk.venue, city:tk.city,
+    date:tk.date, time:tk.time||null, venue:tk.venue, city:tk.city,
     ticketType:tk.ticketType, qty:tk.qty, issuedAt:tk.issuedAt,
     deviceType:_dt.device, os:_dt.os, status:'valid'
   });
