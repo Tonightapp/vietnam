@@ -1045,6 +1045,35 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
 .pp-chip{padding:6px 12px;border-radius:20px;font-size:12px;font-weight:500;border:1px solid var(--border);color:var(--text3);cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:5px;user-select:none;font-family:inherit;}
 .pp-chip:hover{color:var(--text2);border-color:rgba(255,255,255,.2);}
 .pp-chip.active{background:rgba(245,200,66,.12);border-color:rgba(245,200,66,.45);color:var(--gold);}
+/* ── ONBOARDING / SETUP ── */
+.setup-card{background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:20px;margin-bottom:20px;}
+.setup-head-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;}
+.setup-title{font-size:15px;font-weight:700;color:#fff;}
+.setup-pct{font-size:13px;font-weight:800;color:var(--gold);}
+.setup-sub{font-size:12px;color:var(--text3);font-weight:300;margin-bottom:14px;}
+.setup-track{height:6px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden;margin-bottom:18px;}
+.setup-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--gold),#e8a800);transition:width .5s;}
+.setup-step{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);}
+.setup-step:last-child{border-bottom:none;}
+.setup-ico{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:700;}
+.setup-ico.done{background:rgba(34,197,94,.15);color:var(--green);}
+.setup-ico.todo{background:rgba(255,255,255,.06);color:var(--text3);}
+.setup-step-body{flex:1;min-width:0;}
+.setup-step-label{font-size:13px;font-weight:600;color:var(--text);}
+.setup-step-label.done{color:var(--text3);text-decoration:line-through;}
+.setup-step-desc{font-size:11px;color:var(--text3);font-weight:300;margin-top:2px;}
+.setup-btn{font-size:11px;font-weight:700;color:var(--gold);cursor:pointer;padding:5px 12px;border:1px solid rgba(245,200,66,.3);border-radius:6px;background:rgba(245,200,66,.07);white-space:nowrap;flex-shrink:0;font-family:inherit;}
+.setup-btn:hover{background:rgba(245,200,66,.15);}
+/* ── PROFILE METER ── */
+.prof-meter{background:rgba(245,200,66,.05);border:1px solid rgba(245,200,66,.15);border-radius:10px;padding:14px 16px;margin-bottom:20px;}
+.prof-meter-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.prof-meter-label{font-size:12px;font-weight:600;color:var(--text2);}
+.prof-meter-pct{font-size:14px;font-weight:800;color:var(--gold);}
+.prof-meter-track{height:5px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;}
+.prof-meter-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--gold),#e8a800);}
+/* ── TIPS ── */
+.field-tip{display:flex;align-items:flex-start;gap:7px;background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.14);border-radius:7px;padding:9px 11px;margin-top:8px;font-size:11px;color:var(--text2);line-height:1.55;font-weight:300;}
+.field-tip b{color:#93c5fd;font-weight:600;}
 .crm-empty{text-align:center;padding:48px 20px;color:var(--text3);}
 
 /* Analytics */
@@ -4736,108 +4765,122 @@ function showPro(page,el){
   if(page==='overview'){
     const allTkts=getTickets();
     const checkedIn=allTkts.filter(t=>t.status==='used'||t.status==='checked_in').length;
-    const totalGuests=allTkts.reduce((s,t)=>s+(t.qty||1),0);
     const convRate=allTkts.length?Math.round(checkedIn/allTkts.length*100):0;
-    const now=new Date();
     const recent5=[...allTkts].reverse().slice(0,5);
-    const _proEvts=[
-      {e:'🎛',g:'grad-purple',t:'Kater Blau Techno Night',d:'Apr 5, 2026',views:320,joins:94,cap:600,genre:'Techno'},
-      {e:'🌿',g:'grad-teal',t:'Sacred Garden Sunset',d:'Jun 1, 2026',views:180,joins:51,cap:500,genre:'House'},
-      {e:'🎷',g:'grad-indigo',t:'Jazz & Neon Hanoi',d:'Apr 22, 2026',views:210,joins:63,cap:300,genre:'Jazz'},
-    ];
+    const cl=_proSetupChecklist();
+    const pct=_proProfilePct();
+    const setupDone=Object.values(cl).filter(Boolean).length;
+    const setupTotal=Object.keys(cl).length;
+    const isNew=setupDone<setupTotal;
     m.innerHTML=`
-    ${curUser?.pendingApproval?`<div style="background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.25);border-radius:10px;padding:14px 16px;margin-bottom:16px;display:flex;align-items:flex-start;gap:10px"><span style="font-size:20px;flex-shrink:0;margin-top:1px">⏳</span><div><div style="font-size:13px;font-weight:700;color:#f97316;margin-bottom:4px">Pending Approval</div><div style="font-size:12px;color:var(--text2);font-weight:300;line-height:1.6">Your application is under review. Once approved your venue will go live on the main page. You can already set up your <span onclick="showPro('profile',null)" style="color:var(--gold);cursor:pointer;text-decoration:underline">profile &amp; amenities</span> while you wait.</div></div></div>`:''}
+    ${curUser?.pendingApproval?`<div style="background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.25);border-radius:10px;padding:14px 16px;margin-bottom:16px;display:flex;align-items:flex-start;gap:10px"><span style="font-size:20px;flex-shrink:0;margin-top:1px">⏳</span><div><div style="font-size:13px;font-weight:700;color:#f97316;margin-bottom:4px">Pending Approval</div><div style="font-size:12px;color:var(--text2);font-weight:300;line-height:1.6">Your application is under review — usually within 24 hours. Use this time to <span onclick="showPro('profile',null)" style="color:var(--gold);cursor:pointer;text-decoration:underline">complete your profile</span> so you go live instantly once approved.</div></div></div>`:''}
     <div class="dhead"><h2>Overview</h2><button class="btn btn-white" onclick="showPro('add',null)">+ Add Event</button></div>
+    ${isNew?`
+    <div class="setup-card">
+      <div class="setup-head-row"><span class="setup-title">🚀 Get Set Up</span><span class="setup-pct">${setupDone}/${setupTotal} done</span></div>
+      <div class="setup-sub">Complete these steps to go live and start getting guests</div>
+      <div class="setup-track"><div class="setup-fill" style="width:${Math.round(setupDone/setupTotal*100)}%"></div></div>
+      <div class="setup-step">
+        <div class="setup-ico done">✓</div>
+        <div class="setup-step-body"><div class="setup-step-label done">Account created</div><div class="setup-step-desc">You're in — welcome to Tonight</div></div>
+      </div>
+      <div class="setup-step">
+        <div class="setup-ico ${cl.profile?'done':'todo'}">${cl.profile?'✓':'2'}</div>
+        <div class="setup-step-body"><div class="setup-step-label ${cl.profile?'done':''}">Fill in your profile</div><div class="setup-step-desc">Name, address, opening hours, about your venue</div></div>
+        ${!cl.profile?`<button class="setup-btn" onclick="showPro('profile',null)">Go →</button>`:''}
+      </div>
+      <div class="setup-step">
+        <div class="setup-ico ${cl.amenities?'done':'todo'}">${cl.amenities?'✓':'3'}</div>
+        <div class="setup-step-body"><div class="setup-step-label ${cl.amenities?'done':''}">Select your amenities</div><div class="setup-step-desc">Pool, AC, Food Menu, WiFi — helps guests find you</div></div>
+        ${!cl.amenities?`<button class="setup-btn" onclick="showPro('profile',null)">Go →</button>`:''}
+      </div>
+      <div class="setup-step">
+        <div class="setup-ico ${cl.photo?'done':'todo'}">${cl.photo?'✓':'4'}</div>
+        <div class="setup-step-body"><div class="setup-step-label ${cl.photo?'done':''}">Upload interior photos</div><div class="setup-step-desc">Venues with photos get 3× more views</div></div>
+        ${!cl.photo?`<button class="setup-btn" onclick="showPro('profile',null)">Go →</button>`:''}
+      </div>
+      <div class="setup-step">
+        <div class="setup-ico ${cl.event?'done':'todo'}">${cl.event?'✓':'5'}</div>
+        <div class="setup-step-body"><div class="setup-step-label ${cl.event?'done':''}">Add your first event</div><div class="setup-step-desc">Events are how guests discover and join your guestlist</div></div>
+        ${!cl.event?`<button class="setup-btn" onclick="showPro('add',null)">Add Event →</button>`:''}
+      </div>
+      <div class="setup-step">
+        <div class="setup-ico ${cl.approved?'done':'todo'}">${cl.approved?'✓':'6'}</div>
+        <div class="setup-step-body"><div class="setup-step-label ${cl.approved?'done':''}">Get approved &amp; go live</div><div class="setup-step-desc">${cl.approved?'Your venue is live on Tonight 🎉':'Admin reviews within 24h — we\'ll notify you by email'}</div></div>
+      </div>
+    </div>`:''}
     <div class="overview-actions">
-      <div class="ov-action" onclick="showPro('scanner',document.querySelectorAll('.ditem')[8])"><div class="oa-ico">📷</div><div><div style="font-weight:700">Scan Tickets</div><div style="font-size:11px;color:var(--text3)">Check guests in at the door</div></div></div>
-      <div class="ov-action" onclick="showPro('guests',document.querySelectorAll('.ditem')[3])"><div class="oa-ico">👥</div><div><div style="font-weight:700">Guest CRM</div><div style="font-size:11px;color:var(--text3)">${allTkts.length} total registrations</div></div></div>
-      <div class="ov-action" onclick="showPro('promos',document.querySelectorAll('.ditem')[5])"><div class="oa-ico">🔥</div><div><div style="font-weight:700">Run Promotion</div><div style="font-size:11px;color:var(--text3)">Push notify nearby users</div></div></div>
+      <div class="ov-action" onclick="showPro('add',null)"><div class="oa-ico">➕</div><div><div style="font-weight:700">Add Event</div><div style="font-size:11px;color:var(--text3)">Publish to the main page</div></div></div>
+      <div class="ov-action" onclick="showPro('guests',document.querySelectorAll('.ditem')[3])"><div class="oa-ico">👥</div><div><div style="font-weight:700">Guest CRM</div><div style="font-size:11px;color:var(--text3)">${allTkts.length} registrations</div></div></div>
+      <div class="ov-action" onclick="showPro('promos',document.querySelectorAll('.ditem')[5])"><div class="oa-ico">🔥</div><div><div style="font-weight:700">Promotion</div><div style="font-size:11px;color:var(--text3)">Push notify nearby users</div></div></div>
       <div class="ov-action" onclick="showPro('analytics',document.querySelectorAll('.ditem')[4])"><div class="oa-ico">📈</div><div><div style="font-weight:700">Analytics</div><div style="font-size:11px;color:var(--text3)">Views, joins, conversion</div></div></div>
     </div>
     <div class="dstats">
-      <div class="dstat"><div class="dn">${_proEvts.length}</div><div class="dl">Active Events</div><div class="dstat-delta up">↑ +1 this week</div></div>
-      <div class="dstat"><div class="dn">${_proEvts.reduce((s,e)=>s+e.views,0)}</div><div class="dl">Total Views</div><div class="dstat-delta up">↑ +18% vs last week</div></div>
-      <div class="dstat"><div class="dn">${allTkts.length||_proEvts.reduce((s,e)=>s+e.joins,0)}</div><div class="dl">Guestlist Joins</div><div class="dstat-delta up">↑ +12% vs last week</div></div>
-      <div class="dstat"><div class="dn">${convRate||29}%</div><div class="dl">Conversion Rate</div><div class="dstat-delta ${convRate>25?'up':'dn'}">${convRate>25?'↑ Above avg':'↓ Below avg'}</div></div>
+      <div class="dstat"><div class="dn">${allTkts.length?'—':0}</div><div class="dl">Active Events</div><div class="dstat-delta" style="color:var(--text3)">Add your first event</div></div>
+      <div class="dstat"><div class="dn">0</div><div class="dl">Total Views</div><div class="dstat-delta" style="color:var(--text3)">Goes live after approval</div></div>
+      <div class="dstat"><div class="dn">${allTkts.length}</div><div class="dl">Guestlist Joins</div><div class="dstat-delta ${convRate>0?'up':''}">${convRate>0?'↑ '+convRate+'% conv. rate':'No joins yet'}</div></div>
+      <div class="dstat"><div class="dn">${pct}%</div><div class="dl">Profile Complete</div><div class="dstat-delta ${pct>=80?'up':'dn'}">${pct>=80?'↑ Looking great':'↓ Add more details'}</div></div>
     </div>
-    <div class="dsec"><h3>🎉 My Events — Performance</h3>
-      ${_proEvts.map(ev=>`
-      <div class="an-evt-row">
-        <div class="an-evt-ico ${ev.g}">${ev.e}</div>
-        <div class="an-evt-info">
-          <div class="an-evt-title">${ev.t}</div>
-          <div class="an-evt-meta">${ev.d} · ${ev.genre}</div>
-          <div style="margin-top:5px">
-            <div class="an-bar-track" style="height:5px"><div class="an-bar-fill" style="width:${Math.round(ev.joins/ev.views*100)}%"></div></div>
-            <div style="font-size:10px;color:var(--text3);margin-top:3px">${ev.joins} joins of ${ev.views} views</div>
-          </div>
-        </div>
-        <div class="an-evt-conv"><div class="an-evt-conv-val">${Math.round(ev.joins/ev.views*100)}%</div><div class="an-evt-conv-label">conv.</div></div>
-      </div>`).join('')}
-    </div>
-    <div class="dsec"><h3>⚡ Live Activity Feed</h3>
-      <div class="activity-feed">
-        ${recent5.length?recent5.map(tk=>`
-        <div class="af-row">
-          <div class="af-dot join"></div>
-          <div class="af-body"><strong>${tk.buyerName}</strong> joined guestlist — ${tk.eventTitle}</div>
-          <div class="af-time">${new Date(tk.issuedAt).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</div>
-        </div>`).join('')
-        :[
-          {n:'Minh Tran',e:'Kater Blau Techno Night',t:'2m ago',type:'join'},
-          {n:'Sophie L.',e:'Jazz & Neon Hanoi',t:'8m ago',type:'join'},
-          {n:'Chen Wei',e:'Sacred Garden Sunset',t:'15m ago',type:'scan'},
-          {n:'Anna K.',e:'Kater Blau Techno Night',t:'22m ago',type:'join'},
-          {n:'Duc Nguyen',e:'Jazz & Neon Hanoi',t:'31m ago',type:'view'},
-        ].map(a=>`<div class="af-row"><div class="af-dot ${a.type}"></div><div class="af-body"><strong>${a.n}</strong> ${a.type==='join'?'joined guestlist':a.type==='scan'?'✅ checked in':'viewed event'} — ${a.e}</div><div class="af-time">${a.t}</div></div>`).join('')}
-      </div>
-    </div>`;
+    ${recent5.length?`<div class="dsec"><h3>⚡ Recent Guestlist Activity</h3><div class="activity-feed">${recent5.map(tk=>`<div class="af-row"><div class="af-dot join"></div><div class="af-body"><strong>${tk.buyerName}</strong> joined guestlist — ${tk.eventTitle}</div><div class="af-time">${new Date(tk.issuedAt).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</div></div>`).join('')}</div></div>`
+    :`<div class="dsec" style="text-align:center;padding:32px 20px"><div style="font-size:36px;margin-bottom:12px">🎉</div><div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:6px">No activity yet</div><div style="font-size:13px;color:var(--text3);font-weight:300;margin-bottom:20px">Once you add an event and guests start joining, their activity will appear here in real time.</div><button class="fsub" style="width:auto;padding:11px 28px;margin:0 auto" onclick="showPro('add',null)">Add Your First Event →</button></div>`}
+    `;
   }
   if(page==='events'){m.innerHTML=`<div class="dhead"><h2>My Events</h2><button class="btn btn-white" onclick="showPro('add',null)">+ Add Event</button></div>${proRows()}`;}
-  if(page==='add'){m.innerHTML=`
+  if(page==='add'){
+    const _pp=getProProfile();
+    m.innerHTML=`
     <div class="dhead"><h2>Add New Event</h2></div>
+    <div class="field-tip" style="margin-bottom:16px"><span>💡</span><span>Fill in all fields clearly — Tonight reviews every event before it goes live. The more detail you add, the faster it gets approved.</span></div>
     <form onsubmit="subEvent(event)">
-      <div class="dsec"><h3>📋 Basic Info</h3>
+      <div class="dsec"><h3>📋 Step 1 — Basic Info</h3>
         <div class="fgrid">
-          <div class="full fg"><label>Event Title *</label><input class="fi" placeholder="e.g. Ultra Vietnam 2026" required/></div>
-          <div class="fg"><label>Type</label><select class="fi"><option>Concert</option><option>Club Night</option><option>Festival</option><option>DJ Set</option></select></div>
-          <div class="fg"><label>Genre</label><select class="fi"><option>Techno</option><option>House</option><option>EDM</option><option>Rock</option><option>Hip-Hop</option><option>Jazz</option><option>Pop</option></select></div>
-          <div class="fg"><label>Date *</label><input class="fi" type="date" required/></div>
+          <div class="full fg"><label>Event Title <span style="color:var(--red)">*</span></label><input class="fi" placeholder="e.g. Sacred Garden Opening Night" required/><div class="field-tip"><span>✏️</span><span>Make it <b>specific and exciting</b> — include the venue name or theme. Avoid generic names like "Party Night".</span></div></div>
+          <div class="fg"><label>Event Type</label><select class="fi"><option>Club Night</option><option>Concert</option><option>DJ Set</option><option>Festival</option><option>Rooftop Party</option><option>Brunch</option><option>Live Band</option><option>Special Event</option></select></div>
+          <div class="fg"><label>Music Genre</label><select class="fi"><option>Techno</option><option>House</option><option>EDM</option><option>Hip-Hop</option><option>R&B</option><option>Rock</option><option>Jazz</option><option>Pop</option><option>Latin</option><option>Reggaeton</option><option>Mixed</option></select></div>
+          <div class="fg"><label>Date <span style="color:var(--red)">*</span></label><input class="fi" type="date" required/></div>
           <div class="fg"><label>Doors Open</label><input class="fi" type="time" value="21:00"/></div>
-          <div class="fg"><label>City *</label><select class="fi"><option>Hanoi</option></select></div>
-          <div class="fg"><label>Venue *</label><input class="fi" placeholder="e.g. Sacred Garden, Kater Blau Hanoi" required/></div>
-          <div class="full fg"><label>Description *</label><textarea class="fta" placeholder="Describe your event…" required></textarea></div>
-          <div class="full fg"><label>Rules</label><textarea class="fta" placeholder="18+ only, no re-entry…" style="min-height:60px"></textarea></div>
+          <div class="fg"><label>Closing Time</label><input class="fi" type="time" value="03:00"/></div>
+          <div class="full fg"><label>Venue Name <span style="color:var(--red)">*</span></label><input class="fi" placeholder="${_pp.name||'e.g. Sacred Garden'}" value="${_pp.name||''}" required/></div>
+          <div class="full fg"><label>Event Description <span style="color:var(--red)">*</span></label><textarea class="fta" placeholder="Describe the vibe, lineup, what guests can expect…" required style="min-height:90px"></textarea><div class="field-tip"><span>🎯</span><span>Describe the <b>vibe and experience</b>, not just the facts. Mention the DJ, dress code, special attractions. This is what convinces guests to join.</span></div></div>
+          <div class="full fg"><label>Rules & Entry Requirements</label><textarea class="fta" placeholder="e.g. 18+ only, smart casual dress code, no re-entry after midnight…" style="min-height:56px"></textarea></div>
         </div>
       </div>
-      <div class="dsec"><h3>🖼 Event Photos</h3>
+      <div class="dsec"><h3>🖼 Step 2 — Event Photos</h3>
+        <div class="field-tip" style="margin-bottom:12px"><span>📸</span><span>Events with photos get <b>5× more guestlist joins</b>. Upload at least one flyer or atmosphere photo.</span></div>
         <div class="upload-z" onclick="document.getElementById('pii').click()">
           <div style="font-size:28px;margin-bottom:6px">📸</div>
           <p style="font-size:13px;color:var(--text2)">Click to upload photos</p>
-          <p style="font-size:11px;color:var(--text3);margin-top:3px">JPG, PNG · up to 10 · max 5MB</p>
+          <p style="font-size:11px;color:var(--text3);margin-top:3px">JPG, PNG · up to 10 · max 5MB each</p>
         </div>
         <input type="file" id="pii" multiple accept="image/*" style="display:none" onchange="prevImgs(this)"/>
         <div class="img-prev" id="iprev"></div>
       </div>
-      <div class="dsec"><h3>🎟 Ticket Types</h3>
-        <div style="display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;margin-bottom:8px;font-size:11px;color:var(--text3)"><span>Name</span><span>Price $</span><span>Qty</span><span></span></div>
+      <div class="dsec"><h3>🎟 Step 3 — Guestlist & Tickets</h3>
+        <div class="field-tip" style="margin-bottom:12px"><span>💰</span><span>Set a price of <b>0</b> for free entry or free guestlist. You can add multiple ticket tiers (e.g. Early Bird, General, VIP).</span></div>
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;margin-bottom:8px;font-size:11px;color:var(--text3);font-weight:600"><span>Ticket Name</span><span>Price (₫)</span><span>Capacity</span><span></span></div>
         <div id="trows">
-          <div class="trow"><input class="fi" placeholder="General Admission" style="flex:2"/><input class="fi" type="number" placeholder="350"/><input class="fi" type="number" placeholder="500"/><button type="button" class="tdel" onclick="this.closest('.trow').remove()">✕</button></div>
-          <div class="trow"><input class="fi" placeholder="VIP" style="flex:2"/><input class="fi" type="number" placeholder="650"/><input class="fi" type="number" placeholder="100"/><button type="button" class="tdel" onclick="this.closest('.trow').remove()">✕</button></div>
+          <div class="trow"><input class="fi" placeholder="General Admission" style="flex:2"/><input class="fi" type="number" placeholder="0 = free"/><input class="fi" type="number" placeholder="100"/><button type="button" class="tdel" onclick="this.closest('.trow').remove()">✕</button></div>
+          <div class="trow"><input class="fi" placeholder="VIP" style="flex:2"/><input class="fi" type="number" placeholder="500000"/><input class="fi" type="number" placeholder="20"/><button type="button" class="tdel" onclick="this.closest('.trow').remove()">✕</button></div>
         </div>
-        <button type="button" class="addtrow" onclick="addTrow()">+ Add ticket type</button>
+        <button type="button" class="addtrow" onclick="addTrow()">+ Add ticket tier</button>
       </div>
-      <div style="display:flex;gap:10px">
-        <button type="submit" class="fsub" style="flex:2">🚀 Publish Event</button>
-        <button type="button" class="btn btn-ghost" style="flex:1" onclick="toast('Saved as draft','ok')">Save Draft</button>
+      <div style="display:flex;gap:10px;margin-top:8px">
+        <button type="submit" class="fsub" style="flex:2">🚀 Submit for Approval</button>
+        <button type="button" class="btn btn-ghost" style="flex:1" onclick="toast('Saved as draft — come back anytime to finish','ok')">Save Draft</button>
       </div>
+      <p style="font-size:11px;color:var(--text3);text-align:center;margin-top:12px;font-weight:300">Tonight reviews all events within 24 hours. You'll be notified by email once it's live.</p>
     </form>`;}
   if(page==='profile'){
     const p=getProProfile();
     m.innerHTML=`
     <div class="dhead"><h2>My Profile</h2></div>
+    <div class="prof-meter">
+      <div class="prof-meter-row"><span class="prof-meter-label">Profile completeness</span><span class="prof-meter-pct">${_proProfilePct()}%</span></div>
+      <div class="prof-meter-track"><div class="prof-meter-fill" style="width:${_proProfilePct()}%"></div></div>
+      ${_proProfilePct()<100?`<div style="font-size:11px;color:var(--text3);margin-top:8px;font-weight:300">Complete your profile to maximise your visibility on the main page.</div>`:'<div style="font-size:11px;color:var(--green);margin-top:8px;font-weight:600">✓ Profile fully complete — great job!</div>'}
+    </div>
     <div class="dsec">
-      <p style="font-size:12px;color:var(--text3);font-weight:300;margin-bottom:18px;line-height:1.7">This is the information Tonight uses to list your venue and contact you. Fill it in accurately so we can set you up correctly.</p>
+      <p style="font-size:12px;color:var(--text3);font-weight:300;margin-bottom:18px;line-height:1.7">This information is shown to guests on the main page. The more detail you add, the easier it is for guests to find and choose your venue.</p>
       <div class="fgrid">
         <div class="fg"><label>Business / Venue Name *</label><input class="fi" id="pp_name" placeholder="e.g. Lush Nightclub" value="${p.name||''}"/></div>
         <div class="fg"><label>Type</label>
@@ -5293,6 +5336,24 @@ function deleteOffer(id){
 
 // ── PRO PROFILE ──
 function getProProfile(){return JSON.parse(localStorage.getItem('tn_pro_profile')||'{}');}
+function _proSetupChecklist(){
+  const p=getProProfile(), tkts=getTickets();
+  return {
+    profile:!!(p.name&&p.address&&p.about&&p.hours&&p.contact&&p.phone),
+    amenities:!!(p.amenities&&p.amenities.length>0),
+    photo:!!(p.interiorPhotos&&p.interiorPhotos.length>0),
+    event:tkts.length>0,
+    approved:!curUser?.pendingApproval,
+  };
+}
+function _proProfilePct(){
+  const p=getProProfile();
+  let s=0;
+  if(p.name)s+=20; if(p.address)s+=10; if(p.about)s+=15; if(p.hours)s+=10;
+  if(p.amenities&&p.amenities.length)s+=15; if(p.interiorPhotos&&p.interiorPhotos.length)s+=10;
+  if(p.instagram||p.website)s+=10; if(p.contact&&p.phone)s+=10;
+  return Math.min(100,s);
+}
 function saveProProfile(){
   const p={
     name:(document.getElementById('pp_name')||{}).value||'',
