@@ -4825,7 +4825,10 @@ function showPro(page,el){
     :`<div class="dsec" style="text-align:center;padding:32px 20px"><div style="font-size:36px;margin-bottom:12px">🎉</div><div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:6px">No activity yet</div><div style="font-size:13px;color:var(--text3);font-weight:300;margin-bottom:20px">Once you add an event and guests start joining, their activity will appear here in real time.</div><button class="fsub" style="width:auto;padding:11px 28px;margin:0 auto" onclick="showPro('add',null)">Add Your First Event →</button></div>`}
     `;
   }
-  if(page==='events'){m.innerHTML=`<div class="dhead"><h2>My Events</h2><button class="btn btn-white" onclick="showPro('add',null)">+ Add Event</button></div>${proRows()}`;}
+  if(page==='events'){
+    m.innerHTML=`<div class="dhead"><h2>My Events</h2><button class="btn btn-white" onclick="showPro('add',null)">+ Add Event</button></div><div id="proevents-list"><div style="text-align:center;padding:40px;color:var(--text3);font-size:13px">Loading your events…</div></div>`;
+    _loadMyProEvents();
+  }
   if(page==='add'){
     const _pp=getProProfile();
     m.innerHTML=`
@@ -4986,13 +4989,10 @@ function showPro(page,el){
     const allTkts=getTickets();
     const checkedIn=allTkts.filter(t=>t.status==='used'||t.status==='checked_in').length;
     const convRate=allTkts.length?Math.round(checkedIn/allTkts.length*100):0;
-    const _proEvts=[
-      {e:'🎛',g:'grad-purple',t:'Kater Blau Techno Night',views:320,joins:94,cap:600},
-      {e:'🌿',g:'grad-teal',t:'Sacred Garden Sunset',views:180,joins:51,cap:500},
-      {e:'🎷',g:'grad-indigo',t:'Jazz & Neon Hanoi',views:210,joins:63,cap:300},
-    ];
-    const totalViews=_proEvts.reduce((s,e)=>s+e.views,0);
-    const totalJoins=_proEvts.reduce((s,e)=>s+e.joins,0);
+    // Use real events if loaded, otherwise show zeroes
+    const _proEvts=(_myProEvents||[]).map(ev=>({e:ev.emoji||'🎉',g:'grad-purple',t:ev.title||'Untitled',views:0,joins:allTkts.filter(t=>t.eventTitle===ev.title).length,cap:ev.guestlistCap||100}));
+    const totalViews=allTkts.length;
+    const totalJoins=allTkts.length;
     const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
     const dayData=[12,18,24,31,58,89,43];
     const maxDay=Math.max(...dayData);
@@ -5279,19 +5279,95 @@ function showPro(page,el){
       <button class="fsub" style="width:auto;padding:10px 20px;margin:0;flex-shrink:0" onclick="sendSupportMsg()">Send</button>
     </div>`;}
 }
-function proRows(){return[
-  {e:'🎛',g:'grad-purple',t:'Kater Blau Techno Night',d:'Apr 5, 2026',s:320,c:600},
-  {e:'🌿',g:'grad-teal',t:'Sacred Garden Sunset',d:'Jun 1, 2026',s:180,c:500},
-  {e:'🎷',g:'grad-indigo',t:'Jazz & Neon Hanoi',d:'Apr 22, 2026',s:210,c:300},
-].map(r=>`<div class="prorow">
-  <div class="prorow-img ${r.g}">${r.e}</div>
-  <div class="prorow-info"><h4>${r.t}</h4><p>${r.d} · ${r.s}/${r.c} sold</p></div>
-  <div class="prorow-actions">
-    <button class="pe pe-e" onclick="toast('Opening editor…','ok')">Edit</button>
-    <button class="pe pe-d" onclick="toast('Deleted','ok')">Delete</button>
-  </div>
-</div>`).join('');}
-function subEvent(e){e.preventDefault();toast('Event published! 🚀','ok');showPro('events',document.querySelectorAll('.ditem')[1]);}
+let _myProEvents = [];
+
+async function _loadMyProEvents() {
+  try {
+    const fbAuth = await _getAuth();
+    const uid = fbAuth.currentUser?.uid;
+    const el = document.getElementById('proevents-list');
+    if (!uid || !el) return;
+    const {collection,query,where,orderBy,getDocs} = await import(_FB_CDN+'/firebase-firestore.js');
+    const db = await _getDb();
+    const snap = await getDocs(query(collection(db,'events'),where('publishedBy','==',uid),orderBy('createdAt','desc')));
+    _myProEvents = snap.docs.map(d=>({id:d.id,...d.data()}));
+    if (!el) return;
+    if (!_myProEvents.length) {
+      el.innerHTML = `<div style="padding:48px 20px;text-align:center">
+        <div style="font-size:40px;margin-bottom:12px">🎉</div>
+        <div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:6px">No events yet</div>
+        <div style="font-size:13px;color:var(--text3);margin-bottom:20px;font-weight:300">Add your first event and we'll review it within 24 hours.</div>
+        <button class="fsub" style="width:auto;padding:11px 28px;margin:0 auto" onclick="showPro('add',null)">+ Add Your First Event</button>
+      </div>`;
+      return;
+    }
+    el.innerHTML = _myProEvents.map(ev=>{
+      const sc = ev.status==='approved'?'#22c55e':ev.status==='rejected'?'#ef4444':'#f5c842';
+      const sl = ev.status==='approved'?'✓ Live':ev.status==='rejected'?'✕ Rejected':'⏳ Pending Review';
+      const safeTitle = (ev.title||'').replace(/'/g,"\\'");
+      return `<div class="prorow">
+        <div class="prorow-img" style="background:rgba(245,200,66,0.1);font-size:22px;display:flex;align-items:center;justify-content:center">${ev.emoji||'🎉'}</div>
+        <div class="prorow-info">
+          <h4>${ev.title||'Untitled'}</h4>
+          <p>${ev.date||'—'}${ev.venueName?' · '+ev.venueName:''}</p>
+          <span style="font-size:11px;font-weight:700;color:${sc}">${sl}</span>
+        </div>
+        <div class="prorow-actions">
+          <button class="pe pe-d" onclick="_deleteMyProEvent('${ev.id}','${safeTitle}')">Delete</button>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(err) {
+    const el = document.getElementById('proevents-list');
+    if (el) el.innerHTML = `<div style="color:#ef4444;padding:24px;text-align:center;font-size:13px">Error: ${err.message}</div>`;
+  }
+}
+
+async function _deleteMyProEvent(id, title) {
+  if (!confirm(`Delete "${title}"?\nThis cannot be undone.`)) return;
+  try {
+    const {doc,deleteDoc} = await import(_FB_CDN+'/firebase-firestore.js');
+    const db = await _getDb();
+    await deleteDoc(doc(db,'events',id));
+    toast('Event deleted');
+    showPro('events',document.querySelectorAll('.ditem')[1]);
+  } catch(err) { toast('Error: '+err.message,'err'); }
+}
+
+async function subEvent(e) {
+  e.preventDefault();
+  try {
+    const fbAuth = await _getAuth();
+    const uid = fbAuth.currentUser?.uid;
+    if (!uid) { toast('Please sign in first','err'); return; }
+    const form = e.target;
+    const fi = form.querySelectorAll('.fi');
+    const title    = fi[0]?.value.trim();
+    const genre    = fi[2]?.value || '';
+    const date     = fi[3]?.value || '';
+    const time     = fi[4]?.value || '';
+    const venueName= fi[6]?.value.trim() || '';
+    const desc     = form.querySelector('.fta')?.value.trim() || '';
+    if (!title) { toast('Event title is required','err'); return; }
+    if (!date)  { toast('Date is required','err'); return; }
+    const btn = form.querySelector('.fsub');
+    if (btn) { btn.disabled=true; btn.textContent='Submitting…'; }
+    const {collection,addDoc,serverTimestamp} = await import(_FB_CDN+'/firebase-firestore.js');
+    const db = await _getDb();
+    await addDoc(collection(db,'events'), {
+      title, genre, date, time, venueName, description: desc,
+      status: 'pending', publishedBy: uid,
+      city: 'Hanoi', source: 'browse-pro',
+      createdAt: serverTimestamp(),
+    });
+    toast('Event submitted for review! We\'ll email you once it\'s live 🚀','ok');
+    showPro('events',document.querySelectorAll('.ditem')[1]);
+  } catch(err) {
+    toast('Error submitting: '+err.message,'err');
+    const btn = e.target.querySelector('.fsub');
+    if (btn) { btn.disabled=false; btn.textContent='🚀 Submit for Approval'; }
+  }
+}
 
 // ── OFFERS ──
 function getOffers(){return JSON.parse(localStorage.getItem('tn_pro_offers')||'[]');}
