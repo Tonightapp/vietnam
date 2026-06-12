@@ -547,6 +547,8 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
 .ea-hide:hover{background:rgba(148,163,184,.15);color:var(--text2)}
 .ea-show{background:rgba(34,197,94,.08);color:var(--green);border-color:rgba(34,197,94,.2)}
 .ea-show:hover{background:rgba(34,197,94,.18)}
+.ea-preview{background:rgba(245,200,66,.06);color:var(--gold);border-color:rgba(245,200,66,.2)}
+.ea-preview:hover{background:rgba(245,200,66,.15);border-color:rgba(245,200,66,.4)}
 .ftab.on-all{background:rgba(59,130,246,.1);border-color:rgba(59,130,246,.3);color:var(--blue)}
 .ftab.on-all .ftab-count{background:var(--blue);color:#fff}
 .evt-card.evt-hidden{opacity:.55;border-style:dashed}
@@ -563,6 +565,41 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
 .ib.ib-on{background:rgba(245,200,66,.1);color:var(--gold);border-color:rgba(245,200,66,.3)}
 .ib.ib-green{background:rgba(34,197,94,.08);color:var(--green);border-color:rgba(34,197,94,.2)}
 .ib.ib-confirm{background:rgba(239,68,68,.12);color:var(--red);border-color:rgba(239,68,68,.3);animation:pulse-red .4s}
+/* ── EVENT PREVIEW MODAL ────────────────────────────────── */
+#evt-preview-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9999;overflow-y:auto;padding:32px 16px;align-items:flex-start;justify-content:center}
+#evt-preview-modal.open{display:flex}
+.ep-wrap{background:#0f1117;border:1px solid rgba(255,255,255,.08);border-radius:16px;width:100%;max-width:520px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,.7);animation:ep-in .18s ease}
+@keyframes ep-in{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.ep-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.07)}
+.ep-header h3{font-size:12px;font-weight:600;color:#64748b;letter-spacing:.07em;text-transform:uppercase;margin:0}
+.ep-close-btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#64748b;border-radius:8px;padding:5px 13px;font-size:12px;cursor:pointer}
+.ep-close-btn:hover{background:rgba(255,255,255,.12);color:#94a3b8}
+.ep-sublabel{font-size:10px;color:#334155;text-align:center;padding:6px 0 0;letter-spacing:.06em;text-transform:uppercase}
+.ep-card-wrap{padding:20px 24px 24px;display:flex;justify-content:center;background:linear-gradient(180deg,#11131f 0%,#0d0f18 100%)}
+.ep-card{width:100%;max-width:420px;border-radius:14px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.6);position:relative;background:#18192a}
+.ep-card-img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}
+.ep-card-img-ph{width:100%;aspect-ratio:16/9;background:linear-gradient(135deg,#1e2035,#2a1e35);display:flex;align-items:center;justify-content:center;font-size:60px}
+.ep-card-overlay{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(0,0,0,.92) 0%,rgba(0,0,0,.3) 60%,transparent 100%);padding:22px 16px 14px}
+.ep-card-genre{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;background:rgba(245,200,66,.15);color:#f5c842;border:1px solid rgba(245,200,66,.3);border-radius:4px;padding:2px 8px;margin-bottom:8px}
+.ep-card-title{font-size:18px;font-weight:700;color:#fff;line-height:1.2;margin-bottom:5px}
+.ep-card-sub{font-size:12px;color:rgba(255,255,255,.6)}
+.ep-card-price{position:absolute;top:12px;right:12px;font-size:11px;font-weight:700;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.14);border-radius:20px;padding:3px 11px;color:#fff}
+.ep-detail{padding:16px 20px;border-top:1px solid rgba(255,255,255,.07)}
+.ep-dr{display:flex;gap:8px;align-items:flex-start;margin-bottom:10px;font-size:13px;color:#cbd5e1}
+.ep-dr .ep-ic{font-size:14px;flex-shrink:0;width:20px;text-align:center;margin-top:1px}
+.ep-dr.ep-desc-row{flex-direction:column;color:#94a3b8;font-size:13px;line-height:1.6;white-space:pre-line;word-break:break-word}
+.ep-lineup{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.ep-chip{font-size:11px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:6px;padding:3px 9px;color:#94a3b8}
+.ep-divider{height:1px;background:rgba(255,255,255,.06);margin:12px 0}
+.ep-acts{display:flex;gap:10px;padding:14px 20px;border-top:1px solid rgba(255,255,255,.07);background:rgba(0,0,0,.25)}
+.ep-b{flex:1;padding:11px 14px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;border:1px solid transparent;transition:all .12s}
+.ep-b-approve{background:rgba(34,197,94,.12);color:#4ade80;border-color:rgba(34,197,94,.25)}
+.ep-b-approve:hover{background:rgba(34,197,94,.22)}
+.ep-b-reject{background:rgba(239,68,68,.08);color:#f87171;border-color:rgba(239,68,68,.2)}
+.ep-b-reject:hover{background:rgba(239,68,68,.18)}
+.ep-b-neutral{background:rgba(255,255,255,.05);color:#64748b;border-color:rgba(255,255,255,.08)}
+.ep-b-neutral:hover{background:rgba(255,255,255,.1);color:#94a3b8}
+@media(max-width:480px){.ep-wrap{border-radius:12px}.ep-card-title{font-size:15px}}
 @keyframes pulse-red{0%,100%{opacity:1}50%{opacity:.6}}
 
 /* ─── STATUS BADGES ─────────────────────────────────────── */
@@ -3226,6 +3263,7 @@ function eventCard(e) {
     </div>
     <div class="evt-actions">
       ${statusBtns}
+      <button class="ea-btn ea-preview" onclick="previewEvent('${e.id}')" title="Preview on app">👁 Preview</button>
       ${areaSelect}
       <button class="ea-btn ea-edit" onclick="openEditEvent('${e.id}')" title="Edit event">✏ Edit</button>
       <button class="ea-btn ea-feat${isFeat?' on':''}" onclick="toggleFeatured('${e.id}',${!isFeat})" title="${isFeat?'Remove from banner':'Pin to banner'}">⭐</button>
@@ -3272,6 +3310,7 @@ function eventRow(e) {
   const hideBtn  = isHidden
     ? `<button class="ib ib-green" title="Show on site"    onclick="toggleHidden('${e.id}',true)">👁</button>`
     : `<button class="ib"          title="Hide from site"  onclick="toggleHidden('${e.id}',false)">🙈</button>`;
+  const previewBtn = `<button class="ib ib-on" style="color:var(--gold);border-color:rgba(245,200,66,.25)" title="Preview on app" onclick="previewEvent('${e.id}')">👁</button>`;
   const editBtn  = `<button class="ib" title="Edit"  onclick="openEditEvent('${e.id}')">✏</button>`;
   const cloneBtn = `<button class="ib" title="Clone" onclick="cloneEvent('${e.id}')">⧉</button>`;
   const isDelConf = deleteConfirm.has(e.id);
@@ -3288,7 +3327,7 @@ function eventRow(e) {
     </td>
     <td class="td-muted" style="white-space:nowrap;font-size:12px">${dateStr}${e.time?`<br><span style="font-size:10px">${esc(e.time)}</span>`:''}</td>
     <td><span class="s-badge s-${status}">${statusLabel}</span></td>
-    <td><div class="evt-row-actions">${statusBtns}${areaSelect}${editBtn}${featBtn}${hideBtn}${cloneBtn}${delBtn}</div></td>
+    <td><div class="evt-row-actions">${statusBtns}${previewBtn}${areaSelect}${editBtn}${featBtn}${hideBtn}${cloneBtn}${delBtn}</div></td>
   </tr>`;
 }
 
@@ -3806,6 +3845,7 @@ function renderAttentionWidget() {
       <div class="attn-acts">
         <button class="ib ib-reject"  title="Reject"  onclick="rejectEvent('${e.id}','${t}')">✕</button>
         <button class="ib ib-approve" title="Approve" onclick="approveEvent('${e.id}','${t}')">✓ Approve</button>
+        <button class="ib" style="color:var(--gold);border-color:rgba(245,200,66,.25)" title="Preview on app" onclick="previewEvent('${e.id}')">👁 Preview</button>
       </div>
     </div>`;
   });
@@ -4758,7 +4798,87 @@ window.toast = function(msg) {
   toastTimer = setTimeout(() => t.classList.remove('on'), 3000);
 };
 
+// ── EVENT PREVIEW MODAL ───────────────────────────────────
+window.previewEvent = function(id) {
+  const e = allEvents.find(x => x.id === id);
+  if (!e) return toast('Event not found');
+  const safeTitle  = escQ(e.title || '—');
+  const status     = e.status || 'pending';
+  const isPending  = status === 'pending';
+  const isApproved = status === 'approved';
+  const price      = e.price > 0 ? `${Number(e.price).toLocaleString()}₫` : 'Free';
+  const dateStr    = shortDate(e.date);
+
+  // ---- card ----
+  const imgHtml = e.img
+    ? `<img class="ep-card-img" src="${esc(e.img)}" alt=""/>`
+    : `<div class="ep-card-img-ph">${e.emoji || '🎵'}</div>`;
+
+  document.getElementById('ep-card').innerHTML =
+    `${imgHtml}
+     <div class="ep-card-price">${price}</div>
+     <div class="ep-card-overlay">
+       ${e.genre ? `<div class="ep-card-genre">${esc(e.genre)}</div>` : ''}
+       <div class="ep-card-title">${esc(e.title || '—')}</div>
+       <div class="ep-card-sub">📍 ${esc(e.venueName || '—')}${e.area ? ` · ${esc(e.area)}` : ''} · ${dateStr}${e.time ? ` · ${esc(e.time)}` : ''}</div>
+     </div>`;
+
+  // ---- detail ----
+  const lineup = Array.isArray(e.lineup) && e.lineup.length
+    ? `<div class="ep-lineup">${e.lineup.map(a => `<span class="ep-chip">🎧 ${esc(a)}</span>`).join('')}</div>` : '';
+  const special = e.specialActs
+    ? `<div class="ep-dr"><span class="ep-ic">✨</span><span>${esc(e.specialActs)}</span></div>` : '';
+  const descHtml = e.description
+    ? `<div class="ep-divider"></div><div class="ep-dr ep-desc-row">${esc(e.description)}</div>` : '';
+
+  document.getElementById('ep-detail').innerHTML =
+    `<div class="ep-dr"><span class="ep-ic">📍</span><span><strong>${esc(e.venueName || '—')}</strong>${e.city ? ` · ${esc(e.city)}` : ''}${e.area ? ` · ${esc(e.area)}` : ''}</span></div>
+     <div class="ep-dr"><span class="ep-ic">📅</span><span>${dateStr}${e.time ? ` · ${esc(e.time)}` : ''}</span></div>
+     ${e.organizer ? `<div class="ep-dr"><span class="ep-ic">🎪</span><span>${esc(e.organizer)}</span></div>` : ''}
+     <div class="ep-dr"><span class="ep-ic">💰</span><span>${price}</span></div>
+     ${lineup}${special}${descHtml}`;
+
+  // ---- action bar ----
+  const actEl = document.getElementById('ep-acts');
+  if (isPending) {
+    actEl.innerHTML =
+      `<button class="ep-b ep-b-reject"  onclick="rejectEvent('${e.id}','${safeTitle}');closePreview()">✕ Reject</button>
+       <button class="ep-b ep-b-approve" onclick="approveEvent('${e.id}','${safeTitle}');closePreview()">✓ Approve &amp; Go Live</button>`;
+  } else if (isApproved) {
+    actEl.innerHTML =
+      `<button class="ep-b ep-b-neutral" onclick="closePreview()">Close</button>
+       <button class="ep-b ep-b-reject"  onclick="rejectEvent('${e.id}','${safeTitle}');closePreview()">Take Down</button>`;
+  } else {
+    actEl.innerHTML =
+      `<button class="ep-b ep-b-neutral" onclick="closePreview()">Close</button>
+       <button class="ep-b ep-b-approve" onclick="approveEvent('${e.id}','${safeTitle}');closePreview()">✓ Approve</button>`;
+  }
+
+  const modal = document.getElementById('evt-preview-modal');
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+};
+
+window.closePreview = function() {
+  document.getElementById('evt-preview-modal').classList.remove('open');
+  document.body.style.overflow = '';
+};
+
 </script>
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+
+<!-- ── EVENT PREVIEW MODAL ── -->
+<div id="evt-preview-modal" onclick="if(event.target===this)closePreview()">
+  <div class="ep-wrap">
+    <div class="ep-header">
+      <h3>App Preview — how users see this event</h3>
+      <button class="ep-close-btn" onclick="closePreview()">✕ Close</button>
+    </div>
+    <div class="ep-sublabel">Card view</div>
+    <div class="ep-card-wrap"><div class="ep-card" id="ep-card"></div></div>
+    <div class="ep-detail" id="ep-detail"></div>
+    <div class="ep-acts" id="ep-acts"></div>
+  </div>
+</div>
 </body>
 </html>
