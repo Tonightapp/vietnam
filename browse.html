@@ -3260,20 +3260,23 @@ const CITY_META={
   'Hanoi':{flag:'🇻🇳',id:'hanoi'},
 };
 function openCityPicker(){
-  // populate event counts
+  const modal=document.getElementById('cityModal');
+  if(!modal) return;
   Object.keys(CITY_META).forEach(city=>{
     const count=EVENTS.filter(e=>e.city===city).length;
     const el=document.getElementById('cnt-'+CITY_META[city].id);
     if(el) el.textContent=count?count+' events':'';
   });
-  // highlight current selection
   document.querySelectorAll('.city-opt').forEach(el=>{
-    const name=el.querySelector('span:nth-child(2)').textContent;
-    el.classList.toggle('selected', name===filterCity);
+    const nameEl=el.querySelector('span:nth-child(2)');
+    if(nameEl) el.classList.toggle('selected', nameEl.textContent===filterCity);
   });
-  document.getElementById('cityModal').classList.add('open');
+  modal.classList.add('open');
 }
-function closeCityPicker(){document.getElementById('cityModal').classList.remove('open');}
+function closeCityPicker(){
+  const modal=document.getElementById('cityModal');
+  if(modal) modal.classList.remove('open');
+}
 function selectCity(city, flag){
   filterCity=city;
   filterArea='';
@@ -4956,9 +4959,9 @@ function showPro(page,el){
     </div>`:''}
     <div class="overview-actions">
       <div class="ov-action" onclick="showPro('add',null)"><div class="oa-ico">➕</div><div><div style="font-weight:700">Add Event</div><div style="font-size:11px;color:var(--text3)">Publish to the main page</div></div></div>
-      <div class="ov-action" onclick="showPro('guests',document.querySelectorAll('.ditem')[3])"><div class="oa-ico">👥</div><div><div style="font-weight:700">Guest CRM</div><div style="font-size:11px;color:var(--text3)">${allTkts.length} registrations</div></div></div>
-      <div class="ov-action" onclick="showPro('promos',document.querySelectorAll('.ditem')[5])"><div class="oa-ico">🔥</div><div><div style="font-weight:700">Promotion</div><div style="font-size:11px;color:var(--text3)">Push notify nearby users</div></div></div>
-      <div class="ov-action" onclick="showPro('analytics',document.querySelectorAll('.ditem')[4])"><div class="oa-ico">📈</div><div><div style="font-weight:700">Analytics</div><div style="font-size:11px;color:var(--text3)">Views, joins, conversion</div></div></div>
+      <div class="ov-action" onclick="showPro('guests',document.querySelectorAll('.ditem')[2])"><div class="oa-ico">👥</div><div><div style="font-weight:700">Guest CRM</div><div style="font-size:11px;color:var(--text3)">${allTkts.length} registrations</div></div></div>
+      <div class="ov-action" onclick="showPro('promos',document.querySelectorAll('.ditem')[4])"><div class="oa-ico">🔥</div><div><div style="font-weight:700">Promotion</div><div style="font-size:11px;color:var(--text3)">Push notify nearby users</div></div></div>
+      <div class="ov-action" onclick="showPro('analytics',document.querySelectorAll('.ditem')[3])"><div class="oa-ico">📈</div><div><div style="font-weight:700">Analytics</div><div style="font-size:11px;color:var(--text3)">Views, joins, conversion</div></div></div>
     </div>
     <div class="dstats">
       <div class="dstat"><div class="dn">${allTkts.length?'—':0}</div><div class="dl">Active Events</div><div class="dstat-delta" style="color:var(--text3)">Add your first event</div></div>
@@ -5475,7 +5478,7 @@ async function _deleteMyProEvent(id, title) {
     const db = await _getDb();
     await deleteDoc(doc(db,'events',id));
     toast('Event deleted');
-    showPro('events',document.querySelectorAll('.ditem')[1]);
+    showPro('events',document.querySelectorAll('.ditem')[0]);
   } catch(err) { toast('Error: '+err.message,'err'); }
 }
 
@@ -5506,7 +5509,7 @@ async function subEvent(e) {
       createdAt: serverTimestamp(),
     });
     toast('Event submitted for review! We\'ll email you once it\'s live 🚀','ok');
-    showPro('events',document.querySelectorAll('.ditem')[1]);
+    showPro('events',document.querySelectorAll('.ditem')[0]);
   } catch(err) {
     toast('Error submitting: '+err.message,'err');
     const btn = e.target.querySelector('.fsub');
@@ -6398,8 +6401,8 @@ function spawnActivityToast(){
 
 // add viewer badge to event cards
 const _viewerCounts={};
-EVENTS.forEach(e=>{ _viewerCounts[e.id]=randInt(4,62); });
 function getViewers(id){
+  if(_viewerCounts[id]==null) _viewerCounts[id]=randInt(4,62);
   if(Math.random()<0.3) _viewerCounts[id]=Math.max(2,_viewerCounts[id]+randInt(-4,6));
   return _viewerCounts[id];
 }
