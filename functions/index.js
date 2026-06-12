@@ -962,7 +962,7 @@ exports.onVenueApproved = onDocumentUpdated(
   }
 );
 
-const ADMIN_EMAIL = 'app.tonight1@gmail.com';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'app.tonight1@gmail.com';
 
 // ══════════════════════════════════════════════════════════════════════════════
 // FUNCTION 6: notifyAdminNewMember

@@ -117,6 +117,7 @@ service cloud.firestore {
                     && request.resource.data.ref.size() <= 50
                     && request.resource.data.eventTitle is string
                     && request.resource.data.eventTitle.size() <= 200;
+      // Staff can read all; venue owners can read all (portal JS filters to own events)
       allow read: if isStaff() || isVenueOwner();
       // Venue owners can only flip checkedIn — no other fields
       allow update: if isStaff()
@@ -135,6 +136,13 @@ service cloud.firestore {
                     && request.resource.data.dealTitle is string
                     && request.resource.data.dealTitle.size() <= 200;
       allow read, update, delete: if isStaff();
+    }
+
+    // ── deal_offers/{id} ─────────────────────────────────────────────────────
+    // Admin-only: defines the deals/offers shown to users in the app
+    match /deal_offers/{id} {
+      allow read: if true;
+      allow create, update, delete: if isStaff();
     }
 
     // ── pro_signups/{id} ──────────────────────────────────────────────────────

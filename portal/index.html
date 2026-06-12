@@ -446,6 +446,30 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
   .mobile-tabbar button svg{width:19px;height:19px}
   /* Topbar — prevent right actions overflow */
   .topbar-actions{flex-shrink:0;gap:4px}
+
+  /* 2-col grids collapse to 1 col on small screens */
+  .grid-2col{grid-template-columns:1fr}
+
+  /* Venue portal header on mobile */
+  #venue-app > div:first-child{padding:0 14px;height:54px}
+  #venue-app > div:first-child .venue-tab-btn{padding:12px 14px;font-size:12px}
+
+  /* Venue stats collapse to 2 cols */
+  #vpanel-events > div:first-child{grid-template-columns:1fr 1fr!important}
+
+  /* Event form modal padding */
+  #venue-event-modal{padding:12px 8px}
+  #venue-onboard-modal{padding:12px 8px}
+  #venue-onboard-modal > div{margin:16px auto}
+  #venue-onboard-modal > div > div:last-child{padding:20px 18px}
+  #venue-onboard-modal > div > div:first-child{padding:24px 18px 20px}
+
+  /* Section cards — full bleed on mobile */
+  .section-card{border-radius:10px}
+
+  /* btn-row stacks on mobile */
+  .btn-row{flex-direction:column-reverse;gap:8px}
+  .btn-row button{width:100%}
 }
 @media(min-width:721px){
   .mobile-tabbar{display:none}
@@ -1300,11 +1324,64 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
 
       <!-- ── DEALS ── -->
       <div class="panel" id="panel-deals">
+        <!-- Deal Offers: what venues are currently offering -->
+        <div class="section-card" style="margin-bottom:20px">
+          <div class="section-head">
+            <div>
+              <div class="section-title">Deal Offers</div>
+              <div class="fm-hint">Active discounts and offers shown to users in the app</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <div class="count-pill" id="deal-offers-count">—</div>
+              <button onclick="openAddDealOffer()" class="btn b-approve" style="padding:7px 16px;font-size:12px">+ Create Deal</button>
+            </div>
+          </div>
+          <div id="deal-offers-list"></div>
+          <!-- Create / Edit Deal Offer Form -->
+          <div id="deal-offer-form" style="display:none;margin-top:20px;background:var(--bg);border:1px solid var(--border2);border-radius:12px;padding:20px">
+            <div style="font-size:14px;font-weight:700;margin-bottom:16px" id="deal-offer-form-title">Create Deal Offer</div>
+            <div class="grid-2col" style="margin-bottom:12px">
+              <div>
+                <label class="fm-label">Deal Title *</label>
+                <input id="dof-title" type="text" placeholder="e.g. Free Welcome Drink" class="fm-input"/>
+              </div>
+              <div>
+                <label class="fm-label">Venue *</label>
+                <input id="dof-venue" type="text" placeholder="Venue name" class="fm-input"/>
+              </div>
+            </div>
+            <div class="grid-2col" style="margin-bottom:12px">
+              <div>
+                <label class="fm-label">Discount / Offer</label>
+                <input id="dof-discount" type="text" placeholder="e.g. 20% off cocktails" class="fm-input"/>
+              </div>
+              <div>
+                <label class="fm-label">Valid Until</label>
+                <input id="dof-valid" type="date" class="fm-input"/>
+              </div>
+            </div>
+            <div style="margin-bottom:12px">
+              <label class="fm-label">Description</label>
+              <textarea id="dof-desc" rows="2" placeholder="Terms & conditions, how to redeem…" class="fm-textarea"></textarea>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text2)">
+                <input type="checkbox" id="dof-active" checked style="accent-color:var(--gold);width:16px;height:16px"/>
+                Active (visible to users)
+              </label>
+            </div>
+            <div class="btn-row">
+              <button type="button" onclick="closeDealOfferForm()" class="btn" style="background:none;border:1px solid var(--border2);color:var(--text2)">Cancel</button>
+              <button type="button" onclick="submitDealOffer()" id="dof-submit-btn" class="btn b-approve">Save Deal →</button>
+            </div>
+          </div>
+        </div>
+        <!-- Claimed Deals log -->
         <div class="section-card">
           <div class="section-head">
             <div>
               <div class="section-title">Claimed Deals</div>
-              <div class="fm-hint">All deal vouchers claimed by users</div>
+              <div class="fm-hint">Deal vouchers claimed by users</div>
             </div>
             <div class="count-pill" id="deals-count">—</div>
           </div>
@@ -1788,6 +1865,60 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
   </div>
 </div>
 
+<!-- Venue Onboarding Modal -->
+<div id="venue-onboard-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;overflow-y:auto;padding:24px 16px;backdrop-filter:blur(4px)">
+  <div style="max-width:560px;margin:40px auto;background:var(--card);border:1px solid rgba(245,200,66,0.25);border-radius:24px;overflow:hidden;box-shadow:0 40px 100px rgba(0,0,0,.7)">
+    <!-- Header -->
+    <div style="background:linear-gradient(135deg,rgba(245,200,66,0.12) 0%,rgba(245,200,66,0.04) 100%);padding:36px 32px 28px;text-align:center;border-bottom:1px solid var(--border)">
+      <div style="width:56px;height:56px;border-radius:14px;background:var(--gold-dim);border:1px solid rgba(245,200,66,0.3);display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+        <svg viewBox="0 0 24 24" style="width:26px;height:26px;fill:var(--gold)"><path d="M12 2L4 6v6c0 5.25 3.4 10.15 8 11.35C16.6 22.15 20 17.25 20 12V6l-8-4z"/></svg>
+      </div>
+      <div style="font-size:22px;font-weight:800;color:var(--text);letter-spacing:-0.3px;margin-bottom:6px">Welcome to Your Venue Portal</div>
+      <div style="font-size:14px;color:var(--text2);line-height:1.5">You're all set up on Tonight Vietnam.<br/>Here's how to get your events in front of the right crowd.</div>
+    </div>
+    <!-- Steps -->
+    <div style="padding:28px 32px">
+      <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:18px">How It Works</div>
+      <div style="display:flex;flex-direction:column;gap:16px;margin-bottom:28px">
+        <div style="display:flex;gap:14px;align-items:flex-start">
+          <div style="width:32px;height:32px;border-radius:50%;background:rgba(245,200,66,0.15);border:1px solid rgba(245,200,66,0.3);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--gold);flex-shrink:0">1</div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px">Add Your Event</div>
+            <div style="font-size:13px;color:var(--text2);line-height:1.5">Click <strong style="color:var(--gold)">+ Add Event</strong> and fill in your event details — name, date, time, price, and a cover image.</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:14px;align-items:flex-start">
+          <div style="width:32px;height:32px;border-radius:50%;background:rgba(245,200,66,0.15);border:1px solid rgba(245,200,66,0.3);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--gold);flex-shrink:0">2</div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px">Wait for Approval</div>
+            <div style="font-size:13px;color:var(--text2);line-height:1.5">Our team reviews every submission (usually within a few hours). Once approved, your event goes <strong style="color:var(--green)">live</strong> in the app and an email blast goes to our community.</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:14px;align-items:flex-start">
+          <div style="width:32px;height:32px;border-radius:50%;background:rgba(245,200,66,0.15);border:1px solid rgba(245,200,66,0.3);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--gold);flex-shrink:0">3</div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px">Manage Your Guest List</div>
+            <div style="font-size:13px;color:var(--text2);line-height:1.5">Switch to the <strong style="color:var(--text)">My Guests</strong> tab to see everyone who signed up. Each guest receives a QR ticket by email.</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:14px;align-items:flex-start">
+          <div style="width:32px;height:32px;border-radius:50%;background:rgba(245,200,66,0.15);border:1px solid rgba(245,200,66,0.3);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--gold);flex-shrink:0">4</div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px">Scan QR Codes at the Door</div>
+            <div style="font-size:13px;color:var(--text2);line-height:1.5">On the night, use the <strong style="color:var(--text)">📷 Door Scan</strong> tab to check in guests instantly with your phone camera.</div>
+          </div>
+        </div>
+      </div>
+      <button onclick="dismissOnboarding()" style="width:100%;padding:14px;background:var(--gold);color:#000;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;letter-spacing:-0.2px">
+        Get Started — Add My First Event →
+      </button>
+      <button onclick="dismissOnboarding(false)" style="width:100%;margin-top:10px;padding:10px;background:none;border:none;color:var(--text3);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit">
+        I'll explore on my own
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- Venue Add/Edit Event Modal -->
 <div id="venue-event-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:300;overflow-y:auto;padding:24px 16px">
   <div style="max-width:600px;margin:0 auto;background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:28px 24px">
@@ -1930,6 +2061,8 @@ let unsubs          = [];
 let allLeads        = [];
 let allGuestlist    = [];
 let allDeals        = [];
+let allDealOffers   = [];
+let editingDealOfferId = null;
 let allInquiries    = [];
 let allMagazine     = [];
 let allPromoters    = [];
@@ -2053,7 +2186,19 @@ function showVenueApp(user, userData) {
   setEl('venue-user-name',  _venueOwnerName || 'My Venue');
   setEl('venue-user-email', user.email);
   subscribeVenue(user.uid);
+  // Show onboarding guide on first login
+  const key = 'tnv_onboarded_' + user.uid;
+  if (!localStorage.getItem(key)) {
+    document.getElementById('venue-onboard-modal').style.display = 'block';
+  }
 }
+
+window.dismissOnboarding = function(openAddEvent = true) {
+  const key = 'tnv_onboarded_' + venueUid;
+  localStorage.setItem(key, '1');
+  document.getElementById('venue-onboard-modal').style.display = 'none';
+  if (openAddEvent) openVenueAddEvent();
+};
 
 // null-safe DOM setter used throughout
 function setEl(id, val) {
@@ -2064,36 +2209,27 @@ function setEl(id, val) {
 function subscribeVenue(uid) {
   venueUnsubs.forEach(u => u()); venueUnsubs = [];
 
-  // Query 1: events owned by this uid OR with matching venueName
-  const evQ = _venueOwnerName
-    ? query(collection(db,'events'), where('venueName','==',_venueOwnerName), orderBy('createdAt','desc'))
-    : query(collection(db,'events'), where('publishedBy','==',uid), orderBy('createdAt','desc'));
+  // Only fetch events this venue owner created — publishedBy is set on submit
+  const evQ = query(collection(db,'events'), where('publishedBy','==',uid), orderBy('createdAt','desc'));
 
   venueUnsubs.push(
     onSnapshot(evQ, snap => {
-      const byUid  = [];
-      const byName = [];
-      snap.docs.forEach(d => {
-        const ev = {id:d.id,...d.data()};
-        if (ev.publishedBy === uid) byUid.push(ev);
-        else byName.push(ev);
-      });
-      venueEvents = [...byUid, ...byName].sort((a,b) => {
-        const ta = a.createdAt?.toMillis?.() || (a.createdAt?.seconds||0)*1000;
-        const tb = b.createdAt?.toMillis?.() || (b.createdAt?.seconds||0)*1000;
-        return tb - ta;
-      });
+      venueEvents = snap.docs.map(d => ({id:d.id,...d.data()}));
       renderVenueStats();
       renderVenueEvents();
       vscanInit();
     }, err => toast('Events: ' + err.message)),
 
-    // Guestlist by event titles matching this venue's events
+    // Guestlist: filter by owned event IDs (preferred) or event title as fallback
     onSnapshot(query(collection(db,'guestlist'), orderBy('createdAt','desc'), limit(500)), snap => {
-      const myTitles = new Set(venueEvents.map(e => e.title));
+      const myEventIds = new Set(venueEvents.map(e => e.id));
+      const myTitles   = new Set(venueEvents.map(e => e.title).filter(Boolean));
       venueGuestlist = snap.docs
         .map(d => ({id:d.id,...d.data()}))
-        .filter(g => myTitles.size === 0 || myTitles.has(g.eventTitle));
+        .filter(g => {
+          if (g.eventId) return myEventIds.has(g.eventId);
+          return myTitles.size > 0 && myTitles.has(g.eventTitle);
+        });
       setEl('vtab-guests-count', venueGuestlist.length);
       const gp = document.getElementById('vpanel-guestlist');
       if (gp && gp.style.display !== 'none') renderVenueGuestlist();
@@ -2111,7 +2247,16 @@ function renderVenueStats() {
 function renderVenueEvents() {
   const tbody = document.getElementById('venue-events-tbody');
   if (!venueEvents.length) {
-    tbody.innerHTML = `<tr><td colspan="8"><div class="empty"><div class="empty-icon">🎉</div><div class="empty-title">No events yet — click + Add Event to get started</div></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8">
+      <div style="padding:40px 20px;text-align:center">
+        <div style="font-size:42px;margin-bottom:12px">🎉</div>
+        <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px">No events yet</div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:20px;max-width:340px;margin-left:auto;margin-right:auto;line-height:1.6">
+          Add your first event and our team will review it within a few hours. Once approved, it goes live to the whole Tonight Vietnam community.
+        </div>
+        <button onclick="openVenueAddEvent()" style="background:var(--gold);color:#000;border:none;border-radius:10px;padding:12px 28px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">+ Add Your First Event</button>
+      </div>
+    </td></tr>`;
     return;
   }
   tbody.innerHTML = venueEvents.map(ev => {
@@ -2491,13 +2636,11 @@ function subscribeAll() {
 
     onSnapshot(query(collection(db,'events'), orderBy('createdAt','desc')), snap => {
       allEvents = snap.docs.map(d => ({id:d.id,...d.data()}));
-      if (allEvents.length === 0) seedDefaultEvents();
       renderStats(); renderEventsTable(); renderAttentionWidget(); renderBannerPanel();
     }, onErr('Events')),
 
     onSnapshot(query(collection(db,'artists'), orderBy('name','asc')), snap => {
       allArtists = snap.docs.map(d => ({id:d.id,...d.data()}));
-      if (allArtists.length === 0 && !_artistSeeded) seedDefaultArtists();
       document.getElementById('artists-count').textContent = allArtists.length;
       renderArtistsPanel();
     }, onErr('Artists')),
@@ -2513,6 +2656,12 @@ function subscribeAll() {
       allDeals = snap.docs.map(d => ({id:d.id,...d.data()}));
       if (isPanel('panel-deals')) renderDealsPanel();
     }, onErr('Deals')),
+
+    onSnapshot(query(collection(db,'deal_offers'), orderBy('createdAt','desc')), snap => {
+      allDealOffers = snap.docs.map(d => ({id:d.id,...d.data()}));
+      document.getElementById('deal-offers-count').textContent = allDealOffers.length;
+      if (isPanel('panel-deals')) renderDealOffersPanel();
+    }, onErr('Deal Offers')),
 
     onSnapshot(query(collection(db,'inquiries'), orderBy('createdAt','desc')), snap => {
       allInquiries = snap.docs.map(d => ({id:d.id,...d.data()}));
@@ -2532,9 +2681,6 @@ function subscribeAll() {
 
     onSnapshot(query(collection(db,'venues'), orderBy('name','asc')), snap => {
       allVenues = snap.docs.map(d => ({id:d.id,...d.data()}));
-      const _vNames = allVenues.map(v=>(v.name||'').toLowerCase());
-      const _missing = _DEFAULT_VENUES && _DEFAULT_VENUES.some(d=>!_vNames.includes(d.name.toLowerCase()));
-      if (_missing && !_venueSeeded) seedDefaultVenues();
       document.getElementById('venues-list-count').textContent = allVenues.length;
       if (isPanel('panel-venues-list')) renderVenuesListPanel();
     }, onErr('Venues'))
@@ -3846,6 +3992,115 @@ function renderDealsPanel(q = '') {
 }
 window.dealsSearch = q => { renderDealsPanel(q); };
 
+function renderDealOffersPanel() {
+  const el = document.getElementById('deal-offers-list');
+  if (!el) return;
+  if (!allDealOffers.length) {
+    el.innerHTML = `<div style="padding:28px;text-align:center;color:var(--text3);font-size:13px">
+      No deal offers yet — click <strong style="color:var(--gold)">+ Create Deal</strong> to add the first offer.
+    </div>`;
+    return;
+  }
+  el.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:16px">` +
+    allDealOffers.map(o => {
+      const active = o.active !== false;
+      const claimed = allDeals.filter(d => d.dealTitle === o.title).length;
+      return `<div style="background:var(--bg);border:1px solid ${active?'rgba(245,200,66,0.2)':'var(--border)'};border-radius:12px;padding:16px;position:relative">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px">
+          <div style="font-size:13px;font-weight:700;color:var(--text);line-height:1.3">${esc(o.title||'—')}</div>
+          <span style="flex-shrink:0;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:${active?'rgba(34,197,94,.12)':'rgba(239,68,68,.1)'};color:${active?'var(--green)':'var(--red)'}">${active?'ACTIVE':'INACTIVE'}</span>
+        </div>
+        <div style="font-size:12px;color:var(--gold);font-weight:600;margin-bottom:4px">${esc(o.venueName||'')}</div>
+        ${o.discount?`<div style="font-size:12px;color:var(--text2);margin-bottom:4px">${esc(o.discount)}</div>`:''}
+        ${o.validUntil?`<div style="font-size:11px;color:var(--text3);margin-bottom:8px">Valid until ${o.validUntil}</div>`:''}
+        <div style="font-size:11px;color:var(--text3);margin-bottom:12px">${claimed} claimed</div>
+        <div style="display:flex;gap:6px">
+          <button onclick="openEditDealOffer('${o.id}')" class="ib ib-edit" style="flex:1;justify-content:center">Edit</button>
+          <button onclick="toggleDealOfferActive('${o.id}',${active})" class="ib ${active?'':'ib-green'}" title="${active?'Deactivate':'Activate'}">${active?'🙈':'👁'}</button>
+          <button onclick="deleteDealOffer('${o.id}','${escQ(o.title||'')}')" class="ib ib-del">🗑</button>
+        </div>
+      </div>`;
+    }).join('') + `</div>`;
+}
+
+window.openAddDealOffer = function() {
+  editingDealOfferId = null;
+  document.getElementById('deal-offer-form-title').textContent = 'Create Deal Offer';
+  document.getElementById('dof-submit-btn').textContent = 'Save Deal →';
+  ['dof-title','dof-venue','dof-discount','dof-valid','dof-desc'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.value = '';
+  });
+  document.getElementById('dof-active').checked = true;
+  document.getElementById('deal-offer-form').style.display = 'block';
+  document.getElementById('deal-offer-form').scrollIntoView({behavior:'smooth'});
+};
+
+window.openEditDealOffer = function(id) {
+  const o = allDealOffers.find(x => x.id === id);
+  if (!o) return;
+  editingDealOfferId = id;
+  document.getElementById('deal-offer-form-title').textContent = 'Edit Deal Offer';
+  document.getElementById('dof-submit-btn').textContent = 'Save Changes →';
+  document.getElementById('dof-title').value    = o.title     || '';
+  document.getElementById('dof-venue').value    = o.venueName || '';
+  document.getElementById('dof-discount').value = o.discount  || '';
+  document.getElementById('dof-valid').value    = o.validUntil|| '';
+  document.getElementById('dof-desc').value     = o.description|| '';
+  document.getElementById('dof-active').checked = o.active !== false;
+  document.getElementById('deal-offer-form').style.display = 'block';
+  document.getElementById('deal-offer-form').scrollIntoView({behavior:'smooth'});
+};
+
+window.closeDealOfferForm = function() {
+  editingDealOfferId = null;
+  document.getElementById('deal-offer-form').style.display = 'none';
+};
+
+window.submitDealOffer = async function() {
+  const title   = document.getElementById('dof-title').value.trim();
+  const venue   = document.getElementById('dof-venue').value.trim();
+  if (!title) { toast('⚠️ Deal title is required'); return; }
+  if (!venue) { toast('⚠️ Venue is required'); return; }
+  const btn = document.getElementById('dof-submit-btn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  const data = {
+    title, venueName: venue,
+    discount:    document.getElementById('dof-discount').value.trim(),
+    validUntil:  document.getElementById('dof-valid').value,
+    description: document.getElementById('dof-desc').value.trim(),
+    active:      document.getElementById('dof-active').checked,
+    updatedAt:   serverTimestamp(),
+  };
+  try {
+    if (editingDealOfferId) {
+      await updateDoc(doc(db,'deal_offers',editingDealOfferId), data);
+      toast('✅ Deal offer updated');
+    } else {
+      data.createdAt = serverTimestamp();
+      await addDoc(collection(db,'deal_offers'), data);
+      toast('✅ Deal offer created');
+    }
+    window.closeDealOfferForm();
+  } catch(e) { toast(`Error: ${e.message}`); }
+  btn.disabled = false;
+  btn.textContent = editingDealOfferId ? 'Save Changes →' : 'Save Deal →';
+};
+
+window.toggleDealOfferActive = async function(id, current) {
+  try {
+    await updateDoc(doc(db,'deal_offers',id), { active: !current });
+    toast(current ? '🙈 Deal deactivated' : '👁 Deal activated');
+  } catch(e) { toast(`Error: ${e.message}`); }
+};
+
+window.deleteDealOffer = async function(id, title) {
+  if (!confirm(`Delete deal offer "${title}"? This cannot be undone.`)) return;
+  try {
+    await deleteDoc(doc(db,'deal_offers',id));
+    toast(`"${title}" deleted`);
+  } catch(e) { toast(`Error: ${e.message}`); }
+};
+
 // ── INQUIRIES PANEL ───────────────────────────────────────
 function renderInquiriesPanel() {
   const count = allInquiries.length;
@@ -4282,10 +4537,16 @@ function renderPortalsPanel() {
         <td><span style="background:rgba(245,200,66,.12);color:var(--gold);font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px">${roleLabel}</span></td>
         <td style="font-size:12px;color:var(--text3)">${created}</td>
         <td style="text-align:right">
-          <button onclick="sendPortalReset('${esc(u.email)}','${esc(u.fullName||u.email)}')"
-            style="background:none;border:1px solid var(--border2);border-radius:7px;padding:6px 12px;color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap">
-            🔑 Send Reset
-          </button>
+          <div style="display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap">
+            <button onclick="sendPortalReset('${esc(u.email)}','${esc(u.fullName||u.email)}')"
+              style="background:none;border:1px solid var(--border2);border-radius:7px;padding:6px 12px;color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap">
+              🔑 Send Reset
+            </button>
+            <button onclick="deletePortalAccount('${u.id}','${esc(u.fullName||u.email)}')"
+              style="background:none;border:1px solid rgba(239,68,68,.3);border-radius:7px;padding:6px 12px;color:var(--red);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap">
+              🗑 Delete
+            </button>
+          </div>
         </td>
       </tr>`;
     }).join('')}
@@ -4301,6 +4562,16 @@ window.sendPortalReset = async function(email, name) {
   } catch(e) {
     toast(`Error: ${e.message}`, 'err');
   }
+};
+
+window.deletePortalAccount = async function(uid, name) {
+  if (!confirm(`Remove portal access for "${name}"?\n\nThis deletes their account record and blocks login immediately.\n\nNote: also delete them from Firebase Console → Authentication if you want to fully remove the account.`)) return;
+  try {
+    await deleteDoc(doc(db, 'users', uid));
+    toast(`✅ ${name} removed from portal`);
+    _portalAccounts = _portalAccounts.filter(u => u.id !== uid);
+    renderPortalsPanel();
+  } catch(e) { toast(`Error: ${e.message}`); }
 };
 
 function renderBannerPanel() {
@@ -4425,7 +4696,7 @@ window.nav = function(page, btn) {
   ({
     leads:     () => renderLeadsPanel(),
     guestlist: () => renderGuestlistPanel(),
-    deals:     () => renderDealsPanel(),
+    deals:     () => { renderDealOffersPanel(); renderDealsPanel(); },
     inquiries: () => renderInquiriesPanel(),
     magazine:  () => renderMagazinePanel(),
     promoters:     () => renderPromotersPanel(),
