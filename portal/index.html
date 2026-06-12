@@ -1572,7 +1572,7 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
               <button class="btn b-approve" onclick="window.openAddVenue()" style="font-size:12px;padding:7px 16px">+ Add Venue</button>
             </div>
           </div>
-          <div id="venue-list"></div>
+          <div id="venues-grid"></div>
         </div>
 
         <!-- Add/Edit Venue form -->
@@ -4413,7 +4413,8 @@ window.manualSeedVenues = async function(btn) {
 
 function renderVenuesListPanel() {
   document.getElementById('venues-list-count').textContent = allVenues.length;
-  const el = document.getElementById('venue-list');
+  const el = document.getElementById('venues-grid');
+  if (!el) return;
   if (!allVenues.length) { el.innerHTML = emptyRow('No venues yet — click + Add Venue','🏛'); return; }
   el.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-top:16px">` +
     allVenues.map(v => `
