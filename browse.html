@@ -10,15 +10,24 @@
 <meta name="theme-color" content="#0a0b14"/>
 <meta name="theme-color" media="(prefers-color-scheme:dark)" content="#0a0b14"/>
 <meta name="theme-color" media="(prefers-color-scheme:light)" content="#0a0b14"/>
-<meta name="description" content="Discover the best events, clubs and nightlife across Southeast Asia."/>
+<meta name="description" content="Tonight Vietnam — discover the best events, clubs and bars in Hanoi. Browse live events, join the guestlist, and get exclusive deals at top venues in Tay Ho, Old Quarter and beyond."/>
+<meta name="robots" content="index, follow"/>
 <meta name="application-name" content="Tonight"/>
 <meta name="format-detection" content="telephone=no"/>
 <meta name="msapplication-TileColor" content="#0a0b14"/>
 <meta name="msapplication-tap-highlight" content="no"/>
-<meta property="og:title" content="Tonight — Events &amp; Nightlife"/>
-<meta property="og:description" content="Discover the best events, clubs and nightlife across Southeast Asia."/>
+<meta property="og:title" content="Tonight Vietnam — Events &amp; Nightlife in Hanoi"/>
+<meta property="og:description" content="Tonight Vietnam — discover the best events, clubs and bars in Hanoi. Browse live events, join the guestlist, and get exclusive deals at top venues in Tay Ho, Old Quarter and beyond."/>
 <meta property="og:type" content="website"/>
-<meta property="og:image" content="icons/icon-512.png"/>
+<meta property="og:url" content="https://www.tonightvietnam.com/"/>
+<meta property="og:image" content="https://www.tonightvietnam.com/icons/icon-512.png"/>
+<meta property="og:site_name" content="Tonight Vietnam"/>
+<meta property="og:locale" content="en_US"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="Tonight Vietnam — Events &amp; Nightlife in Hanoi"/>
+<meta name="twitter:description" content="Discover the best events, clubs and bars in Hanoi. Browse live events, join guestlists and get exclusive deals at top venues."/>
+<meta name="twitter:image" content="https://www.tonightvietnam.com/icons/icon-512.png"/>
+<link rel="canonical" href="https://www.tonightvietnam.com/"/>
 <!-- PWA manifest -->
 <link rel="manifest" href="manifest.json"/>
 <!-- Apple touch icons (all required sizes) -->
@@ -31,7 +40,34 @@
 <!-- Apple splash screens (portrait iPhone) -->
 <link rel="apple-touch-startup-image" media="(device-width:390px)" href="icons/splash-390.png"/>
 <link rel="apple-touch-startup-image" media="(device-width:430px)" href="icons/splash-430.png"/>
-<title>Tonight — Events & Nightlife</title>
+<title>Tonight Vietnam — Events &amp; Nightlife in Hanoi</title>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://www.tonightvietnam.com/#website",
+      "url": "https://www.tonightvietnam.com/",
+      "name": "Tonight Vietnam",
+      "description": "Discover the best events, clubs and bars in Hanoi, Vietnam.",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://www.tonightvietnam.com/?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://www.tonightvietnam.com/#organization",
+      "name": "Tonight Vietnam",
+      "url": "https://www.tonightvietnam.com/",
+      "logo": "https://www.tonightvietnam.com/icons/icon-512.png",
+      "sameAs": ["https://www.instagram.com/tonightvietnam"]
+    }
+  ]
+}
+</script>
 <!-- Preconnect to external origins for faster DNS+TLS -->
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -2071,9 +2107,17 @@ body{background:#000;}
 .cpref-toggle-track::after{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:3px;left:3px;transition:.2s;}
 .cpref-toggle input:checked+.cpref-toggle-track::after{transform:translateX(18px);}
 @media(max-width:640px){.gdpr-inner{flex-direction:column;align-items:flex-start;gap:12px;}.gdpr-actions{width:100%;}.gdpr-btn{flex:1;text-align:center;}}
+/* Accessibility utilities */
+.visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+.skip-link{position:absolute;top:-40px;left:0;background:#f5c842;color:#000;font-size:13px;font-weight:700;padding:8px 16px;border-radius:0 0 8px 0;z-index:9999;transition:top .15s;}
+.skip-link:focus{top:0;}
+/* Larger touch targets for favourite buttons */
+.evt-card-fav,.evt-wide-fav{width:40px;height:40px;}
 </style>
 </head>
 <body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+<h1 class="visually-hidden">Tonight Vietnam — Events &amp; Nightlife in Hanoi</h1>
 
 <!-- ════ DOWNLOAD BAR ════ -->
 <div id="signInBar" class="hidden">
@@ -2218,8 +2262,8 @@ body{background:#000;}
       <h2>Top Events</h2>
       <div class="see-all">
         <a href="#" onclick="switchCat('events',document.querySelector('.cat-tab:nth-child(2)'))">All</a>
-        <button class="scroll-arrow" onclick="scrollRow('top10Grid',-1)">‹</button>
-        <button class="scroll-arrow" onclick="scrollRow('top10Grid',1)">›</button>
+        <button class="scroll-arrow" onclick="scrollRow('top10Grid',-1)" aria-label="Scroll left">‹</button>
+        <button class="scroll-arrow" onclick="scrollRow('top10Grid',1)" aria-label="Scroll right">›</button>
       </div>
     </div>
     <div class="top10-grid" id="top10Grid"></div>
@@ -2234,8 +2278,8 @@ body{background:#000;}
       </div>
       <div class="see-all">
         <a href="#" onclick="switchCat('events',document.querySelectorAll('.cat-tab')[1])">All</a>
-        <button class="scroll-arrow" onclick="scrollRow('oldQuarterRow',-1)">‹</button>
-        <button class="scroll-arrow" onclick="scrollRow('oldQuarterRow',1)">›</button>
+        <button class="scroll-arrow" onclick="scrollRow('oldQuarterRow',-1)" aria-label="Scroll left">‹</button>
+        <button class="scroll-arrow" onclick="scrollRow('oldQuarterRow',1)" aria-label="Scroll right">›</button>
       </div>
     </div>
     <div class="scroll-row" id="oldQuarterRow"></div>
@@ -2250,8 +2294,8 @@ body{background:#000;}
       </div>
       <div class="see-all">
         <a href="#" onclick="switchCat('events',document.querySelectorAll('.cat-tab')[1])">All</a>
-        <button class="scroll-arrow" onclick="scrollRow('tayHoRow',-1)">‹</button>
-        <button class="scroll-arrow" onclick="scrollRow('tayHoRow',1)">›</button>
+        <button class="scroll-arrow" onclick="scrollRow('tayHoRow',-1)" aria-label="Scroll left">‹</button>
+        <button class="scroll-arrow" onclick="scrollRow('tayHoRow',1)" aria-label="Scroll right">›</button>
       </div>
     </div>
     <div class="scroll-row" id="tayHoRow"></div>
@@ -2274,8 +2318,8 @@ body{background:#000;}
       <h2>Just Added</h2>
       <div class="see-all">
         <a href="#" onclick="switchCat('events',document.querySelectorAll('.cat-tab')[1]);return false">All</a>
-        <button class="scroll-arrow" onclick="scrollRow('newRow',-1)">‹</button>
-        <button class="scroll-arrow" onclick="scrollRow('newRow',1)">›</button>
+        <button class="scroll-arrow" onclick="scrollRow('newRow',-1)" aria-label="Scroll left">‹</button>
+        <button class="scroll-arrow" onclick="scrollRow('newRow',1)" aria-label="Scroll right">›</button>
       </div>
     </div>
     <div class="scroll-row" id="newRow"></div>
@@ -2298,8 +2342,8 @@ body{background:#000;}
       <h2>This Week</h2>
       <div class="see-all">
         <a href="#" onclick="switchCat('events',document.querySelectorAll('.cat-tab')[1]);return false">All</a>
-        <button class="scroll-arrow" onclick="scrollRow('weekRow',-1)">‹</button>
-        <button class="scroll-arrow" onclick="scrollRow('weekRow',1)">›</button>
+        <button class="scroll-arrow" onclick="scrollRow('weekRow',-1)" aria-label="Scroll left">‹</button>
+        <button class="scroll-arrow" onclick="scrollRow('weekRow',1)" aria-label="Scroll right">›</button>
       </div>
     </div>
     <div class="scroll-row" id="weekRow"></div>
@@ -2311,8 +2355,8 @@ body{background:#000;}
       <h2>Upcoming Festivals</h2>
       <div class="see-all">
         <a href="#" onclick="switchCat('festivals',document.querySelectorAll('.cat-tab')[4])">All</a>
-        <button class="scroll-arrow" onclick="scrollRow('festRow',-1)">‹</button>
-        <button class="scroll-arrow" onclick="scrollRow('festRow',1)">›</button>
+        <button class="scroll-arrow" onclick="scrollRow('festRow',-1)" aria-label="Scroll left">‹</button>
+        <button class="scroll-arrow" onclick="scrollRow('festRow',1)" aria-label="Scroll right">›</button>
       </div>
     </div>
     <div class="scroll-row" id="festRow"></div>
@@ -2324,8 +2368,8 @@ body{background:#000;}
       <h2>Popular Venues</h2>
       <div class="see-all">
         <a href="#" onclick="switchCat('venues',document.querySelectorAll('.cat-tab')[3])">All</a>
-        <button class="scroll-arrow" onclick="scrollRow('venueHomeRow',-1)">‹</button>
-        <button class="scroll-arrow" onclick="scrollRow('venueHomeRow',1)">›</button>
+        <button class="scroll-arrow" onclick="scrollRow('venueHomeRow',-1)" aria-label="Scroll left">‹</button>
+        <button class="scroll-arrow" onclick="scrollRow('venueHomeRow',1)" aria-label="Scroll right">›</button>
       </div>
     </div>
     <div class="scroll-row" id="venueHomeRow"></div>
@@ -2336,6 +2380,7 @@ body{background:#000;}
 </div><!-- /homePage -->
 
 <!-- ════ BROWSE PAGE ════ -->
+<span id="main-content" aria-hidden="true" style="position:absolute;top:0"></span>
 <div class="browse-page" id="browsePage">
   <div class="container">
     <div id="areaBar" style="display:none;gap:8px;flex-wrap:wrap;padding:0 0 4px;overflow-x:auto;scrollbar-width:none"></div>
@@ -3062,10 +3107,10 @@ body{background:#000;}
 <!-- ════ I'M HERE BAR ════ -->
 <div id="imHereBar" style="display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:3000;max-width:400px;width:calc(100% - 32px)">
   <div id="imHereInner" style="background:linear-gradient(135deg,#0c1520,#0d1a2e);border:1px solid rgba(255,255,255,.15);border-radius:20px;padding:20px 18px;box-shadow:0 12px 48px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.06)">
-    <!-- question state -->
+    <!-- question state — IDs live here; resetImHereInner() rebuilds this content -->
     <div id="imHereQuestion">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-        <div style="width:36px;height:36px;border-radius:50%;background:rgba(245,200,66,.12);border:1px solid rgba(245,200,66,.3);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">📍</div>
+        <div style="width:36px;height:36px;border-radius:50%;background:rgba(245,200,66,.12);border:1px solid rgba(245,200,66,.3);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0" aria-hidden="true">📍</div>
         <div>
           <div style="font-size:11px;font-weight:600;color:#f5c842;letter-spacing:.8px;text-transform:uppercase;margin-bottom:2px">Venue Detection</div>
           <div id="imHereTitle" style="font-size:14px;font-weight:600;color:#fff;line-height:1.3"></div>
@@ -3214,7 +3259,7 @@ body{background:#000;}
 </div>
 
 <!-- TOASTS -->
-<div class="toasts" id="toasts"></div>
+<div class="toasts" id="toasts" aria-live="polite" aria-atomic="false"></div>
 
 <!-- ════════ JS ════════ -->
 <script>
@@ -6514,23 +6559,13 @@ function imHereRespond(confirmed){
 }
 
 function resetImHereInner(){
-  document.getElementById('imHereInner').innerHTML=`
-    <div style="background:linear-gradient(135deg,#0c1520,#0d1a2e);border:1px solid rgba(255,255,255,.15);border-radius:20px;padding:20px 18px;box-shadow:0 12px 48px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.06)">
-      <div id="imHereQuestion">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-          <div style="width:36px;height:36px;border-radius:50%;background:rgba(245,200,66,.12);border:1px solid rgba(245,200,66,.3);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">📍</div>
-          <div>
-            <div style="font-size:11px;font-weight:600;color:#f5c842;letter-spacing:.8px;text-transform:uppercase;margin-bottom:2px">Venue Detection</div>
-            <div id="imHereTitle" style="font-size:14px;font-weight:600;color:#fff;line-height:1.3"></div>
-          </div>
-        </div>
-        <div id="imHereQuestion2" style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.5"></div>
-        <div style="display:flex;gap:10px">
-          <button onclick="imHereRespond(true)" style="flex:1;padding:11px;border-radius:12px;background:#f5c842;color:#000;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Yes, I'm here ✓</button>
-          <button onclick="imHereRespond(false)" style="flex:1;padding:11px;border-radius:12px;background:rgba(255,255,255,.07);color:var(--text2);border:1px solid var(--border);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit">No, not yet</button>
-        </div>
-      </div>
-    </div>`;
+  // Reset text content without re-injecting duplicate IDs — the static HTML already has the structure
+  const q2 = document.getElementById('imHereQuestion2');
+  if (q2) q2.textContent = '';
+  const title = document.getElementById('imHereTitle');
+  if (title) title.textContent = '';
+  const q = document.getElementById('imHereQuestion');
+  if (q) q.style.display = '';
 }
 
 // ── SEARCH OVERLAY ──

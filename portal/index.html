@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="robots" content="noindex, nofollow"/>
 <title>Tonight Vietnam — Admin Portal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
@@ -24,7 +25,7 @@
   --purple:   #a855f7;
   --text:     #f1f5f9;
   --text2:    #94a3b8;
-  --text3:    #475569;
+  --text3:    #72899f;
   --sidebar-w:220px;
 }
 html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
@@ -202,6 +203,7 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
   background:var(--card);border:1px solid var(--border2);
   display:flex;align-items:center;justify-content:center;
   cursor:pointer;transition:all .12s;
+  padding:0;font-family:inherit;
 }
 .icon-btn:hover{border-color:var(--border2);background:var(--card2)}
 .icon-btn svg{width:15px;height:15px;fill:var(--text2)}
@@ -908,12 +910,12 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
       </div>
       <div class="topbar-actions">
         <div class="live-dot" id="live-dot" style="display:none">Live</div>
-        <div class="icon-btn" onclick="refresh()" title="Refresh">
-          <svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
-        </div>
-        <div class="icon-btn" onclick="doSignOut()" title="Sign Out" style="display:none" id="mobile-signout">
-          <svg viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
-        </div>
+        <button class="icon-btn" onclick="refresh()" title="Refresh" aria-label="Refresh data" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+        </button>
+        <button class="icon-btn" onclick="doSignOut()" title="Sign Out" aria-label="Sign out" style="display:none" id="mobile-signout" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+        </button>
       </div>
     </div>
 
@@ -1010,7 +1012,7 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
           <div class="toolbar">
             <div class="search-wrap">
               <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-              <input type="text" placeholder="Search name, email or role…" oninput="filterMembers(this.value)" id="member-search"/>
+              <input type="text" placeholder="Search name, email or role…" oninput="filterMembers(this.value)" id="member-search" aria-label="Search members"/>
             </div>
             <div class="filter-tabs" id="member-filter-tabs" style="margin-left:auto"></div>
           </div>
@@ -1054,7 +1056,7 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
           <div class="evt-toolbar">
             <div class="search-wrap" style="max-width:260px">
               <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-              <input type="text" placeholder="Search title, venue, city…" oninput="evtSearch(this.value)" id="evt-search"/>
+              <input type="text" placeholder="Search title, venue, city…" oninput="evtSearch(this.value)" id="evt-search" aria-label="Search events"/>
             </div>
             <div class="filter-tabs" id="event-filter-tabs" style="margin-left:auto"></div>
           </div>
@@ -1089,7 +1091,7 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
           <div class="evt-toolbar">
             <div class="search-wrap" style="max-width:260px">
               <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-              <input type="text" placeholder="Search artists…" oninput="artistSearch(this.value)" id="artist-search"/>
+              <input type="text" placeholder="Search artists…" oninput="artistSearch(this.value)" id="artist-search" aria-label="Search artists"/>
             </div>
           </div>
           <div id="artist-list"></div>
@@ -1097,7 +1099,7 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
       </div>
 
       <!-- ADD / EDIT ARTIST MODAL -->
-      <div id="add-artist-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;overflow-y:auto;padding:24px 16px">
+      <div id="add-artist-modal" role="dialog" aria-modal="true" aria-labelledby="aa-modal-title" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;overflow-y:auto;padding:24px 16px">
         <div style="max-width:520px;margin:0 auto;background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:28px 24px">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
             <div id="aa-modal-title" class="form-h3">Add Artist</div>
@@ -1146,7 +1148,7 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
       </div>
 
       <!-- ADD EVENT MODAL -->
-      <div id="add-event-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;overflow-y:auto;padding:24px 16px">
+      <div id="add-event-modal" role="dialog" aria-modal="true" aria-labelledby="ae-modal-title" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;overflow-y:auto;padding:24px 16px">
         <div style="max-width:560px;margin:0 auto;background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:28px 24px">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
             <div id="ae-modal-title" class="form-h3">Add Event</div>
@@ -1294,7 +1296,7 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
           <div class="toolbar">
             <div class="search-wrap" style="max-width:260px">
               <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-              <input type="text" placeholder="Search name, email, phone…" oninput="leadsSearch(this.value)" id="leads-search"/>
+              <input type="text" placeholder="Search name, email, phone…" oninput="leadsSearch(this.value)" id="leads-search" aria-label="Search leads"/>
             </div>
           </div>
           <div style="overflow-x:auto">
@@ -1313,7 +1315,7 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
         <div class="section-card" style="background:linear-gradient(135deg,rgba(0,208,132,.08),rgba(0,208,132,.03));border-color:rgba(0,208,132,.2)">
           <div class="section-title" style="margin-bottom:12px">🚪 Door Check-In</div>
           <div style="display:flex;gap:10px;align-items:center">
-            <input id="gl-lookup-input" type="text" placeholder="Enter ref code (TN-XXXX-XXXX-XXXX) or guest name…"
+            <input id="gl-lookup-input" type="text" aria-label="Look up guest by ref code or name" placeholder="Enter ref code (TN-XXXX-XXXX-XXXX) or guest name…"
               style="flex:1;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;color:#fff;font-size:14px;font-family:'Courier New',monospace;outline:none"
               oninput="renderGuestlistLookup(this.value)" onkeydown="if(event.key==='Enter')renderGuestlistLookup(this.value)"/>
             <button class="btn btn-approve" style="padding:10px 20px;font-size:13px;white-space:nowrap" onclick="renderGuestlistLookup(document.getElementById('gl-lookup-input').value)">Look Up</button>
@@ -1342,7 +1344,7 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
           <div class="toolbar">
             <div class="search-wrap" style="max-width:280px">
               <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-              <input type="text" placeholder="Search name, email…" oninput="guestlistSearch(this.value)" id="guestlist-search"/>
+              <input type="text" placeholder="Search name, email…" oninput="guestlistSearch(this.value)" id="guestlist-search" aria-label="Search guestlist"/>
             </div>
             <div style="margin-left:auto;display:flex;gap:8px">
               <button class="btn" style="padding:6px 14px;font-size:12px" onclick="window._glStatusFilter='';renderGuestlistPanel()" id="gl-filter-all">All</button>
@@ -1425,7 +1427,7 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
           <div class="toolbar">
             <div class="search-wrap" style="max-width:260px">
               <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-              <input type="text" placeholder="Search deal, venue, email…" oninput="dealsSearch(this.value)" id="deals-search"/>
+              <input type="text" placeholder="Search deal, venue, email…" oninput="dealsSearch(this.value)" id="deals-search" aria-label="Search deals"/>
             </div>
           </div>
           <div style="overflow-x:auto">
@@ -1957,7 +1959,7 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
 </div>
 
 <!-- Venue Add/Edit Event Modal -->
-<div id="venue-event-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:300;overflow-y:auto;padding:24px 16px">
+<div id="venue-event-modal" role="dialog" aria-modal="true" aria-labelledby="vem-modal-title" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:300;overflow-y:auto;padding:24px 16px">
   <div style="max-width:600px;margin:0 auto;background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:28px 24px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
       <div id="vem-modal-title" class="form-h3">Add New Event</div>
@@ -2032,7 +2034,7 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
   </div>
 </div>
 
-<div id="toast"></div>
+<div id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
 <!-- ════════════════════════════════════════════════════════
      FIREBASE — paste your config below
@@ -2187,6 +2189,14 @@ window.doSignOut = async function() {
 };
 
 document.getElementById('login-pw')?.addEventListener('keydown', e => { if(e.key==='Enter') window.doLogin(); });
+
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if (document.getElementById('evt-preview-modal')?.classList.contains('open')) { window.closePreview(); return; }
+  if (document.getElementById('add-event-modal')?.style.display !== 'none') { window.closeAddEvent?.(); return; }
+  if (document.getElementById('add-artist-modal')?.style.display !== 'none') { window.closeAddArtist?.(); return; }
+  if (document.getElementById('venue-event-modal')?.style.display !== 'none') { window.closeVenueEventModal?.(); return; }
+});
 
 // ── SHOW SCREENS ──────────────────────────────────────────
 function showLogin() {
@@ -4869,10 +4879,10 @@ window.closePreview = function() {
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 
 <!-- ── EVENT PREVIEW MODAL ── -->
-<div id="evt-preview-modal" onclick="if(event.target===this)closePreview()">
+<div id="evt-preview-modal" role="dialog" aria-modal="true" aria-labelledby="ep-modal-label" onclick="if(event.target===this)closePreview()">
   <div class="ep-wrap">
     <div class="ep-header">
-      <h3>App Preview — how users see this event</h3>
+      <h3 id="ep-modal-label">App Preview — how users see this event</h3>
       <button class="ep-close-btn" onclick="closePreview()">✕ Close</button>
     </div>
     <div class="ep-sublabel">Card view</div>

@@ -1215,6 +1215,19 @@ function buildWelcomeEmail(signup, firstName) {
 </html>`;
 }
 
+// ── Rate limiter: max 10 requests per IP per 15-minute window ─────────────────
+const _rlMap = new Map(); // ip → { count, windowStart }
+function isRateLimited(ip, max = 10, windowMs = 15 * 60 * 1000) {
+  const now = Date.now();
+  let entry = _rlMap.get(ip);
+  if (!entry || now - entry.windowStart > windowMs) {
+    _rlMap.set(ip, { count: 1, windowStart: now });
+    return false;
+  }
+  entry.count += 1;
+  return entry.count > max;
+}
+
 // ══════════════════════════════════════════════════════════════════════════════
 // HTTP: promoterVerify
 // POST { eventId, pin } → validates PIN, returns event + full guestlist
@@ -1223,6 +1236,8 @@ exports.promoterVerify = onRequest(
   { cors: true, region: 'asia-southeast1' },
   async (req, res) => {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+    const ip = req.ip || req.headers['x-forwarded-for'] || 'unknown';
+    if (isRateLimited(`verify:${ip}`)) return res.status(429).json({ error: 'Too many attempts — try again later' });
     const { eventId, pin } = req.body || {};
     if (!eventId || !pin) return res.status(400).json({ error: 'Missing eventId or pin' });
 
@@ -1266,6 +1281,8 @@ exports.promoterScan = onRequest(
   { cors: true, region: 'asia-southeast1' },
   async (req, res) => {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+    const ip = req.ip || req.headers['x-forwarded-for'] || 'unknown';
+    if (isRateLimited(`scan:${ip}`)) return res.status(429).json({ error: 'Too many attempts — try again later' });
     const { ref, eventId, pin } = req.body || {};
     if (!ref || !eventId || !pin) return res.status(400).json({ error: 'Missing fields' });
 
