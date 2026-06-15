@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title>Unsubscribe — Tonight Vietnam</title>
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png"/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#080810;color:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+  .card{background:#13131f;border:1px solid rgba(245,200,66,0.2);border-radius:20px;max-width:480px;width:100%;overflow:hidden}
+  .header{background:linear-gradient(135deg,rgba(245,200,66,0.12),rgba(245,200,66,0.04));padding:32px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.07)}
+  .brand{font-size:15px;font-weight:900;letter-spacing:4px;color:#f5c842}
+  .body{padding:32px;text-align:center}
+  .icon{font-size:48px;margin-bottom:16px}
+  h1{font-size:20px;font-weight:700;margin-bottom:12px;color:#f1f5f9}
+  p{font-size:14px;color:#94a3b8;line-height:1.7;margin-bottom:0}
+  .email-badge{display:inline-block;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:6px 14px;font-size:13px;color:#cbd5e1;margin:12px 0 20px;word-break:break-all}
+  .btn{display:inline-block;background:#f5c842;color:#000;font-size:14px;font-weight:700;padding:14px 32px;border-radius:12px;text-decoration:none;letter-spacing:0.3px;margin-top:20px;cursor:pointer;border:none}
+  .btn:hover{background:#fcd34d}
+  .btn-ghost{background:transparent;color:#475569;font-size:13px;font-weight:600;padding:10px 24px;border-radius:10px;text-decoration:none;border:1px solid rgba(255,255,255,0.1);margin-top:12px;display:inline-block}
+  .btn-ghost:hover{border-color:rgba(255,255,255,0.2);color:#94a3b8}
+  .footer{text-align:center;padding:20px;font-size:11px;color:#334155}
+  .footer a{color:#475569;text-decoration:none}
+  .spinner{display:inline-block;width:32px;height:32px;border:3px solid rgba(245,200,66,0.2);border-top-color:#f5c842;border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:16px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .state{display:none}
+  .state.active{display:block}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="header">
+    <div class="brand">🌙 TONIGHT VIETNAM</div>
+  </div>
+  <div class="body">
+
+    <!-- Loading state -->
+    <div id="state-loading" class="state active">
+      <div class="spinner"></div>
+      <h1>Processing...</h1>
+      <p>Just a moment.</p>
+    </div>
+
+    <!-- Success state -->
+    <div id="state-success" class="state">
+      <div class="icon">✅</div>
+      <h1>You've been unsubscribed</h1>
+      <div class="email-badge" id="email-display"></div>
+      <p>You won't receive any more emails from Tonight Vietnam.<br/>You can rejoin any time from the app.</p>
+      <a href="https://www.tonightvietnam.com" class="btn">Back to Tonight →</a>
+    </div>
+
+    <!-- Error state -->
+    <div id="state-error" class="state">
+      <div class="icon">⚠️</div>
+      <h1>Something went wrong</h1>
+      <p id="error-msg">We couldn't process your request. Please try again or contact us.</p>
+      <a href="https://www.tonightvietnam.com" class="btn-ghost">Go to Tonight Vietnam</a>
+    </div>
+
+    <!-- No email state -->
+    <div id="state-invalid" class="state">
+      <div class="icon">🔗</div>
+      <h1>Invalid link</h1>
+      <p>This unsubscribe link is missing or malformed.<br/>Use the link from the email you received.</p>
+      <a href="https://www.tonightvietnam.com" class="btn-ghost">Go to Tonight Vietnam</a>
+    </div>
+
+  </div>
+  <div class="footer">
+    Tonight Vietnam &middot; <a href="https://www.tonightvietnam.com/privacy.html">Privacy Policy</a>
+  </div>
+</div>
+
+<script>
+(async () => {
+  const params = new URLSearchParams(window.location.search);
+  const email  = params.get('email');
+
+  function show(id) {
+    document.querySelectorAll('.state').forEach(el => el.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  if (!email || !email.includes('@')) {
+    show('state-invalid');
+    return;
+  }
+
+  document.getElementById('email-display').textContent = email;
+
+  try {
+    const fnBase = 'https://asia-southeast1-tonight-vietnam.cloudfunctions.net';
+    const res = await fetch(`${fnBase}/unsubscribeUser?email=${encodeURIComponent(email)}`, {
+      method: 'GET',
+    });
+    if (res.ok) {
+      show('state-success');
+    } else {
+      const data = await res.json().catch(() => ({}));
+      document.getElementById('error-msg').textContent = data.error || 'Server error. Please try again.';
+      show('state-error');
+    }
+  } catch (err) {
+    document.getElementById('error-msg').textContent = 'Network error. Please check your connection.';
+    show('state-error');
+  }
+})();
+</script>
+
+</body>
+</html>

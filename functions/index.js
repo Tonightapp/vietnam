@@ -25,11 +25,24 @@ const { onRequest }                  = require('firebase-functions/v2/https');
 const { initializeApp }              = require('firebase-admin/app');
 const { getFirestore, Timestamp }    = require('firebase-admin/firestore');
 const nodemailer                     = require('nodemailer');
+const crypto                         = require('crypto');
 // QR codes are generated via api.qrserver.com — hosted URLs work in all email clients
 // (base64 data URIs are stripped by Gmail and most email providers)
 
 initializeApp();
 const db = getFirestore();
+
+// ── Admin email — set ADMIN_EMAIL in Firebase Secret Manager:
+//    firebase functions:secrets:set ADMIN_EMAIL
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'app.tonight1@gmail.com';
+
+// ── Allowed origins for CORS on HTTP endpoints ─────────────────────────────────
+const ALLOWED_ORIGINS = [
+  'https://tonightvietnam.com',
+  'https://www.tonightvietnam.com',
+  'https://tonight-vietnam.web.app',
+  'https://tonight-vietnam.firebaseapp.com',
+];
 
 // ── Email config from environment variables ────────────────────────────────────
 const EMAIL_USER = { value: () => process.env.EMAIL_USER };
@@ -55,8 +68,8 @@ async function getUsersForCity(city) {
     .get();
   return snap.docs.map(d => {
     const u = d.data();
-    return { email: u.email, fullName: u.fullName || u.name || '', city: u.city || '' };
-  }).filter(u => u.email);
+    return { email: u.email, fullName: u.fullName || u.name || '', city: u.city || '', unsubscribed: u.unsubscribed || false };
+  }).filter(u => u.email && !u.unsubscribed);
 }
 
 // ── Helper: get ALL community subscribers (fallback) ──────────────────────────
@@ -64,8 +77,8 @@ async function getAllUsers() {
   const snap = await db.collection('community_signups').limit(500).get();
   return snap.docs.map(d => {
     const u = d.data();
-    return { email: u.email, fullName: u.fullName || u.name || '', city: u.city || '' };
-  }).filter(u => u.email);
+    return { email: u.email, fullName: u.fullName || u.name || '', city: u.city || '', unsubscribed: u.unsubscribed || false };
+  }).filter(u => u.email && !u.unsubscribed);
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -962,8 +975,6 @@ exports.onVenueApproved = onDocumentUpdated(
   }
 );
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'app.tonight1@gmail.com';
-
 // ══════════════════════════════════════════════════════════════════════════════
 // FUNCTION 6: notifyAdminNewMember
 // Fires when a new community_signups doc is created → emails admin instantly.
@@ -1233,7 +1244,7 @@ function isRateLimited(ip, max = 10, windowMs = 15 * 60 * 1000) {
 // POST { eventId, pin } → validates PIN, returns event + full guestlist
 // ══════════════════════════════════════════════════════════════════════════════
 exports.promoterVerify = onRequest(
-  { cors: true, region: 'asia-southeast1' },
+  { cors: ALLOWED_ORIGINS, region: 'asia-southeast1' },
   async (req, res) => {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
     const ip = req.ip || req.headers['x-forwarded-for'] || 'unknown';
@@ -1278,7 +1289,7 @@ exports.promoterVerify = onRequest(
 // POST { ref, eventId, pin } → validates PIN + ref, marks checkedIn
 // ══════════════════════════════════════════════════════════════════════════════
 exports.promoterScan = onRequest(
-  { cors: true, region: 'asia-southeast1' },
+  { cors: ALLOWED_ORIGINS, region: 'asia-southeast1' },
   async (req, res) => {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
     const ip = req.ip || req.headers['x-forwarded-for'] || 'unknown';
@@ -1316,4 +1327,63 @@ exports.promoterScan = onRequest(
   }
 );
 
+// ══════════════════════════════════════════════════════════════════════════════
+// FUNCTION 15: generatePromoterPin
+// Fires when a new event is created. If no promoterPin is set, generates a
+// cryptographic 6-character hex PIN so the fallback (eventId.slice(-4)) is
+// never used in production.
+// ══════════════════════════════════════════════════════════════════════════════
+exports.generatePromoterPin = onDocumentCreated(
+  { document: 'events/{eventId}', region: 'asia-southeast1' },
+  async (event) => {
+    if (event.data.data().promoterPin) return;
+    const pin = crypto.randomBytes(3).toString('hex').toUpperCase();
+    await event.data.ref.update({ promoterPin: pin });
+    console.log(`[generatePromoterPin] Assigned PIN ${pin} to event ${event.params.eventId}`);
+  }
+);
 
+// ══════════════════════════════════════════════════════════════════════════════
+// HTTP: unsubscribeUser
+// GET/POST /api/unsubscribe?email=...
+// Marks the community_signups doc as unsubscribed (GDPR/CAN-SPAM compliant).
+// Supports both GET (one-click from email link) and POST (form submit).
+// ══════════════════════════════════════════════════════════════════════════════
+exports.unsubscribeUser = onRequest(
+  { cors: ALLOWED_ORIGINS, region: 'asia-southeast1' },
+  async (req, res) => {
+    if (req.method !== 'GET' && req.method !== 'POST') {
+      return res.status(405).json({ error: 'Method not allowed' });
+    }
+
+    const email = (req.query.email || req.body?.email || '').trim().toLowerCase();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ error: 'Valid email required' });
+    }
+
+    try {
+      const snap = await db.collection('community_signups')
+        .where('email', '==', email)
+        .limit(10)
+        .get();
+
+      if (snap.empty) {
+        // Not found — still return 200 to avoid email enumeration
+        console.log(`[unsubscribeUser] No signup found for ${email}`);
+        return res.status(200).json({ ok: true });
+      }
+
+      const batch = db.batch();
+      snap.docs.forEach(d => {
+        batch.update(d.ref, { unsubscribed: true, unsubscribedAt: Timestamp.now() });
+      });
+      await batch.commit();
+
+      console.log(`[unsubscribeUser] Unsubscribed ${email} (${snap.size} doc(s))`);
+      return res.status(200).json({ ok: true });
+    } catch (err) {
+      console.error(`[unsubscribeUser] Error: ${err.message}`);
+      return res.status(500).json({ error: 'Internal error' });
+    }
+  }
+);
