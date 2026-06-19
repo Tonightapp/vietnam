@@ -2231,8 +2231,7 @@ import { getFirestore, collection, doc,
          query, orderBy, where, limit,
          onSnapshot, getDocs, updateDoc, addDoc, setDoc, deleteDoc,
          getDoc, serverTimestamp, writeBatch }     from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-import { getStorage, ref as storageRef,
-         uploadBytes, getDownloadURL }             from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
+// firebase-storage loaded lazily on first upload (avoids CORS errors on page load)
 
 // ── 🔧 PASTE YOUR FIREBASE CONFIG HERE ───────────────────
 const FIREBASE_CONFIG = {
@@ -2263,10 +2262,16 @@ if (configMissing) {
   throw new Error('Firebase config not set');
 }
 
-const app      = initializeApp(FIREBASE_CONFIG);
-const auth     = getAuth(app);
-const db       = getFirestore(app);
-const storage  = getStorage(app);
+const app  = initializeApp(FIREBASE_CONFIG);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+let _storage = null;
+async function _getStorage() {
+  if (_storage) return _storage;
+  const { getStorage } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js');
+  _storage = getStorage(app);
+  return _storage;
+}
 
 // ── STATE ─────────────────────────────────────────────────
 let allMembers   = [];
@@ -4690,22 +4695,33 @@ window.addVenuePhotos = function(input) {
 async function _uploadVenueMedia(venueId) {
   let logoUrl = document.getElementById('vn-img').value.trim();
   const logoFile = document.getElementById('vn-logo-file').files[0];
-  if (logoFile) {
-    const r = storageRef(storage, `venues/${venueId}/logo_${Date.now()}`);
-    const snap = await uploadBytes(r, logoFile);
-    logoUrl = await getDownloadURL(snap.ref);
-  }
-  const photoUrls = [];
-  for (const p of _vnPendingPhotos) {
-    if (p.file) {
-      const r = storageRef(storage, `venues/${venueId}/photos/${Date.now()}_${p.file.name}`);
-      const snap = await uploadBytes(r, p.file);
-      photoUrls.push(await getDownloadURL(snap.ref));
-    } else {
-      photoUrls.push(p.previewUrl);
+  const filesToUpload = _vnPendingPhotos.filter(p => p.file);
+
+  if (logoFile || filesToUpload.length) {
+    const { getStorage, ref: storageRef, uploadBytes, getDownloadURL }
+      = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js');
+    const st = await _getStorage();
+
+    if (logoFile) {
+      const r = storageRef(st, `venues/${venueId}/logo_${Date.now()}`);
+      const snap = await uploadBytes(r, logoFile);
+      logoUrl = await getDownloadURL(snap.ref);
     }
+
+    const photoUrls = [];
+    for (const p of _vnPendingPhotos) {
+      if (p.file) {
+        const r = storageRef(st, `venues/${venueId}/photos/${Date.now()}_${p.file.name}`);
+        const snap = await uploadBytes(r, p.file);
+        photoUrls.push(await getDownloadURL(snap.ref));
+      } else {
+        photoUrls.push(p.previewUrl);
+      }
+    }
+    return { logoUrl, photoUrls };
   }
-  return { logoUrl, photoUrls };
+
+  return { logoUrl, photoUrls: _vnPendingPhotos.map(p => p.previewUrl) };
 }
 // ─────────────────────────────────────────────────────────────────────────────
 
