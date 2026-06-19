@@ -369,6 +369,7 @@ img{max-width:100%;height:auto;-webkit-user-drag:none;user-select:none;-webkit-u
 .fta:focus{border-color:var(--border2);outline:none;}
 .fsub{width:100%;padding:12px;background:#fff;color:#000;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;margin-top:4px;font-family:inherit;transition:.2s;letter-spacing:.1px;}
 .fsub:hover{background:#e0e0e0;}
+.fsub:disabled{opacity:.5;cursor:not-allowed;background:#e0e0e0;}
 
 /* event detail modal */
 .evt-modal-hero{height:200px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:70px;margin-bottom:18px;position:relative;overflow:hidden;}
@@ -2165,6 +2166,7 @@ body{background:#000;}
         </div>
         <button class="nav-signin-btn" id="navSignInBtn" onclick="openGateway()">Join</button>
         <div class="nav-auth" id="navAuth">
+          <button class="btn btn-ghost" onclick="openLogin()" style="font-size:13px;padding:7px 14px">Log In</button>
           <button class="btn btn-white" onclick="openGateway()">Get Started</button>
         </div>
         <!-- Mobile-only: Log In + Sign Up -->
@@ -3168,10 +3170,10 @@ body{background:#000;}
       </div>
       <div class="div-or">or</div>
       <div id="lf">
-        <div class="fg"><label>Email</label><input class="fi" id="loginEmail" type="email" placeholder="you@example.com" autocomplete="email"/></div>
+        <div class="fg"><label>Email</label><input class="fi" id="loginEmail" type="email" placeholder="you@example.com" autocomplete="email" onkeydown="if(event.key==='Enter')doIn()"/></div>
         <div class="fg"><label>Password</label>
           <div style="position:relative">
-            <input class="fi" id="loginPassword" type="password" placeholder="••••••••" autocomplete="current-password" style="padding-right:44px"/>
+            <input class="fi" id="loginPassword" type="password" placeholder="••••••••" autocomplete="current-password" style="padding-right:44px" onkeydown="if(event.key==='Enter')doIn()"/>
             <button type="button" onclick="togglePwVis('loginPassword',this)" style="position:absolute;right:0;top:0;bottom:0;width:44px;background:none;border:none;color:var(--text3);cursor:pointer;padding:0;font-size:15px;display:flex;align-items:center;justify-content:center;touch-action:manipulation">👁</button>
           </div>
         </div>
@@ -3179,11 +3181,11 @@ body{background:#000;}
         <p style="text-align:center;margin-top:10px;font-size:11px;color:var(--text3)"><a href="#" onclick="forgotPassword();return false" style="color:var(--text2)">Forgot password?</a></p>
       </div>
       <div id="sf" style="display:none">
-        <div class="fg"><label>Full Name</label><input class="fi" id="sfName" type="text" placeholder="Your name" autocomplete="name"/></div>
-        <div class="fg"><label>Email</label><input class="fi" id="sfEmail" type="email" placeholder="you@example.com" autocomplete="email"/></div>
+        <div class="fg"><label>Full Name</label><input class="fi" id="sfName" type="text" placeholder="Your name" autocomplete="name" onkeydown="if(event.key==='Enter')document.getElementById('sfEmail').focus()"/></div>
+        <div class="fg"><label>Email</label><input class="fi" id="sfEmail" type="email" placeholder="you@example.com" autocomplete="email" onkeydown="if(event.key==='Enter')document.getElementById('sfPassword').focus()"/></div>
         <div class="fg"><label>Password</label>
           <div style="position:relative">
-            <input class="fi" id="sfPassword" type="password" placeholder="At least 6 characters" autocomplete="new-password" style="padding-right:44px"/>
+            <input class="fi" id="sfPassword" type="password" placeholder="At least 6 characters" autocomplete="new-password" style="padding-right:44px" onkeydown="if(event.key==='Enter')doIn()"/>
             <button type="button" onclick="togglePwVis('sfPassword',this)" style="position:absolute;right:0;top:0;bottom:0;width:44px;background:none;border:none;color:var(--text3);cursor:pointer;padding:0;font-size:15px;display:flex;align-items:center;justify-content:center;touch-action:manipulation">👁</button>
           </div>
         </div>
@@ -4733,7 +4735,12 @@ function openAuth(tab){
   if(tab==='signup') curRole='user';
   document.getElementById('authTitle').textContent=(tab==='signup')?'Create Account':'Welcome Back';
   swTab(tab||'login');
+  ['loginEmail','loginPassword','sfName','sfEmail','sfPassword'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   openOverlay('authOverlay');
+  setTimeout(()=>{
+    const first=document.getElementById(tab==='signup'?'sfName':'loginEmail');
+    if(first)first.focus();
+  },300);
 }
 function openLogin(){
   curRole='user';
@@ -4886,6 +4893,7 @@ function signOut(){
   document.body.style.width='';
   _overlayStack.length=0;
   document.getElementById('navAuth').innerHTML=`
+    <button class="btn btn-ghost" onclick="openLogin()" style="font-size:13px;padding:7px 14px">Log In</button>
     <button class="btn btn-white" onclick="openGateway()">Get Started</button>`;
   const bell=document.getElementById('notifBell');
   const sibBtn=document.getElementById('navSignInBtn');
