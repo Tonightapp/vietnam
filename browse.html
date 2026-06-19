@@ -4784,10 +4784,10 @@ async function socialIn(provider){
     const email=(u.email||'').toLowerCase();
     const accs=_getAccounts();
     if(!accs[email]){
-      const acc={name,email,password:_hashPw('_social_'+Math.random().toString(36).slice(2)),role:curRole||'guest',joinedAt:new Date().toISOString(),provider};
+      const acc={name,email,role:curRole||'user',joinedAt:new Date().toISOString(),provider};
       accs[email]=acc; _saveAccounts(accs);
     }
-    curRole=accs[email].role||'guest';
+    curRole=accs[email].role||'user';
     finishLogin(name,provider,accs[email]);
   }catch(e){
     if(e.code==='auth/popup-closed-by-user'||e.code==='auth/cancelled-popup-request') return;
@@ -4795,44 +4795,57 @@ async function socialIn(provider){
     toast(e.message||provider+' sign-in failed','err');
   }
 }
-function doIn(){
-  // Determine which tab is visible
+async function doIn(){
   const isLogin=document.getElementById('lf').style.display!=='none';
   if(isLogin){
     const email=(document.getElementById('loginEmail').value||'').trim().toLowerCase();
     const pass=(document.getElementById('loginPassword').value||'');
     if(!email||!pass){toast('Enter email and password','err');return;}
-    const accs=_getAccounts();
-    const acc=accs[email];
-    if(!acc||!_checkPw(pass,acc.password)){toast('Email or password incorrect','err');return;}
-    // Auto-upgrade legacy plaintext passwords
-    if(acc.password===pass){acc.password=_hashPw(pass);const a=_getAccounts();a[email]=acc;_saveAccounts(a);}
-    curRole=acc.role||'guest';
-    finishLogin(acc.name,'Email',acc);
+    const btn=document.querySelector('#lf .fsub');
+    if(btn){btn.disabled=true;btn.textContent='Signing in…';}
+    try{
+      const {signInWithEmailAndPassword}=await import(_FB_CDN+'/firebase-auth.js');
+      const fbAuth=await _getAuth();
+      const cred=await signInWithEmailAndPassword(fbAuth,email,pass);
+      const u=cred.user;
+      const name=u.displayName||(u.email||'').split('@')[0];
+      const cached=_getAccounts()[email]||{};
+      curRole=cached.role||'user';
+      finishLogin(name,'Email',{name,email,role:curRole});
+    }catch(e){
+      const msg=(e.code==='auth/invalid-credential'||e.code==='auth/wrong-password'||e.code==='auth/user-not-found')
+        ?'Email or password incorrect'
+        :e.message||'Sign-in failed';
+      toast(msg,'err');
+    }finally{
+      if(btn){btn.disabled=false;btn.textContent='Log In';}
+    }
   } else {
     const name=(document.getElementById('sfName').value||'').trim();
     const email=(document.getElementById('sfEmail').value||'').trim().toLowerCase();
     const pass=(document.getElementById('sfPassword').value||'');
     if(!name||!email||!pass){toast('Please fill all fields','err');return;}
     if(pass.length<6){toast('Password must be at least 6 characters','err');return;}
-    const accs=_getAccounts();
-    if(accs[email]){toast('Account already exists — log in instead','err');return;}
-    const acc={name,email,password:_hashPw(pass),role:curRole,joinedAt:new Date().toISOString()};
-    accs[email]=acc;
-    _saveAccounts(accs);
-    // Create Firebase Auth account + send email verification (fire-and-forget)
-    (async()=>{
-      try{
-        const {createUserWithEmailAndPassword,sendEmailVerification}=await import(_FB_CDN+'/firebase-auth.js');
-        const fbAuth=await _getAuth();
-        const cred=await createUserWithEmailAndPassword(fbAuth,email,pass);
-        await sendEmailVerification(cred.user);
-        toast('📧 Verification email sent to '+email+' — please check your inbox','ok');
-      }catch(e){
-        if(e.code!=='auth/email-already-in-use') console.warn('[auth]',e.message);
-      }
-    })();
-    finishLogin(name,'Email',acc);
+    const btn=document.querySelector('#sf .fsub');
+    if(btn){btn.disabled=true;btn.textContent='Creating account…';}
+    try{
+      const {createUserWithEmailAndPassword,sendEmailVerification,updateProfile}=await import(_FB_CDN+'/firebase-auth.js');
+      const fbAuth=await _getAuth();
+      const accs=_getAccounts();
+      if(accs[email]){toast('Account already exists — log in instead','err');return;}
+      const cred=await createUserWithEmailAndPassword(fbAuth,email,pass);
+      await updateProfile(cred.user,{displayName:name});
+      sendEmailVerification(cred.user).catch(()=>{});
+      const acc={name,email,role:curRole||'user',joinedAt:new Date().toISOString()};
+      accs[email]=acc; _saveAccounts(accs);
+      toast('📧 Verification email sent — check your inbox','ok');
+      finishLogin(name,'Email',acc);
+    }catch(e){
+      if(e.code==='auth/email-already-in-use'){toast('Account already exists — log in instead','err');}
+      else toast(e.message||'Could not create account','err');
+    }finally{
+      if(btn){btn.disabled=false;btn.textContent='Create Account';}
+    }
   }
 }
 function finishLogin(name,prov,profile){
