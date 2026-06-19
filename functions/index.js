@@ -2,8 +2,9 @@
  * Tonight Vietnam — Firebase Cloud Functions v2
  *
  * Two core functions:
- *  1. onEventApproved  — fires when admin approves an event → emails all users in that city
- *  2. sendReminders    — runs daily at 10:00 AM Vietnam time → emails users about tomorrow's events
+ *  1. onEventApproved    — fires when admin approves an event → emails all users in that city
+ *  2. sendReminders      — runs daily at 10:00 AM Vietnam time → emails users about tomorrow's events
+ *  3. cleanOldGuestlist  — runs daily at 4:00 AM Vietnam time → deletes past guestlist entries
  *
  * SETUP (run once before deploying):
  *   firebase functions:secrets:set EMAIL_USER    ← your Gmail address
@@ -1384,6 +1385,58 @@ exports.unsubscribeUser = onRequest(
     } catch (err) {
       console.error(`[unsubscribeUser] Error: ${err.message}`);
       return res.status(500).json({ error: 'Internal error' });
+    }
+  }
+);
+
+// ══════════════════════════════════════════════════════════════════════════════
+// cleanOldGuestlist
+// Runs daily at 4:00 AM Vietnam time (21:00 UTC previous day).
+// Deletes guestlist entries whose event date has passed (yesterday or earlier).
+// Processes in batches of 500 to stay within Firestore limits.
+// ══════════════════════════════════════════════════════════════════════════════
+exports.cleanOldGuestlist = onSchedule(
+  {
+    schedule: '0 21 * * *',   // 21:00 UTC = 04:00 AM Vietnam (UTC+7)
+    timeZone: 'UTC',
+    region:   'asia-southeast1',
+  },
+  async () => {
+    // Yesterday in Vietnam time as YYYY-MM-DD
+    const now = new Date();
+    now.setHours(now.getHours() + 7); // shift to UTC+7
+    now.setDate(now.getDate() - 1);
+    const yesterday = now.toISOString().split('T')[0];
+
+    console.log(`[cleanOldGuestlist] Deleting guestlist entries with date <= ${yesterday}`);
+
+    try {
+      const snap = await db.collection('guestlist')
+        .where('date', '<=', yesterday)
+        .limit(500)
+        .get();
+
+      if (snap.empty) {
+        console.log('[cleanOldGuestlist] Nothing to delete.');
+        return;
+      }
+
+      let deleted = 0;
+      // Firestore batch max 500 writes
+      const chunks = [];
+      for (let i = 0; i < snap.docs.length; i += 500) {
+        chunks.push(snap.docs.slice(i, i + 500));
+      }
+      for (const chunk of chunks) {
+        const batch = db.batch();
+        chunk.forEach(d => batch.delete(d.ref));
+        await batch.commit();
+        deleted += chunk.length;
+      }
+
+      console.log(`[cleanOldGuestlist] Deleted ${deleted} old guestlist entries.`);
+    } catch (err) {
+      console.error('[cleanOldGuestlist] Error:', err.message);
     }
   }
 );
