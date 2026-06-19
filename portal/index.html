@@ -426,6 +426,10 @@ html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--
   /* ensure tables scroll horizontally on phones */
   .data-table-wrap,.section-card{overflow-x:auto;-webkit-overflow-scrolling:touch}
   table{min-width:480px}
+  /* create portal role chips */
+  .cp-role-chip{padding:9px 8px;border-radius:8px;font-size:12px;font-weight:600;text-align:center;cursor:pointer;border:1px solid rgba(255,255,255,.1);color:#8b95a8;background:rgba(255,255,255,.04);transition:.15s;user-select:none}
+  .cp-role-chip:hover{border-color:rgba(255,255,255,.25);color:#e2e8f0}
+  .cp-role-chip.sel{border-color:rgba(245,200,66,.5);background:rgba(245,200,66,.1);color:#f5c842}
   /* venue portal table */
   #venue-app .content{padding:12px 12px 80px}
   #venue-app table{min-width:400px}
@@ -1683,12 +1687,24 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
 
       <!-- Create Portal Account Modal -->
       <div id="createPortalModal" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px">
-        <div style="background:#1c2030;border:1px solid rgba(255,255,255,.1);border-radius:16px;width:100%;max-width:420px;padding:28px">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px">
-            <div style="font-size:16px;font-weight:700;color:#e2e8f0">Create Venue Portal Account</div>
+        <div style="background:#1c2030;border:1px solid rgba(255,255,255,.1);border-radius:16px;width:100%;max-width:440px;padding:28px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+            <div style="font-size:16px;font-weight:700;color:#e2e8f0">Create Portal Account</div>
             <button onclick="closeCreatePortalModal()" style="background:rgba(255,255,255,.07);border:none;color:#8b95a8;width:32px;height:32px;border-radius:8px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
           </div>
-          <div style="display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <!-- Role selector -->
+            <div>
+              <label style="display:block;font-size:12px;color:#8b95a8;margin-bottom:8px;font-weight:500">Account Type</label>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px" id="cp-role-grid">
+                <div class="cp-role-chip" data-role="venue" onclick="cpPickRole(this)" style="border:1px solid rgba(245,200,66,.5);background:rgba(245,200,66,.1);color:#f5c842">🏢 Venue</div>
+                <div class="cp-role-chip" data-role="promoter" onclick="cpPickRole(this)">📣 Promoter</div>
+                <div class="cp-role-chip" data-role="dj" onclick="cpPickRole(this)">🎧 DJ</div>
+                <div class="cp-role-chip" data-role="event" onclick="cpPickRole(this)">🎉 Event Org.</div>
+                <div class="cp-role-chip" data-role="magazine" onclick="cpPickRole(this)">📰 Magazine</div>
+                <div class="cp-role-chip" data-role="partner" onclick="cpPickRole(this)">🤝 Partner</div>
+              </div>
+            </div>
             <div>
               <label style="display:block;font-size:12px;color:#8b95a8;margin-bottom:5px;font-weight:500">Full Name / Contact</label>
               <input id="cp-name" type="text" placeholder="e.g. Bi's Corner Team" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#e2e8f0;padding:10px 12px;border-radius:8px;font-size:14px;font-family:inherit;box-sizing:border-box"/>
@@ -1698,7 +1714,7 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
               <input id="cp-email" type="email" placeholder="e.g. hello@biscorner.com" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#e2e8f0;padding:10px 12px;border-radius:8px;font-size:14px;font-family:inherit;box-sizing:border-box"/>
             </div>
             <div>
-              <label style="display:block;font-size:12px;color:#8b95a8;margin-bottom:5px;font-weight:500">Venue Name</label>
+              <label style="display:block;font-size:12px;color:#8b95a8;margin-bottom:5px;font-weight:500" id="cp-bizlabel">Venue / Business Name</label>
               <input id="cp-venue" type="text" placeholder="e.g. Bi's Corner" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#e2e8f0;padding:10px 12px;border-radius:8px;font-size:14px;font-family:inherit;box-sizing:border-box"/>
             </div>
             <div id="cp-result" style="display:none;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);border-radius:10px;padding:14px;font-size:13px;color:#86efac;line-height:1.7"></div>
@@ -1778,7 +1794,7 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
       </div>
       <div>
         <div style="font-size:13px;font-weight:800;color:var(--gold);line-height:1.2">Tonight Vietnam</div>
-        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px">Venue Portal</div>
+        <div id="venue-portal-label" style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px">Venue Portal</div>
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:14px">
@@ -2262,6 +2278,9 @@ function showVenueApp(user, userData) {
   document.getElementById('venue-app').style.display = 'block';
   setEl('venue-user-name',  _venueOwnerName || 'My Venue');
   setEl('venue-user-email', user.email);
+  const _portalLabels={venue:'Venue Portal',promoter:'Promoter Portal',dj:'DJ Portal',event:'Event Portal',magazine:'Magazine Portal',partner:'Partner Portal'};
+  const portalLabel = _portalLabels[userData?.accountType] || 'Venue Portal';
+  setEl('venue-portal-label', portalLabel);
   subscribeVenue(user.uid);
   // Show onboarding guide on first login
   const key = 'tnv_onboarded_' + user.uid;
@@ -4611,7 +4630,8 @@ function renderPortalsPanel() {
       const created = u.createdAt?.toDate?.()
         ? u.createdAt.toDate().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})
         : '—';
-      const roleLabel = u.role === 'venue_owner' ? '🏢 Venue Owner' : '⚡ Promoter';
+      const _rlMap={venue:'🏢 Venue',promoter:'📣 Promoter',dj:'🎧 DJ',event:'🎉 Event Org.',magazine:'📰 Magazine',partner:'🤝 Partner'};
+      const roleLabel = _rlMap[u.accountType] || (u.role==='venue_owner'?'🏢 Venue':'⚡ Promoter');
       return `<tr>
         <td><strong>${esc(u.fullName||'—')}</strong></td>
         <td style="font-size:12px;color:var(--text2)">${esc(u.email)}</td>
@@ -4656,15 +4676,39 @@ window.deletePortalAccount = async function(uid, name) {
 };
 
 // ── CREATE PORTAL ACCOUNT ────────────────────────────────────────────────────
+const CP_ROLE_META = {
+  venue:    { label:'🏢 Venue',       biz:'Venue Name',           placeholder:"e.g. Bi's Corner" },
+  promoter: { label:'📣 Promoter',    biz:'Promoter / Brand Name',placeholder:'e.g. Tonight Collective' },
+  dj:       { label:'🎧 DJ',          biz:'Artist / DJ Name',     placeholder:'e.g. DJ Useph' },
+  event:    { label:'🎉 Event Org.',  biz:'Organization Name',    placeholder:'e.g. Hanoi Raves' },
+  magazine: { label:'📰 Magazine',    biz:'Publication Name',     placeholder:'e.g. Tonight Magazine' },
+  partner:  { label:'🤝 Partner',     biz:'Company / Brand',      placeholder:'e.g. Tiger Beer VN' },
+};
+let _cpRole = 'venue';
+
+window.cpPickRole = function(el){
+  document.querySelectorAll('.cp-role-chip').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+  _cpRole = el.dataset.role;
+  const meta = CP_ROLE_META[_cpRole]||CP_ROLE_META.venue;
+  document.getElementById('cp-bizlabel').textContent = meta.biz;
+  document.getElementById('cp-venue').placeholder = meta.placeholder;
+};
+
 window.openCreatePortalModal = function(){
   const m=document.getElementById('createPortalModal');
   m.style.display='flex';
-  document.getElementById('cp-name').value='';
-  document.getElementById('cp-email').value='';
-  document.getElementById('cp-venue').value='';
+  ['cp-name','cp-email','cp-venue'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('cp-result').style.display='none';
   const btn=document.getElementById('cp-submit');
   btn.disabled=false; btn.textContent='Create Account & Send Login Email';
+  // Reset to venue
+  _cpRole='venue';
+  document.querySelectorAll('.cp-role-chip').forEach(c=>c.classList.remove('sel'));
+  const first=document.querySelector('.cp-role-chip[data-role="venue"]');
+  if(first) first.classList.add('sel');
+  document.getElementById('cp-bizlabel').textContent='Venue / Business Name';
+  document.getElementById('cp-venue').placeholder="e.g. Bi's Corner";
   setTimeout(()=>document.getElementById('cp-name').focus(),100);
 };
 window.closeCreatePortalModal = function(){
@@ -4673,10 +4717,11 @@ window.closeCreatePortalModal = function(){
 window.submitCreatePortal = async function(){
   const name  = document.getElementById('cp-name').value.trim();
   const email = document.getElementById('cp-email').value.trim().toLowerCase();
-  const venue = document.getElementById('cp-venue').value.trim();
-  if(!name||!email||!venue){toast('Fill in all three fields','err');return;}
+  const biz   = document.getElementById('cp-venue').value.trim();
+  if(!name||!email||!biz){toast('Fill in all fields','err');return;}
   const btn=document.getElementById('cp-submit');
   btn.disabled=true; btn.textContent='Creating…';
+  const meta = CP_ROLE_META[_cpRole]||CP_ROLE_META.venue;
   try{
     const tempPass='Tonight@'+Math.random().toString(36).slice(2,8);
     let uid;
@@ -4694,21 +4739,21 @@ window.submitCreatePortal = async function(){
       throw e;
     }
     await setDoc(doc(db,'users',uid),{
-      uid, email, fullName:name, venueName:venue,
-      role:'venue_owner', createdAt:serverTimestamp()
+      uid, email, fullName:name, venueName:biz,
+      role:'venue_owner', accountType:_cpRole, createdAt:serverTimestamp()
     },{merge:true});
     await sendPasswordResetEmail(auth,email);
-    _portalAccounts.push({id:uid,email,fullName:name,venueName:venue,role:'venue_owner'});
+    _portalAccounts.push({id:uid,email,fullName:name,venueName:biz,role:'venue_owner',accountType:_cpRole});
     renderPortalsPanel();
     setEl('portals-count',_portalAccounts.length);
     document.getElementById('cp-result').style.display='block';
     document.getElementById('cp-result').innerHTML=
-      `✅ <strong>Account created for ${esc(venue)}</strong><br/>`+
+      `✅ <strong>${esc(meta.label)} account created for ${esc(biz)}</strong><br/>`+
       `📧 Email: <strong>${esc(email)}</strong><br/>`+
       `🔑 Login setup email sent — they click the link to set their password.<br/>`+
       `🌐 Portal: <strong>tonightvietnam.com/portal/</strong>`;
     btn.textContent='Done ✓';
-    toast(`✅ Portal account created for ${venue}`);
+    toast(`✅ ${meta.label} portal created for ${biz}`);
   }catch(e){
     toast('Error: '+e.message,'err');
     btn.disabled=false; btn.textContent='Create Account & Send Login Email';
