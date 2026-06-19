@@ -2072,6 +2072,7 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
 import { initializeApp }                           from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getAuth, signInWithEmailAndPassword,
          onAuthStateChanged, signOut,
+         createUserWithEmailAndPassword,
          sendPasswordResetEmail }                  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { getFirestore, collection, doc,
          query, orderBy, where, limit,
@@ -4655,21 +4656,21 @@ window.deletePortalAccount = async function(uid, name) {
 };
 
 // ── CREATE PORTAL ACCOUNT ────────────────────────────────────────────────────
-function openCreatePortalModal(){
+window.openCreatePortalModal = function(){
   const m=document.getElementById('createPortalModal');
   m.style.display='flex';
   document.getElementById('cp-name').value='';
   document.getElementById('cp-email').value='';
   document.getElementById('cp-venue').value='';
   document.getElementById('cp-result').style.display='none';
-  document.getElementById('cp-submit').disabled=false;
-  document.getElementById('cp-submit').textContent='Create Account & Send Login Email';
+  const btn=document.getElementById('cp-submit');
+  btn.disabled=false; btn.textContent='Create Account & Send Login Email';
   setTimeout(()=>document.getElementById('cp-name').focus(),100);
-}
-function closeCreatePortalModal(){
+};
+window.closeCreatePortalModal = function(){
   document.getElementById('createPortalModal').style.display='none';
-}
-async function submitCreatePortal(){
+};
+window.submitCreatePortal = async function(){
   const name  = document.getElementById('cp-name').value.trim();
   const email = document.getElementById('cp-email').value.trim().toLowerCase();
   const venue = document.getElementById('cp-venue').value.trim();
@@ -4677,7 +4678,6 @@ async function submitCreatePortal(){
   const btn=document.getElementById('cp-submit');
   btn.disabled=true; btn.textContent='Creating…';
   try{
-    const {createUserWithEmailAndPassword,sendPasswordResetEmail}=await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
     const tempPass='Tonight@'+Math.random().toString(36).slice(2,8);
     let uid;
     try{
@@ -4685,24 +4685,19 @@ async function submitCreatePortal(){
       uid=cred.user.uid;
     }catch(e){
       if(e.code==='auth/email-already-in-use'){
-        // Account exists — just reset and reuse
         await sendPasswordResetEmail(auth,email);
         document.getElementById('cp-result').style.display='block';
-        document.getElementById('cp-result').innerHTML=`Account already exists.<br/>A <strong>password reset email</strong> has been sent to <strong>${email}</strong>.`;
+        document.getElementById('cp-result').innerHTML=`Account already exists.<br/>A <strong>password reset email</strong> has been sent to <strong>${esc(email)}</strong>.`;
         btn.disabled=false; btn.textContent='Create Account & Send Login Email';
         return;
       }
       throw e;
     }
-    // Write users/{uid} with venue_owner role
-    const {doc,setDoc,serverTimestamp}=await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
     await setDoc(doc(db,'users',uid),{
       uid, email, fullName:name, venueName:venue,
       role:'venue_owner', createdAt:serverTimestamp()
     },{merge:true});
-    // Send password reset so they set their own password
     await sendPasswordResetEmail(auth,email);
-    // Refresh portal list
     _portalAccounts.push({id:uid,email,fullName:name,venueName:venue,role:'venue_owner'});
     renderPortalsPanel();
     setEl('portals-count',_portalAccounts.length);
@@ -4710,15 +4705,15 @@ async function submitCreatePortal(){
     document.getElementById('cp-result').innerHTML=
       `✅ <strong>Account created for ${esc(venue)}</strong><br/>`+
       `📧 Email: <strong>${esc(email)}</strong><br/>`+
-      `🔑 A login setup email has been sent — they click the link to set their password.<br/>`+
-      `🌐 Portal URL: <strong>tonightvietnam.com/portal/</strong>`;
+      `🔑 Login setup email sent — they click the link to set their password.<br/>`+
+      `🌐 Portal: <strong>tonightvietnam.com/portal/</strong>`;
     btn.textContent='Done ✓';
     toast(`✅ Portal account created for ${venue}`);
   }catch(e){
     toast('Error: '+e.message,'err');
     btn.disabled=false; btn.textContent='Create Account & Send Login Email';
   }
-}
+};
 // ──────────────────────────────────────────────────────────────────────────────
 
 function renderBannerPanel() {
