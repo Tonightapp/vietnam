@@ -3569,7 +3569,7 @@ function _venuePill(v){
     </div>
     <div class="venue-pill-name">${v.name}</div>
     <div class="venue-pill-city">${v.city}</div>
-    <button class="venue-pill-follow" onclick="toggleFollowVenue('${v.name}',this)" style="border:1px solid ${isF?'transparent':'rgba(255,255,255,.25)'};background:${isF?'var(--green)':'transparent'};color:${isF?'#000':'var(--text)'}">${isF?'Following':'Follow'}</button>
+    <button class="venue-pill-follow" onclick="toggleFollowVenue(this.dataset.vname,this)" data-vname="${v.name.replace(/"/g,'&quot;')}" style="border:1px solid ${isF?'transparent':'rgba(255,255,255,.25)'};background:${isF?'var(--green)':'transparent'};color:${isF?'#000':'var(--text)'}">${isF?'Following':'Follow'}</button>
   </div>`;
 }
 
