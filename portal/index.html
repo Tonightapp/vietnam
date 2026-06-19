@@ -4798,6 +4798,10 @@ window.submitVenue = async function(e) {
     // Need an ID before uploading so we can path files correctly
     const venueId = editingVenueId || doc(collection(db,'venues')).id;
     const { logoUrl, photoUrls } = await _uploadVenueMedia(venueId);
+    if (!logoUrl) {
+      const proceed = confirm('No logo URL was set. Save venue without a logo?');
+      if (!proceed) { btn.disabled=false; btn.textContent=editingVenueId?'Update Venue →':'Save Venue →'; return; }
+    }
     btn.textContent = 'Saving…';
     const data = {
       name,
