@@ -6826,15 +6826,16 @@ function _initApp(){
     try{
       const {collection,onSnapshot,query,orderBy,where}=await import(_FB_CDN+'/firebase-firestore.js');
       const db=await _getDb();
-      onSnapshot(query(collection(db,'venues'),where('status','!=','hidden'),orderBy('status'),orderBy('name','asc')), snap=>{
+      onSnapshot(query(collection(db,'venues'),orderBy('name','asc')), snap=>{
         VENUES=snap.docs.map(d=>{
           const v=d.data();
           return{id:d.id,name:v.name||'',city:v.city||'',area:v.area||'',
                  type:v.type||'',capacity:v.capacity||0,genres:v.genres||[],
-                 open:v.open||'',close:v.close||'',img:v.img||'',logo:v.logo||'',
+                 open:v.open||'',close:v.close||'',img:v.img||v.logo||'',logo:v.logo||v.img||'',
                  desc:v.desc||'',address:v.address||'',instagram:v.instagram||'',
-                 photos:v.photos||[],amenities:v.amenities||[],foodTypes:v.foodTypes||[]};
-        });
+                 photos:v.photos||[],amenities:v.amenities||[],foodTypes:v.foodTypes||[],
+                 status:v.status||'active'};
+        }).filter(v=>v.status!=='hidden');
         try{ renderRows(); renderVenues(); }catch(_){}
       });
     }catch(e){ console.warn('[Tonight venues]',e.message); }
