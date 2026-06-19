@@ -1606,10 +1606,33 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
                 <input id="vn-close" type="text" placeholder="2am" class="fm-input"/></div>
             </div>
             <div class="grid-2col">
-              <div><label class="fm-label">Logo / Image URL</label>
-                <input id="vn-img" type="url" placeholder="https://..." class="fm-input"/></div>
+              <div>
+                <label class="fm-label">Logo</label>
+                <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+                  <img id="vn-logo-preview" src="" style="width:48px;height:48px;border-radius:10px;object-fit:cover;border:1px solid var(--border);display:none;flex-shrink:0"/>
+                  <div style="flex:1;min-width:0">
+                    <label style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.05);border:1px dashed var(--border2);border-radius:8px;padding:9px 12px;cursor:pointer;font-size:12px;color:var(--text2)">
+                      <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor;flex-shrink:0"><path d="M19 7v3h-2V7h-3V5h3V2h2v3h3v2h-3zm-3 4V8h-3V5H5a2 2 0 00-2 2v12a2 2 0 002 2h14a2 2 0 002-2v-8h-4a1 1 0 01-1-1zm-4.5 7l-3-3.5L6 18h12l-3.5-4.5-2 2.5z"/></svg>
+                      <span id="vn-logo-btn-text">Upload logo</span>
+                      <input id="vn-logo-file" type="file" accept="image/*" style="display:none" onchange="previewVenueLogo(this)"/>
+                    </label>
+                    <input id="vn-img" type="url" placeholder="or paste URL…" class="fm-input" style="margin-top:6px;font-size:12px" oninput="previewVenueLogoUrl(this.value)"/>
+                  </div>
+                </div>
+              </div>
               <div><label class="fm-label">Instagram (without @)</label>
                 <input id="vn-instagram" type="text" placeholder="sacredgarden.hanoi" class="fm-input"/></div>
+            </div>
+            <!-- Venue Photos -->
+            <div>
+              <label class="fm-label">Venue Photos <span style="font-weight:400;color:var(--text3)">(up to 6)</span></label>
+              <div class="fm-hint" style="margin-bottom:10px">These appear in the venue detail view on the app</div>
+              <div id="vn-photos-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px"></div>
+              <label style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.05);border:1px dashed var(--border2);border-radius:8px;padding:9px 16px;cursor:pointer;font-size:12px;color:var(--text2)">
+                <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor"><path d="M19 7v3h-2V7h-3V5h3V2h2v3h3v2h-3zm-3 4V8h-3V5H5a2 2 0 00-2 2v12a2 2 0 002 2h14a2 2 0 002-2v-8h-4a1 1 0 01-1-1zm-4.5 7l-3-3.5L6 18h12l-3.5-4.5-2 2.5z"/></svg>
+                Add Photos
+                <input id="vn-photos-file" type="file" accept="image/*" multiple style="display:none" onchange="addVenuePhotos(this)"/>
+              </label>
             </div>
             <div><label class="fm-label">Address</label>
               <input id="vn-address" type="text" placeholder="2 Ng. 89 P. Tứ Liên, Hà Nội…" class="fm-input"/></div>
@@ -2208,6 +2231,8 @@ import { getFirestore, collection, doc,
          query, orderBy, where, limit,
          onSnapshot, getDocs, updateDoc, addDoc, setDoc, deleteDoc,
          getDoc, serverTimestamp, writeBatch }     from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getStorage, ref as storageRef,
+         uploadBytes, getDownloadURL }             from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
 
 // ── 🔧 PASTE YOUR FIREBASE CONFIG HERE ───────────────────
 const FIREBASE_CONFIG = {
@@ -2238,9 +2263,10 @@ if (configMissing) {
   throw new Error('Firebase config not set');
 }
 
-const app  = initializeApp(FIREBASE_CONFIG);
-const auth = getAuth(app);
-const db   = getFirestore(app);
+const app      = initializeApp(FIREBASE_CONFIG);
+const auth     = getAuth(app);
+const db       = getFirestore(app);
+const storage  = getStorage(app);
 
 // ── STATE ─────────────────────────────────────────────────
 let allMembers   = [];
@@ -4605,8 +4631,87 @@ function renderVenuesListPanel() {
       </div>`).join('') + `</div>`;
 }
 
+// ── VENUE PHOTO / LOGO UPLOAD HELPERS ────────────────────────────────────────
+let _vnPendingPhotos = []; // {file, previewUrl} not yet uploaded
+
+function _resetVenueMediaFields() {
+  _vnPendingPhotos = [];
+  document.getElementById('vn-photos-grid').innerHTML = '';
+  document.getElementById('vn-logo-preview').style.display = 'none';
+  document.getElementById('vn-logo-preview').src = '';
+  document.getElementById('vn-logo-btn-text').textContent = 'Upload logo';
+  document.getElementById('vn-logo-file').value = '';
+  document.getElementById('vn-photos-file').value = '';
+}
+
+function _renderPhotosGrid(photos) {
+  const grid = document.getElementById('vn-photos-grid');
+  grid.innerHTML = photos.map((p, i) => `
+    <div style="position:relative;aspect-ratio:4/3;border-radius:8px;overflow:hidden;border:1px solid var(--border)">
+      <img src="${typeof p==='string'?p:p.previewUrl}" style="width:100%;height:100%;object-fit:cover"/>
+      <button onclick="_removeVenuePhoto(${i})" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.7);border:none;color:#fff;border-radius:50%;width:22px;height:22px;font-size:12px;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center">✕</button>
+    </div>`).join('');
+}
+
+window._removeVenuePhoto = function(i) {
+  _vnPendingPhotos.splice(i,1);
+  _renderPhotosGrid(_vnPendingPhotos);
+};
+
+window.previewVenueLogo = function(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const url = URL.createObjectURL(file);
+  const img = document.getElementById('vn-logo-preview');
+  img.src = url; img.style.display = 'block';
+  document.getElementById('vn-logo-btn-text').textContent = file.name;
+  document.getElementById('vn-img').value = '';
+};
+
+window.previewVenueLogoUrl = function(url) {
+  const img = document.getElementById('vn-logo-preview');
+  if (url) { img.src = url; img.style.display = 'block'; }
+  else img.style.display = 'none';
+  document.getElementById('vn-logo-file').value = '';
+  document.getElementById('vn-logo-btn-text').textContent = 'Upload logo';
+};
+
+window.addVenuePhotos = function(input) {
+  const files = [...input.files];
+  const slots = 6 - _vnPendingPhotos.length;
+  if (slots <= 0) { toast('Maximum 6 photos reached','err'); return; }
+  files.slice(0, slots).forEach(f => {
+    _vnPendingPhotos.push({ file: f, previewUrl: URL.createObjectURL(f) });
+  });
+  _renderPhotosGrid(_vnPendingPhotos);
+  input.value = '';
+};
+
+async function _uploadVenueMedia(venueId) {
+  let logoUrl = document.getElementById('vn-img').value.trim();
+  const logoFile = document.getElementById('vn-logo-file').files[0];
+  if (logoFile) {
+    const r = storageRef(storage, `venues/${venueId}/logo_${Date.now()}`);
+    const snap = await uploadBytes(r, logoFile);
+    logoUrl = await getDownloadURL(snap.ref);
+  }
+  const photoUrls = [];
+  for (const p of _vnPendingPhotos) {
+    if (p.file) {
+      const r = storageRef(storage, `venues/${venueId}/photos/${Date.now()}_${p.file.name}`);
+      const snap = await uploadBytes(r, p.file);
+      photoUrls.push(await getDownloadURL(snap.ref));
+    } else {
+      photoUrls.push(p.previewUrl);
+    }
+  }
+  return { logoUrl, photoUrls };
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 window.openAddVenue = function() {
   editingVenueId = null;
+  _resetVenueMediaFields();
   document.getElementById('venue-modal-title').textContent = 'Add Venue';
   ['vn-name','vn-type','vn-city','vn-area','vn-open','vn-close','vn-img','vn-instagram','vn-address','vn-desc'].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = '';
@@ -4621,6 +4726,7 @@ window.openEditVenue = function(id) {
   const v = allVenues.find(x => x.id === id);
   if (!v) return;
   editingVenueId = id;
+  _resetVenueMediaFields();
   document.getElementById('venue-modal-title').textContent = 'Edit Venue';
   document.getElementById('vn-name').value      = v.name      || '';
   document.getElementById('vn-type').value      = v.type      || '';
@@ -4633,6 +4739,16 @@ window.openEditVenue = function(id) {
   document.getElementById('vn-instagram').value = v.instagram || '';
   document.getElementById('vn-address').value   = v.address   || '';
   document.getElementById('vn-desc').value      = v.desc      || '';
+  // Show existing logo
+  if (v.logo || v.img) {
+    const img = document.getElementById('vn-logo-preview');
+    img.src = v.logo || v.img; img.style.display = 'block';
+  }
+  // Show existing photos
+  if (v.photos?.length) {
+    _vnPendingPhotos = v.photos.map(url => ({ file:null, previewUrl:url }));
+    _renderPhotosGrid(_vnPendingPhotos);
+  }
   const saved = v.amenities || [];
   document.querySelectorAll('#vn-amenities .amenity-chip').forEach(c => {
     c.classList.toggle('active', saved.includes(c.dataset.amenity));
@@ -4659,37 +4775,41 @@ window.submitVenue = async function(e) {
   const name = document.getElementById('vn-name').value.trim();
   if (!name) return;
   const btn = document.getElementById('vn-submit-btn');
-  btn.disabled = true; btn.textContent = 'Saving…';
-  const imgVal = document.getElementById('vn-img').value.trim();
+  btn.disabled = true; btn.textContent = 'Uploading…';
   const amenities = [...document.querySelectorAll('#vn-amenities .amenity-chip.active')]
     .map(c => c.dataset.amenity);
-  const data = {
-    name,
-    type:      document.getElementById('vn-type').value.trim(),
-    city:      document.getElementById('vn-city').value.trim() || 'Hanoi',
-    area:      document.getElementById('vn-area').value.trim(),
-    capacity:  parseInt(document.getElementById('vn-capacity').value) || 0,
-    open:      document.getElementById('vn-open').value.trim(),
-    close:     document.getElementById('vn-close').value.trim(),
-    img:       imgVal,
-    logo:      imgVal,
-    instagram: document.getElementById('vn-instagram').value.trim(),
-    address:   document.getElementById('vn-address').value.trim(),
-    desc:      document.getElementById('vn-desc').value.trim(),
-    amenities,
-    status:    'active',
-  };
   try {
+    // Need an ID before uploading so we can path files correctly
+    const venueId = editingVenueId || doc(collection(db,'venues')).id;
+    const { logoUrl, photoUrls } = await _uploadVenueMedia(venueId);
+    btn.textContent = 'Saving…';
+    const data = {
+      name,
+      type:      document.getElementById('vn-type').value.trim(),
+      city:      document.getElementById('vn-city').value.trim() || 'Hanoi',
+      area:      document.getElementById('vn-area').value.trim(),
+      capacity:  parseInt(document.getElementById('vn-capacity').value) || 0,
+      open:      document.getElementById('vn-open').value.trim(),
+      close:     document.getElementById('vn-close').value.trim(),
+      img:       logoUrl,
+      logo:      logoUrl,
+      photos:    photoUrls.length ? photoUrls : (allVenues.find(v=>v.id===venueId)?.photos || []),
+      instagram: document.getElementById('vn-instagram').value.trim(),
+      address:   document.getElementById('vn-address').value.trim(),
+      desc:      document.getElementById('vn-desc').value.trim(),
+      amenities,
+      status:    'active',
+    };
     if (editingVenueId) {
       await updateDoc(doc(db,'venues',editingVenueId), data);
-      toast('Venue updated');
+      toast('✅ Venue updated');
     } else {
-      await addDoc(collection(db,'venues'), {...data, createdAt:serverTimestamp()});
-      toast('Venue added');
+      await setDoc(doc(db,'venues',venueId), {...data, createdAt:serverTimestamp()});
+      toast('✅ Venue added');
     }
     window.closeAddVenue();
-  } catch(e2) { toast('Error: '+e2.message); }
-  finally { btn.disabled = false; btn.textContent = 'Save Venue →'; }
+  } catch(e2) { toast('Error: '+e2.message,'err'); }
+  finally { btn.disabled = false; btn.textContent = editingVenueId ? 'Update Venue →' : 'Save Venue →'; }
 };
 
 window.deleteVenue = async function(id, name) {
