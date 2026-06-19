@@ -3558,10 +3558,14 @@ function _venuePill(v){
   const followedV=JSON.parse(localStorage.getItem('tn_followed_venues')||'[]');
   const isF=followedV.includes(v.name);
   const typeIco={Club:'🎛',Bar:'🍹',Rooftop:'🌆'};
+  const ico=typeIco[v.type]||'🏢';
+  const imgHtml=v.img
+    ?`<img src="${v.img}" alt="${v.name}" loading="lazy" style="object-fit:cover;width:100%;height:100%;border-radius:inherit" onerror="this.style.display='none';var x=this.nextElementSibling;if(x)x.style.display='flex';"/>`
+    :'';
   return`<div class="venue-pill">
-    <div class="venue-pill-logo">
-      <img src="${v.img}" alt="${v.name}" loading="lazy" style="object-fit:cover" onerror="var c=this.closest('.venue-pill');if(c)c.remove();"/>
-      <div class="venue-pill-ico" style="display:none;position:absolute;inset:0;align-items:center;justify-content:center">${typeIco[v.type]||'🏢'}</div>
+    <div class="venue-pill-logo" style="position:relative;overflow:hidden">
+      ${imgHtml}
+      <div class="venue-pill-ico" style="${v.img?'display:none':'display:flex'};position:absolute;inset:0;align-items:center;justify-content:center;font-size:28px;background:var(--card2,#1a1a2e)">${ico}</div>
     </div>
     <div class="venue-pill-name">${v.name}</div>
     <div class="venue-pill-city">${v.city}</div>
@@ -3683,8 +3687,9 @@ function renderVenues(){
   if(cnt) cnt.textContent=list.length+' venue'+(list.length!==1?'s':'');
   document.getElementById('venuesGrid').innerHTML=list.length?list.map(v=>`
     <div class="venue-card" onclick="openVenue('${v.id}')" style="cursor:pointer">
-      <div class="venue-card-img-wrap">
-        <img src="${v.img}" alt="${v.name}" loading="lazy"/>
+      <div class="venue-card-img-wrap" style="position:relative;overflow:hidden">
+        ${v.img?`<img src="${v.img}" alt="${v.name}" loading="lazy" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none';var p=this.parentElement;if(p){p.style.background='#1a1a2e';var x=p.querySelector('.vc-no-img');if(x)x.style.display='flex';}"/>`:''}
+        <div class="vc-no-img" style="${v.img?'display:none':'display:flex'};position:absolute;inset:0;align-items:center;justify-content:center;font-size:48px;background:#1a1a2e">🏢</div>
         <div class="venue-type-badge">${v.type}</div>
       </div>
       <div class="venue-card-body">
