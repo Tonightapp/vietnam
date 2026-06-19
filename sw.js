@@ -1,9 +1,8 @@
-const CACHE = 'tonight-v7';
+const CACHE = 'tonight-v8';
 const STATIC_ASSETS = [
   '/manifest.json',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
-  'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=Bebas+Neue&display=swap'
 ];
 
 self.addEventListener('install', e => {
@@ -24,13 +23,21 @@ self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   const url = new URL(e.request.url);
 
-  // Never intercept portal or function requests — always go to network
+  // Pass through — let the browser handle these directly (not subject to connect-src):
+  // • Firebase / Cloud Functions / Auth endpoints
+  // • Firebase JS modules (www.gstatic.com)
+  // • CDN scripts (cdn.jsdelivr.net)
+  // • Non-font googleapis.com (Firebase Firestore/Auth APIs)
+  // • Storage bucket
   if (
-    url.pathname.startsWith('/portal') ||
     url.hostname.includes('cloudfunctions.net') ||
     url.hostname.includes('firebaseapp.com') ||
-    url.hostname.includes('firebase') ||
-    url.hostname.includes('googleapis.com') && !url.hostname.includes('fonts')
+    url.hostname.includes('firebaseio.com') ||
+    url.hostname.includes('firebasestorage.googleapis.com') ||
+    (url.hostname.includes('googleapis.com') && !url.hostname.startsWith('fonts.')) ||
+    (url.hostname.includes('gstatic.com') && !url.hostname.startsWith('fonts.')) ||
+    url.hostname === 'cdn.jsdelivr.net' ||
+    url.pathname.startsWith('/portal')
   ) return;
 
   // Stale-while-revalidate for Unsplash images
@@ -66,7 +73,7 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // Cache-first for static assets (icons, fonts)
+  // Cache-first for fonts and local static assets
   if (
     url.hostname === self.location.hostname ||
     url.hostname === 'fonts.gstatic.com' ||
@@ -87,8 +94,6 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // Network-first for everything else
-  e.respondWith(
-    fetch(e.request).catch(() => caches.match(e.request))
-  );
+  // Anything else — pass through without caching
+  // (avoids connect-src violations for unknown third-party origins)
 });
