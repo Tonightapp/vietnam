@@ -1136,8 +1136,18 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
               </div>
             </div>
             <div>
-              <label class="fm-label">Photo URL</label>
-              <input id="aa-img" type="url" placeholder="https://... (link to artist photo)" class="fm-input"/>
+              <label class="fm-label">Photo</label>
+              <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
+                <img id="aa-img-preview" src="" style="width:52px;height:52px;border-radius:8px;object-fit:cover;border:1px solid var(--border);display:none;flex-shrink:0"/>
+                <div style="flex:1;min-width:0">
+                  <label style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.05);border:1px dashed var(--border2);border-radius:8px;padding:9px 12px;cursor:pointer;font-size:12px;color:var(--text2)">
+                    <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor;flex-shrink:0"><path d="M19 7v3h-2V7h-3V5h3V2h2v3h3v2h-3zm-3 4V8h-3V5H5a2 2 0 00-2 2v12a2 2 0 002 2h14a2 2 0 002-2v-8h-4a1 1 0 01-1-1zm-4.5 7l-3-3.5L6 18h12l-3.5-4.5-2 2.5z"/></svg>
+                    <span id="aa-img-btn-text">Upload photo</span>
+                    <input id="aa-img-file" type="file" accept="image/*" style="display:none" onchange="_imgPreviewFile(this,'aa-img-preview','aa-img-btn-text','aa-img-url')"/>
+                  </label>
+                  <input id="aa-img-url" type="url" placeholder="or paste URL…" class="fm-input" style="margin-top:6px;font-size:12px" oninput="_imgPreviewUrl(this.value,'aa-img-preview','aa-img-file')"/>
+                </div>
+              </div>
             </div>
             <div>
               <label class="fm-label">Bio</label>
@@ -1495,8 +1505,20 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
             </div>
             <div><label class="fm-label">Excerpt</label>
               <textarea id="art-excerpt" rows="2" placeholder="Short teaser text shown on the magazine grid…" class="fm-textarea"></textarea></div>
-            <div><label class="fm-label">Cover Image URL</label>
-              <input id="art-img" type="url" placeholder="https://..." class="fm-input"/></div>
+            <div>
+              <label class="fm-label">Cover Image</label>
+              <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
+                <img id="art-img-preview" src="" style="width:72px;height:52px;border-radius:8px;object-fit:cover;border:1px solid var(--border);display:none;flex-shrink:0"/>
+                <div style="flex:1;min-width:0">
+                  <label style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.05);border:1px dashed var(--border2);border-radius:8px;padding:9px 12px;cursor:pointer;font-size:12px;color:var(--text2)">
+                    <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor;flex-shrink:0"><path d="M19 7v3h-2V7h-3V5h3V2h2v3h3v2h-3zm-3 4V8h-3V5H5a2 2 0 00-2 2v12a2 2 0 002 2h14a2 2 0 002-2v-8h-4a1 1 0 01-1-1zm-4.5 7l-3-3.5L6 18h12l-3.5-4.5-2 2.5z"/></svg>
+                    <span id="art-img-btn-text">Upload cover</span>
+                    <input id="art-img-file" type="file" accept="image/*" style="display:none" onchange="_imgPreviewFile(this,'art-img-preview','art-img-btn-text','art-img-url')"/>
+                  </label>
+                  <input id="art-img-url" type="url" placeholder="or paste URL…" class="fm-input" style="margin-top:6px;font-size:12px" oninput="_imgPreviewUrl(this.value,'art-img-preview','art-img-file')"/>
+                </div>
+              </div>
+            </div>
             <div><label class="fm-label">Full Article (HTML or plain text)</label>
               <textarea id="art-body" rows="6" placeholder="Full article content…" class="fm-textarea"></textarea></div>
             <div class="grid-2col">
@@ -1552,8 +1574,20 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
             </div>
             <div><label class="fm-label">Genres (comma separated)</label>
               <input id="promo-genres" type="text" placeholder="e.g. Afrobeats, House, Latin" class="fm-input"/></div>
-            <div><label class="fm-label">Photo URL</label>
-              <input id="promo-img" type="url" placeholder="https://..." class="fm-input"/></div>
+            <div>
+              <label class="fm-label">Photo</label>
+              <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
+                <img id="promo-img-preview" src="" style="width:52px;height:52px;border-radius:8px;object-fit:cover;border:1px solid var(--border);display:none;flex-shrink:0"/>
+                <div style="flex:1;min-width:0">
+                  <label style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.05);border:1px dashed var(--border2);border-radius:8px;padding:9px 12px;cursor:pointer;font-size:12px;color:var(--text2)">
+                    <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor;flex-shrink:0"><path d="M19 7v3h-2V7h-3V5h3V2h2v3h3v2h-3zm-3 4V8h-3V5H5a2 2 0 00-2 2v12a2 2 0 002 2h14a2 2 0 002-2v-8h-4a1 1 0 01-1-1zm-4.5 7l-3-3.5L6 18h12l-3.5-4.5-2 2.5z"/></svg>
+                    <span id="promo-img-btn-text">Upload photo</span>
+                    <input id="promo-img-file" type="file" accept="image/*" style="display:none" onchange="_imgPreviewFile(this,'promo-img-preview','promo-img-btn-text','promo-img-url')"/>
+                  </label>
+                  <input id="promo-img-url" type="url" placeholder="or paste URL…" class="fm-input" style="margin-top:6px;font-size:12px" oninput="_imgPreviewUrl(this.value,'promo-img-preview','promo-img-file')"/>
+                </div>
+              </div>
+            </div>
             <div><label class="fm-label">Bio</label>
               <textarea id="promo-bio" rows="3" placeholder="Short bio…" class="fm-textarea"></textarea></div>
             <div class="btn-row">
@@ -2271,6 +2305,37 @@ async function _getStorage() {
   const { getStorage } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js');
   _storage = getStorage(app);
   return _storage;
+}
+
+// Shared image upload helper — uploads file to Storage, returns download URL
+async function _uploadImg(file, path) {
+  const { ref: sRef, uploadBytes, getDownloadURL } =
+    await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js');
+  const st = await _getStorage();
+  const snap = await uploadBytes(sRef(st, path), file);
+  return await getDownloadURL(snap.ref);
+}
+
+// Shared preview helpers (called from onchange / oninput in HTML)
+window._imgPreviewFile = function(input, previewId, btnId, urlId) {
+  const file = input.files[0]; if (!file) return;
+  const img = document.getElementById(previewId);
+  img.src = URL.createObjectURL(file); img.style.display = 'block';
+  if (btnId) document.getElementById(btnId).textContent = file.name;
+  if (urlId) document.getElementById(urlId).value = '';
+};
+window._imgPreviewUrl = function(url, previewId, fileId) {
+  const img = document.getElementById(previewId);
+  if (url) { img.src = url; img.style.display = 'block'; }
+  else img.style.display = 'none';
+  if (fileId) document.getElementById(fileId).value = '';
+};
+function _imgReset(previewId, btnId, fileId, urlId) {
+  const img = document.getElementById(previewId);
+  if (img) { img.src=''; img.style.display='none'; }
+  if (btnId) document.getElementById(btnId).textContent = 'Upload photo';
+  if (fileId) document.getElementById(fileId).value = '';
+  if (urlId) document.getElementById(urlId).value = '';
 }
 
 // ── STATE ─────────────────────────────────────────────────
@@ -3944,12 +4009,14 @@ window.openAddArtist = function() {
   document.getElementById('aa-modal-title').textContent = 'Add Artist';
   document.getElementById('aa-submit-btn').textContent  = 'Add Artist →';
   document.getElementById('add-artist-form').reset();
+  _imgReset('aa-img-preview','aa-img-btn-text','aa-img-file','aa-img-url');
   document.getElementById('add-artist-modal').style.display = 'block';
 };
 
 window.closeAddArtist = function() {
   document.getElementById('add-artist-modal').style.display = 'none';
   document.getElementById('add-artist-form').reset();
+  _imgReset('aa-img-preview','aa-img-btn-text','aa-img-file','aa-img-url');
   editingArtistId = null;
 };
 
@@ -3961,8 +4028,10 @@ window.openEditArtist = function(artistId) {
   document.getElementById('aa-genre').value     = a.genre || '';
   document.getElementById('aa-city').value      = a.city || 'Hanoi';
   document.getElementById('aa-instagram').value = a.instagram || '';
-  document.getElementById('aa-img').value       = a.img || '';
+  document.getElementById('aa-img-url').value   = a.img || '';
   document.getElementById('aa-bio').value       = a.bio || '';
+  _imgReset('aa-img-preview','aa-img-btn-text','aa-img-file',null);
+  if (a.img) { const p=document.getElementById('aa-img-preview'); p.src=a.img; p.style.display='block'; }
   document.getElementById('aa-modal-title').textContent = 'Edit Artist';
   document.getElementById('aa-submit-btn').textContent  = 'Save Changes →';
   document.getElementById('add-artist-modal').style.display = 'block';
@@ -3975,13 +4044,21 @@ window.submitArtist = async function(e) {
   const genre = document.getElementById('aa-genre').value.trim();
   if (!name)  { toast('⚠️ Artist name is required'); return; }
   if (!genre) { toast('⚠️ Genre is required'); return; }
-  btn.disabled = true; btn.textContent = 'Saving…';
+  btn.disabled = true;
+  let imgUrl = document.getElementById('aa-img-url').value.trim();
+  const imgFile = document.getElementById('aa-img-file').files[0];
+  if (imgFile) {
+    btn.textContent = 'Uploading…';
+    try { imgUrl = await _uploadImg(imgFile, `artists/${editingArtistId||'new_'+Date.now()}/photo_${Date.now()}`); }
+    catch(ue) { toast('Upload failed: '+ue.message,'err'); btn.disabled=false; btn.textContent=editingArtistId?'Save Changes →':'Add Artist →'; return; }
+  }
+  btn.textContent = 'Saving…';
   const data = {
     name:      document.getElementById('aa-name').value.trim(),
     genre:     document.getElementById('aa-genre').value.trim(),
     city:      document.getElementById('aa-city').value,
     instagram: document.getElementById('aa-instagram').value.trim(),
-    img:       document.getElementById('aa-img').value.trim(),
+    img:       imgUrl,
     bio:       document.getElementById('aa-bio').value.trim(),
   };
   try {
@@ -4404,9 +4481,10 @@ window.openAddArticle = function() {
   editingArticleId = null;
   document.getElementById('art-modal-title').textContent = 'Add Article';
   document.getElementById('art-submit-btn').textContent = 'Save Article →';
-  ['art-title','art-author','art-excerpt','art-img','art-body','art-date'].forEach(id => document.getElementById(id).value = '');
+  ['art-title','art-author','art-excerpt','art-body','art-date'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('art-read').value = '5';
   document.getElementById('art-cat').selectedIndex = 0;
+  _imgReset('art-img-preview','art-img-btn-text','art-img-file','art-img-url');
   document.getElementById('add-article-modal').style.display = 'block';
 };
 
@@ -4419,7 +4497,9 @@ window.openEditArticle = function(id) {
   document.getElementById('art-title').value   = a.title   || '';
   document.getElementById('art-author').value  = a.author  || '';
   document.getElementById('art-excerpt').value = a.excerpt || '';
-  document.getElementById('art-img').value     = a.img     || '';
+  _imgReset('art-img-preview','art-img-btn-text','art-img-file','art-img-url');
+  document.getElementById('art-img-url').value = a.img || '';
+  if (a.img) { const pv=document.getElementById('art-img-preview'); pv.src=a.img; pv.style.display='block'; }
   document.getElementById('art-body').value    = a.body    || '';
   document.getElementById('art-date').value    = a.date    || '';
   document.getElementById('art-read').value    = a.readTime|| 5;
@@ -4433,7 +4513,8 @@ window.openEditArticle = function(id) {
 window.closeAddArticle = function() {
   document.getElementById('add-article-modal').style.display = 'none';
   editingArticleId = null;
-  ['art-title','art-author','art-excerpt','art-img','art-body','art-date'].forEach(id => document.getElementById(id).value = '');
+  ['art-title','art-author','art-excerpt','art-body','art-date'].forEach(id => document.getElementById(id).value = '');
+  _imgReset('art-img-preview','art-img-btn-text','art-img-file','art-img-url');
   document.getElementById('art-read').value = '5';
   document.getElementById('art-cat').selectedIndex = 0;
   document.getElementById('art-modal-title').textContent = 'Add Article';
@@ -4445,13 +4526,21 @@ window.submitArticle = async function(e) {
   const title = document.getElementById('art-title').value.trim();
   if (!title) { toast('⚠️ Article title is required'); return; }
   const btn = document.getElementById('art-submit-btn');
-  btn.disabled = true; btn.textContent = 'Saving…';
+  btn.disabled = true;
+  let imgUrl = document.getElementById('art-img-url').value.trim();
+  const imgFile = document.getElementById('art-img-file').files[0];
+  if (imgFile) {
+    btn.textContent = 'Uploading…';
+    try { imgUrl = await _uploadImg(imgFile, `magazine/${editingArticleId||'new_'+Date.now()}/cover_${Date.now()}`); }
+    catch(ue) { toast('Upload failed: '+ue.message,'err'); btn.disabled=false; btn.textContent=editingArticleId?'Update Article →':'Save Article →'; return; }
+  }
+  btn.textContent = 'Saving…';
   const data = {
     title,
     category : document.getElementById('art-cat').value,
     author   : document.getElementById('art-author').value.trim(),
     excerpt  : document.getElementById('art-excerpt').value.trim(),
-    img      : document.getElementById('art-img').value.trim(),
+    img      : imgUrl,
     body     : document.getElementById('art-body').value.trim(),
     date     : document.getElementById('art-date').value,
     readTime : parseInt(document.getElementById('art-read').value) || 5,
@@ -4507,7 +4596,8 @@ window.openAddPromoter = function() {
   editingPromoterId = null;
   document.getElementById('promo-modal-title').textContent = 'Add Promoter';
   document.getElementById('promo-submit-btn').textContent = 'Save Promoter →';
-  ['promo-name','promo-type','promo-city','promo-ig','promo-genres','promo-img','promo-bio'].forEach(id => document.getElementById(id).value = '');
+  ['promo-name','promo-type','promo-city','promo-ig','promo-genres','promo-bio'].forEach(id => document.getElementById(id).value = '');
+  _imgReset('promo-img-preview','promo-img-btn-text','promo-img-file','promo-img-url');
   document.getElementById('add-promoter-modal').style.display = 'block';
 };
 
@@ -4522,15 +4612,18 @@ window.openEditPromoter = function(id) {
   document.getElementById('promo-city').value   = p.city      || '';
   document.getElementById('promo-ig').value     = p.instagram || '';
   document.getElementById('promo-genres').value = p.genres    || '';
-  document.getElementById('promo-img').value    = p.img       || '';
   document.getElementById('promo-bio').value    = p.bio       || '';
+  _imgReset('promo-img-preview','promo-img-btn-text','promo-img-file','promo-img-url');
+  document.getElementById('promo-img-url').value = p.img || '';
+  if (p.img) { const pv=document.getElementById('promo-img-preview'); pv.src=p.img; pv.style.display='block'; }
   document.getElementById('add-promoter-modal').style.display = 'block';
 };
 
 window.closeAddPromoter = function() {
   document.getElementById('add-promoter-modal').style.display = 'none';
   editingPromoterId = null;
-  ['promo-name','promo-type','promo-city','promo-genres','promo-ig','promo-img','promo-bio'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  ['promo-name','promo-type','promo-city','promo-genres','promo-ig','promo-bio'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  _imgReset('promo-img-preview','promo-img-btn-text','promo-img-file','promo-img-url');
   document.getElementById('promo-modal-title').textContent = 'Add Promoter';
   document.getElementById('promo-submit-btn').textContent = 'Save Promoter →';
 };
@@ -4540,14 +4633,22 @@ window.submitPromoter = async function(e) {
   const name = document.getElementById('promo-name').value.trim();
   if (!name) { toast('⚠️ Promoter name is required'); return; }
   const btn = document.getElementById('promo-submit-btn');
-  btn.disabled = true; btn.textContent = 'Saving…';
+  btn.disabled = true;
+  let imgUrl = document.getElementById('promo-img-url').value.trim();
+  const imgFile = document.getElementById('promo-img-file').files[0];
+  if (imgFile) {
+    btn.textContent = 'Uploading…';
+    try { imgUrl = await _uploadImg(imgFile, `promoters/${editingPromoterId||'new_'+Date.now()}/photo_${Date.now()}`); }
+    catch(ue) { toast('Upload failed: '+ue.message,'err'); btn.disabled=false; btn.textContent=editingPromoterId?'Update Promoter →':'Save Promoter →'; return; }
+  }
+  btn.textContent = 'Saving…';
   const data = {
     name,
     type     : document.getElementById('promo-type').value.trim(),
     city     : document.getElementById('promo-city').value.trim(),
     instagram: document.getElementById('promo-ig').value.trim().replace(/^@/,''),
     genres   : document.getElementById('promo-genres').value.trim(),
-    img      : document.getElementById('promo-img').value.trim(),
+    img      : imgUrl,
     bio      : document.getElementById('promo-bio').value.trim(),
     updatedAt: serverTimestamp()
   };

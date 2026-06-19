@@ -5,7 +5,25 @@ service firebase.storage {
     match /venues/{venueId}/{allPaths=**} {
       allow read:  if true;
       allow write: if request.auth != null
-                   && request.resource.size < 10 * 1024 * 1024  // 10MB max
+                   && request.resource.size < 10 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
+    }
+    match /artists/{artistId}/{allPaths=**} {
+      allow read:  if true;
+      allow write: if request.auth != null
+                   && request.resource.size < 10 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
+    }
+    match /promoters/{promoterId}/{allPaths=**} {
+      allow read:  if true;
+      allow write: if request.auth != null
+                   && request.resource.size < 10 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
+    }
+    match /magazine/{articleId}/{allPaths=**} {
+      allow read:  if true;
+      allow write: if request.auth != null
+                   && request.resource.size < 10 * 1024 * 1024
                    && request.resource.contentType.matches('image/.*');
     }
     // Deny everything else
