@@ -1686,6 +1686,120 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
       </div>
 
       <!-- Create Portal Account Modal -->
+      <!-- Edit Portal Account Modal -->
+      <div id="editPortalModal" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.8);backdrop-filter:blur(6px);align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto">
+        <div style="background:#1c2030;border:1px solid rgba(255,255,255,.1);border-radius:16px;width:100%;max-width:520px;padding:28px;margin:auto">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+            <div>
+              <div style="font-size:16px;font-weight:700;color:#e2e8f0">Edit Portal Account</div>
+              <div id="ep-subtitle" style="font-size:11px;color:#8b95a8;margin-top:2px"></div>
+            </div>
+            <button onclick="closeEditPortalModal()" style="background:rgba(255,255,255,.07);border:none;color:#8b95a8;width:32px;height:32px;border-radius:8px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+
+            <!-- Account Type -->
+            <div>
+              <label style="display:block;font-size:12px;color:#8b95a8;margin-bottom:8px;font-weight:500">Account Type</label>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px" id="ep-role-grid">
+                <div class="cp-role-chip" data-role="venue"    onclick="epPickRole(this)">🏢 Venue</div>
+                <div class="cp-role-chip" data-role="promoter" onclick="epPickRole(this)">📣 Promoter</div>
+                <div class="cp-role-chip" data-role="dj"       onclick="epPickRole(this)">🎧 DJ</div>
+                <div class="cp-role-chip" data-role="event"    onclick="epPickRole(this)">🎉 Event Org.</div>
+                <div class="cp-role-chip" data-role="magazine" onclick="epPickRole(this)">📰 Magazine</div>
+                <div class="cp-role-chip" data-role="partner"  onclick="epPickRole(this)">🤝 Partner</div>
+              </div>
+            </div>
+
+            <!-- Row: Name + Business Name -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div>
+                <label style="display:block;font-size:12px;color:#8b95a8;margin-bottom:5px;font-weight:500">Full Name / Contact</label>
+                <input id="ep-name" type="text" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#e2e8f0;padding:10px 12px;border-radius:8px;font-size:13px;font-family:inherit;box-sizing:border-box"/>
+              </div>
+              <div>
+                <label style="display:block;font-size:12px;color:#8b95a8;margin-bottom:5px;font-weight:500" id="ep-bizlabel">Business Name</label>
+                <input id="ep-biz" type="text" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#e2e8f0;padding:10px 12px;border-radius:8px;font-size:13px;font-family:inherit;box-sizing:border-box"/>
+              </div>
+            </div>
+
+            <!-- Email (read-only) -->
+            <div>
+              <label style="display:block;font-size:12px;color:#8b95a8;margin-bottom:5px;font-weight:500">Email (login — cannot change)</label>
+              <input id="ep-email" type="email" disabled style="width:100%;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);color:#505a6e;padding:10px 12px;border-radius:8px;font-size:13px;font-family:inherit;box-sizing:border-box;cursor:not-allowed"/>
+            </div>
+
+            <!-- Logo URL -->
+            <div>
+              <label style="display:block;font-size:12px;color:#8b95a8;margin-bottom:5px;font-weight:500">Logo URL</label>
+              <div style="display:flex;gap:8px;align-items:center">
+                <input id="ep-logo" type="url" placeholder="https://..." style="flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#e2e8f0;padding:10px 12px;border-radius:8px;font-size:13px;font-family:inherit;box-sizing:border-box" oninput="epPreviewLogo(this.value)"/>
+                <img id="ep-logo-preview" src="" style="width:40px;height:40px;border-radius:8px;object-fit:cover;display:none;border:1px solid rgba(255,255,255,.1);flex-shrink:0"/>
+              </div>
+            </div>
+
+            <!-- Bio / Description -->
+            <div>
+              <label style="display:block;font-size:12px;color:#8b95a8;margin-bottom:5px;font-weight:500">Bio / Description</label>
+              <textarea id="ep-bio" rows="3" placeholder="Short description shown on the app..." style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#e2e8f0;padding:10px 12px;border-radius:8px;font-size:13px;font-family:inherit;box-sizing:border-box;resize:vertical"></textarea>
+            </div>
+
+            <!-- Row: Instagram + Website -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div>
+                <label style="display:block;font-size:12px;color:#8b95a8;margin-bottom:5px;font-weight:500">Instagram Handle</label>
+                <input id="ep-instagram" type="text" placeholder="biscorner.hanoi" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#e2e8f0;padding:10px 12px;border-radius:8px;font-size:13px;font-family:inherit;box-sizing:border-box"/>
+              </div>
+              <div>
+                <label style="display:block;font-size:12px;color:#8b95a8;margin-bottom:5px;font-weight:500">Website</label>
+                <input id="ep-website" type="url" placeholder="https://..." style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#e2e8f0;padding:10px 12px;border-radius:8px;font-size:13px;font-family:inherit;box-sizing:border-box"/>
+              </div>
+            </div>
+
+            <!-- Address -->
+            <div>
+              <label style="display:block;font-size:12px;color:#8b95a8;margin-bottom:5px;font-weight:500">Address</label>
+              <input id="ep-address" type="text" placeholder="2 Ngõ 89 Phố Tứ Liên, Tây Hồ, Hà Nội" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#e2e8f0;padding:10px 12px;border-radius:8px;font-size:13px;font-family:inherit;box-sizing:border-box"/>
+            </div>
+
+            <!-- Row: City + Area -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div>
+                <label style="display:block;font-size:12px;color:#8b95a8;margin-bottom:5px;font-weight:500">City</label>
+                <input id="ep-city" type="text" placeholder="Hanoi" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#e2e8f0;padding:10px 12px;border-radius:8px;font-size:13px;font-family:inherit;box-sizing:border-box"/>
+              </div>
+              <div>
+                <label style="display:block;font-size:12px;color:#8b95a8;margin-bottom:5px;font-weight:500">Area / District</label>
+                <input id="ep-area" type="text" placeholder="Tay Ho" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#e2e8f0;padding:10px 12px;border-radius:8px;font-size:13px;font-family:inherit;box-sizing:border-box"/>
+              </div>
+            </div>
+
+            <!-- Row: Open + Close + Capacity (venue only) -->
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px" id="ep-venue-fields">
+              <div>
+                <label style="display:block;font-size:12px;color:#8b95a8;margin-bottom:5px;font-weight:500">Opens</label>
+                <input id="ep-open" type="text" placeholder="5pm" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#e2e8f0;padding:10px 12px;border-radius:8px;font-size:13px;font-family:inherit;box-sizing:border-box"/>
+              </div>
+              <div>
+                <label style="display:block;font-size:12px;color:#8b95a8;margin-bottom:5px;font-weight:500">Closes</label>
+                <input id="ep-close" type="text" placeholder="1am" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#e2e8f0;padding:10px 12px;border-radius:8px;font-size:13px;font-family:inherit;box-sizing:border-box"/>
+              </div>
+              <div>
+                <label style="display:block;font-size:12px;color:#8b95a8;margin-bottom:5px;font-weight:500">Capacity</label>
+                <input id="ep-capacity" type="number" min="0" placeholder="80" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#e2e8f0;padding:10px 12px;border-radius:8px;font-size:13px;font-family:inherit;box-sizing:border-box"/>
+              </div>
+            </div>
+
+            <div id="ep-result" style="display:none;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);border-radius:10px;padding:12px 14px;font-size:13px;color:#86efac"></div>
+            <div style="display:flex;gap:10px;margin-top:4px">
+              <button onclick="closeEditPortalModal()" style="flex:1;background:rgba(255,255,255,.06);color:#8b95a8;border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Cancel</button>
+              <button id="ep-submit" onclick="submitEditPortal()" style="flex:2;background:#f5c842;color:#000;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Save Changes</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Create Portal Account Modal -->
       <div id="createPortalModal" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px">
         <div style="background:#1c2030;border:1px solid rgba(255,255,255,.1);border-radius:16px;width:100%;max-width:440px;padding:28px">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
@@ -4639,9 +4753,13 @@ function renderPortalsPanel() {
         <td style="font-size:12px;color:var(--text3)">${created}</td>
         <td style="text-align:right">
           <div style="display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap">
+            <button onclick="openEditPortalModal('${u.id}')"
+              style="background:#f5c842;color:#000;border:none;border-radius:7px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap">
+              ✏️ Edit
+            </button>
             <button onclick="sendPortalReset('${esc(u.email)}','${esc(u.fullName||u.email)}')"
               style="background:none;border:1px solid var(--border2);border-radius:7px;padding:6px 12px;color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap">
-              🔑 Send Reset
+              🔑 Reset
             </button>
             <button onclick="deletePortalAccount('${u.id}','${esc(u.fullName||u.email)}')"
               style="background:none;border:1px solid rgba(239,68,68,.3);border-radius:7px;padding:6px 12px;color:var(--red);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap">
@@ -4674,6 +4792,114 @@ window.deletePortalAccount = async function(uid, name) {
     renderPortalsPanel();
   } catch(e) { toast(`Error: ${e.message}`); }
 };
+
+// ── EDIT PORTAL ACCOUNT ──────────────────────────────────────────────────────
+let _epUid = null;
+
+window.epPickRole = function(el){
+  document.querySelectorAll('#ep-role-grid .cp-role-chip').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+  const meta = CP_ROLE_META[el.dataset.role]||CP_ROLE_META.venue;
+  document.getElementById('ep-bizlabel').textContent = meta.biz;
+  const vf = document.getElementById('ep-venue-fields');
+  if(vf) vf.style.display = ['venue','event','partner'].includes(el.dataset.role)?'':'none';
+};
+
+window.epPreviewLogo = function(url){
+  const img=document.getElementById('ep-logo-preview');
+  if(!img) return;
+  if(url){img.src=url;img.style.display='block';}
+  else img.style.display='none';
+};
+
+window.openEditPortalModal = async function(uid){
+  _epUid = uid;
+  const u = _portalAccounts.find(a=>a.id===uid);
+  if(!u) return;
+  const m = document.getElementById('editPortalModal');
+  m.style.display='flex';
+  document.getElementById('ep-subtitle').textContent = u.email;
+  document.getElementById('ep-email').value    = u.email||'';
+  document.getElementById('ep-name').value     = u.fullName||'';
+  document.getElementById('ep-biz').value      = u.venueName||'';
+  document.getElementById('ep-logo').value     = u.logo||'';
+  document.getElementById('ep-bio').value      = u.bio||u.desc||'';
+  document.getElementById('ep-instagram').value= u.instagram||'';
+  document.getElementById('ep-website').value  = u.website||'';
+  document.getElementById('ep-address').value  = u.address||'';
+  document.getElementById('ep-city').value     = u.city||'Hanoi';
+  document.getElementById('ep-area').value     = u.area||'';
+  document.getElementById('ep-open').value     = u.open||'';
+  document.getElementById('ep-close').value    = u.close||'';
+  document.getElementById('ep-capacity').value = u.capacity||'';
+  epPreviewLogo(u.logo||'');
+  document.getElementById('ep-result').style.display='none';
+  const btn=document.getElementById('ep-submit');
+  btn.disabled=false; btn.textContent='Save Changes';
+  // Set role chip
+  const role = u.accountType||'venue';
+  document.querySelectorAll('#ep-role-grid .cp-role-chip').forEach(c=>{
+    c.classList.toggle('sel', c.dataset.role===role);
+  });
+  const meta = CP_ROLE_META[role]||CP_ROLE_META.venue;
+  document.getElementById('ep-bizlabel').textContent = meta.biz;
+  const vf = document.getElementById('ep-venue-fields');
+  if(vf) vf.style.display = ['venue','event','partner'].includes(role)?'':'none';
+};
+
+window.closeEditPortalModal = function(){
+  document.getElementById('editPortalModal').style.display='none';
+  _epUid=null;
+};
+
+window.submitEditPortal = async function(){
+  if(!_epUid) return;
+  const btn=document.getElementById('ep-submit');
+  btn.disabled=true; btn.textContent='Saving…';
+  const roleEl = document.querySelector('#ep-role-grid .cp-role-chip.sel');
+  const accountType = roleEl?.dataset.role||'venue';
+  const data = {
+    fullName:    document.getElementById('ep-name').value.trim(),
+    venueName:   document.getElementById('ep-biz').value.trim(),
+    logo:        document.getElementById('ep-logo').value.trim(),
+    bio:         document.getElementById('ep-bio').value.trim(),
+    instagram:   document.getElementById('ep-instagram').value.trim().replace(/^@/,''),
+    website:     document.getElementById('ep-website').value.trim(),
+    address:     document.getElementById('ep-address').value.trim(),
+    city:        document.getElementById('ep-city').value.trim()||'Hanoi',
+    area:        document.getElementById('ep-area').value.trim(),
+    open:        document.getElementById('ep-open').value.trim(),
+    close:       document.getElementById('ep-close').value.trim(),
+    capacity:    parseInt(document.getElementById('ep-capacity').value)||0,
+    accountType,
+  };
+  try{
+    // Update users doc
+    await updateDoc(doc(db,'users',_epUid), data);
+    // Update matching venue doc if exists
+    const vSnap = await getDocs(query(collection(db,'venues'),where('name','==',data.venueName)));
+    if(!vSnap.empty){
+      await updateDoc(vSnap.docs[0].ref,{
+        name:data.venueName, logo:data.logo, desc:data.bio,
+        instagram:data.instagram, address:data.address,
+        city:data.city, area:data.area,
+        open:data.open, close:data.close, capacity:data.capacity,
+      });
+    }
+    // Refresh local state
+    const idx = _portalAccounts.findIndex(a=>a.id===_epUid);
+    if(idx>-1) _portalAccounts[idx]={..._portalAccounts[idx],...data};
+    renderPortalsPanel();
+    document.getElementById('ep-result').style.display='block';
+    document.getElementById('ep-result').textContent='✅ Profile updated successfully';
+    btn.textContent='Saved ✓';
+    toast(`✅ ${data.venueName||data.fullName} updated`);
+  }catch(e){
+    toast('Error: '+e.message,'err');
+    btn.disabled=false; btn.textContent='Save Changes';
+  }
+};
+// ──────────────────────────────────────────────────────────────────────────────
 
 // ── CREATE PORTAL ACCOUNT ────────────────────────────────────────────────────
 const CP_ROLE_META = {
