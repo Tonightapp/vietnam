@@ -2240,6 +2240,19 @@ body{background:#000;}
   <!-- SPOTLIGHT EVENT -->
   <div id="spotlightSection" style="padding:12px 0 0"></div>
 
+  <!-- POPULAR VENUES — directly under banner -->
+  <div class="home-section">
+    <div class="section-head">
+      <h2>Popular Venues</h2>
+      <div class="see-all">
+        <a href="#" onclick="switchCat('venues',document.querySelectorAll('.cat-tab')[3])">All</a>
+        <button class="scroll-arrow" onclick="scrollRow('venueHomeRow',-1)" aria-label="Scroll left">‹</button>
+        <button class="scroll-arrow" onclick="scrollRow('venueHomeRow',1)" aria-label="Scroll right">›</button>
+      </div>
+    </div>
+    <div class="scroll-row" id="venueHomeRow"></div>
+  </div>
+
   <!-- LIVE PROMOTIONS STRIP -->
   <div class="promo-strip" id="promoStrip">
     <div class="promo-strip-head">
@@ -2364,19 +2377,6 @@ body{background:#000;}
       </div>
     </div>
     <div class="scroll-row" id="festRow"></div>
-  </div>
-
-  <!-- 9. POPULAR VENUES — Where to go -->
-  <div class="home-section">
-    <div class="section-head">
-      <h2>Popular Venues</h2>
-      <div class="see-all">
-        <a href="#" onclick="switchCat('venues',document.querySelectorAll('.cat-tab')[3])">All</a>
-        <button class="scroll-arrow" onclick="scrollRow('venueHomeRow',-1)" aria-label="Scroll left">‹</button>
-        <button class="scroll-arrow" onclick="scrollRow('venueHomeRow',1)" aria-label="Scroll right">›</button>
-      </div>
-    </div>
-    <div class="scroll-row" id="venueHomeRow"></div>
   </div>
 
 
