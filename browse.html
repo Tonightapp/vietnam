@@ -260,6 +260,7 @@ img{max-width:100%;height:auto;-webkit-user-drag:none;user-select:none;-webkit-u
 
 /* Portrait event card */
 .evt-card{flex-shrink:0;width:200px;cursor:pointer;transition:.2s;}
+.evt-card-past,.evt-wide-past{opacity:.55;filter:grayscale(.4);}
 .evt-card:hover .evt-card-img{transform:scale(1.04);}
 .evt-card-img-wrap{width:200px;height:270px;border-radius:12px;overflow:hidden;position:relative;margin-bottom:10px;background:var(--card);}
 .evt-card-img{width:100%;height:100%;background-size:cover!important;background-position:center center!important;background-repeat:no-repeat!important;display:flex;align-items:center;justify-content:center;font-size:56px;transition:.5s;transform-origin:center;}
@@ -302,6 +303,7 @@ img{max-width:100%;height:auto;-webkit-user-drag:none;user-select:none;-webkit-u
 .badge-new{background:rgba(0,208,132,.85);color:#000;font-size:9px;font-weight:600;padding:2px 8px;border-radius:4px;letter-spacing:.3px;}
 .badge-hot{background:rgba(255,59,92,.85);color:#fff;font-size:9px;font-weight:600;padding:2px 8px;border-radius:4px;}
 .badge-sold{background:rgba(255,255,255,.12);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);color:rgba(255,255,255,.8);font-size:9px;font-weight:500;padding:2px 8px;border-radius:4px;letter-spacing:.3px;}
+.badge-past{background:rgba(255,255,255,.08);color:rgba(255,255,255,.4);font-size:9px;font-weight:600;padding:2px 8px;border-radius:4px;letter-spacing:.5px;text-transform:uppercase;}
 
 /* ── PROMO BANNER ── */
 .promo-banner{border-radius:10px;overflow:hidden;position:relative;height:220px;display:flex;align-items:flex-end;cursor:pointer;}
@@ -2886,14 +2888,27 @@ body{background:#000;}
           </div>
         </button>
 
-        <button class="gw-card gw-card-biz" onclick="gwPickType('promoter')" style="margin-bottom:0">
+        <button class="gw-card gw-card-biz" onclick="gwPickType('promoter')">
           <div class="gw-card-inner">
             <div class="gw-icon gw-icon-gold">
               <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
             </div>
             <div>
-              <div class="gw-card-title">Promoter / DJ</div>
+              <div class="gw-card-title">Promoter</div>
               <div class="gw-card-sub">Promote events, build your audience &amp; manage guestlists</div>
+            </div>
+            <div class="gw-arrow">›</div>
+          </div>
+        </button>
+
+        <button class="gw-card gw-card-biz" onclick="gwPickType('dj')" style="margin-bottom:0">
+          <div class="gw-card-inner">
+            <div class="gw-icon gw-icon-gold">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><line x1="12" y1="4" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="20"/><line x1="4" y1="12" x2="2" y2="12"/><line x1="22" y1="12" x2="20" y2="12"/></svg>
+            </div>
+            <div>
+              <div class="gw-card-title">DJ / Artist</div>
+              <div class="gw-card-sub">Showcase your sets, get booked &amp; grow your fanbase</div>
             </div>
             <div class="gw-arrow">›</div>
           </div>
@@ -3217,18 +3232,20 @@ body{background:#000;}
   <div class="dsidebar">
     <div style="padding:0 18px;margin-bottom:20px">
       <div class="dlogo">Tonight</div>
-      <div class="drole">Venue Portal</div>
+      <div class="drole" id="proRoleLabel">Dashboard</div>
     </div>
-    <div class="dnav">
+    <div class="dnav" id="proNav">
       <div class="ditem active" onclick="showPro('overview',this)"><span class="di">📊</span>Overview</div>
       <div class="ditem" onclick="showPro('events',this)"><span class="di">🎉</span>My Events</div>
-      <div class="ditem" onclick="showPro('add',this)"><span class="di">➕</span>Add Event</div>
-      <div class="ditem" onclick="showPro('guests',this)"><span class="di">👥</span>Guests CRM</div>
+      <div class="ditem ditem-venue ditem-promoter" onclick="showPro('add',this)"><span class="di">➕</span>Add Event</div>
+      <div class="ditem ditem-venue ditem-promoter" onclick="showPro('guests',this)"><span class="di">👥</span>Guests CRM</div>
       <div class="ditem" onclick="showPro('analytics',this)"><span class="di">📈</span>Analytics</div>
-      <div class="ditem" onclick="showPro('promos',this)"><span class="di">🔥</span>Promotions</div>
-      <div class="ditem" onclick="showPro('offers',this)"><span class="di">💼</span>Offers</div>
+      <div class="ditem ditem-venue ditem-promoter" onclick="showPro('promos',this)"><span class="di">🔥</span>Promotions</div>
+      <div class="ditem ditem-venue ditem-promoter" onclick="showPro('offers',this)"><span class="di">💼</span>Offers</div>
       <div class="ditem" onclick="showPro('messages',this)"><span class="di">💬</span>Messages</div>
-      <div class="ditem" onclick="showPro('scanner',this)"><span class="di">📷</span>Scanner</div>
+      <div class="ditem ditem-venue ditem-promoter" onclick="showPro('scanner',this)"><span class="di">📷</span>Scanner</div>
+      <div class="ditem ditem-dj" onclick="showPro('portfolio',this)"><span class="di">🎧</span>My Sets</div>
+      <div class="ditem ditem-dj" onclick="showPro('bookings',this)"><span class="di">📅</span>Bookings</div>
       <div class="ditem" onclick="showPro('profile',this)"><span class="di">🏢</span>Profile</div>
       <div class="ditem" onclick="showPro('settings',this)"><span class="di">⚙️</span>Settings</div>
     </div>
@@ -3364,16 +3381,19 @@ const _imgErr="var c=this.closest('.evt-card');if(c)c.remove();";
 const _wideErr="var c=this.closest('.evt-wide');if(c)c.remove();";
 const _top10Err="var c=this.closest('.top10-card');if(c)c.remove();";
 
+function isPast(ev){ const d=new Date(ev.date); d.setHours(23,59,59,0); return d<new Date(); }
+
 function portCard(ev){
   const f=favs.some(x=>String(x)===String(ev.id));
-  const hasPrice=ev.price!==undefined&&ev.price!==null;
+  const past=isPast(ev);
+  const hasPrice=!past&&ev.price!==undefined&&ev.price!==null;
   const priceHtml=hasPrice?`<div class="evt-card-price" style="color:${ev.price>0?'#f5c842':'#22c55e'}">${ev.price>0?Number(ev.price).toLocaleString()+'₫':'Free'}</div>`:'';
-  return`<div class="evt-card" onclick="openEvent('${ev.id}')">
+  return`<div class="evt-card${past?' evt-card-past':''}" onclick="openEvent('${ev.id}')">
     ${ev.img?`<img src="${ev.img}" style="position:absolute;width:0;height:0;opacity:0;pointer-events:none" loading="lazy" onerror="${_imgErr}"/>`:''}
     <div class="evt-card-img-wrap">
       <div class="evt-card-img" style="${imgStyle(ev)}">${ev.img?'':ev.emoji}</div>
       <div class="evt-card-overlay"></div>
-      ${ev.soldOut?'<div class="evt-card-badges"><span class="badge-sold">Sold Out</span></div>':ev.isNew?'<div class="evt-card-badges"><span class="badge-new">New</span></div>':''}
+      ${past?'<div class="evt-card-badges"><span class="badge-past">Past</span></div>':ev.soldOut?'<div class="evt-card-badges"><span class="badge-sold">Sold Out</span></div>':ev.isNew?'<div class="evt-card-badges"><span class="badge-new">New</span></div>':''}
       ${priceHtml}
       <div class="evt-card-fav ${f?'favd':''}" onclick="event.stopPropagation();toggleFav('${ev.id}')">♥</div>
     </div>
@@ -3385,14 +3405,15 @@ function portCard(ev){
 
 function wideCard(ev){
   const f=favs.some(x=>String(x)===String(ev.id));
-  const hasPrice=ev.price!==undefined&&ev.price!==null;
+  const past=isPast(ev);
+  const hasPrice=!past&&ev.price!==undefined&&ev.price!==null;
   const priceHtml=hasPrice?`<div class="evt-wide-price" style="color:${ev.price>0?'#f5c842':'#22c55e'}">${ev.price>0?Number(ev.price).toLocaleString()+'₫':'Free'}</div>`:'';
-  return`<div class="evt-wide" onclick="openEvent('${ev.id}')">
+  return`<div class="evt-wide${past?' evt-wide-past':''}" onclick="openEvent('${ev.id}')">
     ${ev.img?`<img src="${ev.img}" style="position:absolute;width:0;height:0;opacity:0;pointer-events:none" loading="lazy" onerror="${_wideErr}"/>`:''}
     <div class="evt-wide-img-wrap">
       <div class="evt-wide-img" style="${imgStyle(ev)}">${ev.img?'':ev.emoji}</div>
       <div class="evt-wide-overlay"></div>
-      ${ev.soldOut?'<div class="evt-wide-badges"><span class="badge-sold">Sold Out</span></div>':ev.isNew?'<div class="evt-wide-badges"><span class="badge-new">New</span></div>':''}
+      ${past?'<div class="evt-wide-badges"><span class="badge-past">Past</span></div>':ev.soldOut?'<div class="evt-wide-badges"><span class="badge-sold">Sold Out</span></div>':ev.isNew?'<div class="evt-wide-badges"><span class="badge-new">New</span></div>':''}
       ${priceHtml}
       <div class="evt-wide-fav ${f?'favd':''}" onclick="event.stopPropagation();toggleFav('${ev.id}')">♥</div>
     </div>
@@ -4239,8 +4260,8 @@ function openEvent(id){
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">
       ${genreTag(ev.genre)}
-      ${ev.isNew?'<span class="badge-new">New</span>':''}
-      ${ev.soldOut?'<span class="badge-sold">Sold Out</span>':''}
+      ${isPast(ev)?'<span class="badge-past" style="font-size:10px;padding:3px 10px">Past Event</span>':ev.isNew?'<span class="badge-new">New</span>':''}
+      ${!isPast(ev)&&ev.soldOut?'<span class="badge-sold">Sold Out</span>':''}
     </div>
     <h3 style="font-size:20px;font-weight:400;margin-bottom:10px">${ev.title}</h3>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px;font-size:12px;color:var(--text2)">
@@ -4258,14 +4279,16 @@ function openEvent(id){
       ${ev.specialActs?`<div style="margin-top:10px;font-size:12px;color:rgba(255,255,255,.55);font-weight:500">${ev.specialActs}</div>`:''}
     </div>`:''}
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
-      ${ev.soldOut
-        ? `<button class="btn btn-ghost" style="flex:1;min-width:140px;border-color:rgba(245,200,66,.3);color:#f5c842" onclick="openWaitlist(${ev.id})">📋 Join Waitlist</button>`
-        : `<button class="btn btn-white" style="flex:1;min-width:140px" onclick="openTktModal(${ev.id})">🎟 Claim Your Place</button>`}
-      <button class="btn btn-ghost" style="flex:1;min-width:120px" onclick="window.open('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(ev.venue+', '+ev.city+', Vietnam'),'_blank')">📍 Directions</button>
-      <button class="btn btn-ghost" style="padding:9px 14px" onclick="toggleFav('${ev.id}')">♥</button>
+      ${isPast(ev)
+        ? `<div style="flex:1;min-width:140px;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);font-size:12px;color:rgba(255,255,255,.4);text-align:center">This event has ended</div>`
+        : ev.soldOut
+          ? `<button class="btn btn-ghost" style="flex:1;min-width:140px;border-color:rgba(245,200,66,.3);color:#f5c842" onclick="openWaitlist(${ev.id})">📋 Join Waitlist</button>`
+          : `<button class="btn btn-white" style="flex:1;min-width:140px" onclick="${loggedIn?'openTktModal('+ev.id+')':'openLogin()'}">🎟 Join Guestlist</button>`}
+      <button class="btn btn-ghost" style="padding:9px 14px" onclick="window.open('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(ev.venue+', '+ev.city+', Vietnam'),'_blank')" title="Directions">📍</button>
+      <button class="btn btn-ghost" style="padding:9px 14px" onclick="toggleFav('${ev.id}')" title="Save">♥</button>
     </div>
     <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:11px;color:var(--text3);line-height:1.6">
-      ℹ️ Tonight is a discovery platform. We do not sell tickets or guarantee entry. Claiming your place registers you on the guestlist — admission is subject to organiser confirmation.
+      ℹ️ Tonight is a discovery platform. We do not sell tickets or guarantee entry. Joining the guestlist registers you with the organiser — admission is subject to confirmation.
     </div>
     <div class="share-row">
       <span style="font-size:11px;color:var(--text3);align-self:center">Share:</span>
@@ -4940,6 +4963,22 @@ function signOut(){
 })();
 
 // ── PRO DASHBOARD ──
+function _applyProRole(){
+  const src=(curUser?.source)||'venue';
+  const labelMap={venue:'Venue Portal',promoter:'Promoter Dashboard',dj:'DJ Dashboard'};
+  const lbl=document.getElementById('proRoleLabel');
+  if(lbl) lbl.textContent=labelMap[src]||'Dashboard';
+  // Show/hide nav items by role class
+  document.querySelectorAll('#proNav .ditem').forEach(el=>{
+    const forVenue=el.classList.contains('ditem-venue');
+    const forPromoter=el.classList.contains('ditem-promoter');
+    const forDj=el.classList.contains('ditem-dj');
+    if(forVenue||forPromoter||forDj){
+      const show=(forVenue&&src==='venue')||(forPromoter&&src==='promoter')||(forDj&&src==='dj');
+      el.style.display=show?'':'none';
+    }
+  });
+}
 function openPro(){
   _scrollY=window.scrollY;
   document.getElementById('proDash').classList.add('open');
@@ -4947,6 +4986,7 @@ function openPro(){
   document.body.style.position='fixed';
   document.body.style.top='-'+_scrollY+'px';
   document.body.style.width='100%';
+  _applyProRole();
   showPro('overview',document.querySelector('.ditem.active'));
   history.pushState({tnScreen:'pro-dash'},'Pro Dashboard','#pro');
   if(curUser?.pendingApproval) _checkProApproval();
@@ -5496,6 +5536,27 @@ function showPro(page,el){
     <div style="display:flex;gap:8px;align-items:flex-end">
       <textarea class="fta" id="support_msg" placeholder="Write your question or request…" style="flex:1;min-height:72px;resize:none"></textarea>
       <button class="fsub" style="width:auto;padding:10px 20px;margin:0;flex-shrink:0" onclick="sendSupportMsg()">Send</button>
+    </div>`;}
+  if(page==='portfolio'){
+    m.innerHTML=`
+    <div class="dhead"><h2>My Sets &amp; Mixes</h2></div>
+    <div style="background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;margin-bottom:20px">
+      <div style="font-size:40px;margin-bottom:12px">🎧</div>
+      <div style="font-size:15px;font-weight:600;color:#fff;margin-bottom:6px">Build Your DJ Portfolio</div>
+      <div style="font-size:13px;color:var(--text3);line-height:1.7;margin-bottom:16px">Add your SoundCloud, Mixcloud, or YouTube links so venues and promoters can listen to your work and book you.</div>
+      <input class="fi" type="url" id="dj_mix_url" placeholder="https://soundcloud.com/your-set" style="margin-bottom:10px"/>
+      <input class="fi" type="text" id="dj_mix_title" placeholder="Set title (e.g. Friday Deep House @ Bix Hanoi)" style="margin-bottom:10px"/>
+      <button class="fsub" onclick="toast('Portfolio feature coming soon!','ok')" style="width:auto;padding:10px 24px">Add Set →</button>
+    </div>
+    <div style="font-size:12px;color:var(--text3);text-align:center">Your portfolio goes live once your account is approved by the Tonight team.</div>`;}
+  if(page==='bookings'){
+    m.innerHTML=`
+    <div class="dhead"><h2>Booking Requests</h2></div>
+    <div style="background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:12px;padding:32px 20px;text-align:center">
+      <div style="font-size:40px;margin-bottom:12px">📅</div>
+      <div style="font-size:15px;font-weight:600;color:#fff;margin-bottom:6px">No bookings yet</div>
+      <div style="font-size:13px;color:var(--text3);line-height:1.7;margin-bottom:16px">Once venues discover your profile and send you booking requests, they'll appear here. Make sure your profile is complete to get noticed.</div>
+      <button class="btn btn-white" onclick="showPro('profile',null)" style="font-size:13px">Complete My Profile →</button>
     </div>`;}
 }
 let _myProEvents = [];
@@ -6280,20 +6341,26 @@ function showUTab(tab,el){
     </div>`}`;
     setTimeout(()=>{ myTkts.forEach((tk,idx)=>renderQR(`udQr${idx}`,`TONIGHT:${tk.ref}`,160)); },60);
   }
-  if(tab==='upcoming'){c.innerHTML=`<h3 style="font-weight:400;font-size:15px;margin-bottom:14px">Recommended For You</h3><div style="display:flex;flex-direction:column;gap:8px">${EVENTS.filter(e=>!e.soldOut).slice(0,5).map(e=>`
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;display:flex;align-items:center;gap:12px">
+  if(tab==='upcoming'){
+    const futureEvts=EVENTS.filter(e=>!isPast(e));
+    c.innerHTML=`<h3 style="font-weight:400;font-size:15px;margin-bottom:14px">Upcoming Events</h3>${futureEvts.length?`<div style="display:flex;flex-direction:column;gap:8px">${futureEvts.slice(0,8).map(e=>`
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;display:flex;align-items:center;gap:12px;cursor:pointer" onclick="closeUserDash();openEvent('${e.id}')">
       <div style="width:40px;height:40px;border-radius:6px;background:url('${e.img||''}') center/cover no-repeat;background-color:var(--card2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${e.img?'':e.emoji}</div>
       <div style="flex:1"><div style="font-weight:400;font-size:13px">${e.title}</div><div style="font-size:11px;color:var(--text3)">${fmt(e.date)} · ${e.venue}</div></div>
-      <button class="btn btn-ghost" style="font-size:11px;padding:6px 12px" onclick="closeUserDash();openTktModal('${e.id}')">Claim Your Place</button>
-    </div>`).join('')}</div>`;}
+      <span style="font-size:18px;color:var(--text3)">›</span>
+    </div>`).join('')}</div>`:'<p style="color:var(--text3);text-align:center;padding:40px 0;font-weight:300">No upcoming events right now.</p>'}`;
+  }
   if(tab==='favorites'){
     const fe=EVENTS.filter(e=>favs.some(f=>String(f)===String(e.id)));
-    c.innerHTML=`<h3 style="font-weight:400;font-size:15px;margin-bottom:14px">Saved Events (${fe.length})</h3>${fe.length?fe.map(e=>`
-      <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;display:flex;align-items:center;gap:12px;margin-bottom:8px">
+    const pastFe=fe.filter(e=>isPast(e));
+    const upFe=fe.filter(e=>!isPast(e));
+    const renderFav=e=>`
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;display:flex;align-items:center;gap:12px;margin-bottom:8px;cursor:pointer${isPast(e)?';opacity:.5':''}" onclick="closeUserDash();openEvent('${e.id}')">
         <div style="width:40px;height:40px;border-radius:6px;background:url('${e.img||''}') center/cover no-repeat;background-color:var(--card2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${e.img?'':e.emoji}</div>
         <div style="flex:1"><div style="font-weight:400;font-size:13px">${e.title}</div><div style="font-size:11px;color:var(--text3)">${fmt(e.date)} · ${e.venue}</div></div>
-        <button class="btn btn-ghost" style="font-size:11px;padding:6px 12px" onclick="closeUserDash();openTktModal('${e.id}')">Claim Your Place</button>
-      </div>`).join(''):'<p style="color:var(--text3);text-align:center;padding:32px 0;font-weight:300">No saved events yet.</p>'}`;}
+        ${isPast(e)?'<span class="badge-past">Past</span>':'<span style="font-size:18px;color:var(--text3)">›</span>'}
+      </div>`;
+    c.innerHTML=`<h3 style="font-weight:400;font-size:15px;margin-bottom:14px">Saved Events (${fe.length})</h3>${fe.length?[...upFe,...pastFe].map(renderFav).join(''):'<p style="color:var(--text3);text-align:center;padding:32px 0;font-weight:300">No saved events yet.</p>'}`;}
   if(tab==='profile'){
     const u=curUser||{};
     const joined=u.joinedAt?new Date(u.joinedAt).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}):'—';
@@ -7319,9 +7386,10 @@ function openProSignup(){ openGateway('venue'); }
 function gwPickType(type){
   _gwJoinType=type;
   const cfg={
-    member:{badge:'MEMBER',       biz:false},
-    venue: {badge:'VENUE',        biz:true, bizPlaceholder:'e.g. Sacred Garden, Kater Blau'},
-    promoter:{badge:'PROMOTER / DJ', biz:true, bizPlaceholder:'e.g. DJ Useph, Tonight Collective'},
+    member:  {badge:'MEMBER',    biz:false},
+    venue:   {badge:'VENUE',     biz:true, bizPlaceholder:'e.g. Sacred Garden, Kater Blau'},
+    promoter:{badge:'PROMOTER',  biz:true, bizPlaceholder:'e.g. Tonight Collective, Hanoi Rave'},
+    dj:      {badge:'DJ / ARTIST', biz:true, bizPlaceholder:'e.g. DJ Anass, Tiësto Hanoi'},
   }[type]||{badge:'MEMBER',biz:false};
   const badge=document.getElementById('gwTypeBadge');
   const bizFg=document.getElementById('gwBizFg');
@@ -7329,7 +7397,7 @@ function gwPickType(type){
   const bizInput=document.getElementById('gwBiz');
   if(badge) badge.textContent=cfg.badge;
   if(bizFg) bizFg.style.display=cfg.biz?'':'none';
-  if(bizLabel) bizLabel.innerHTML=(type==='venue'?'Venue Name':'Artist / Promo Name')+' <span class="cm-req">*</span>';
+  if(bizLabel) bizLabel.innerHTML=(type==='venue'?'Venue Name':type==='dj'?'Artist / DJ Name':'Promo / Brand Name')+' <span class="cm-req">*</span>';
   if(bizInput){ bizInput.required=cfg.biz; bizInput.placeholder=cfg.bizPlaceholder||''; }
   document.getElementById('gwStep1').style.display='none';
   document.getElementById('gwStep2').style.display='';
@@ -7380,13 +7448,15 @@ async function submitJoin(e){
       await _saveToFirestore('venue_requests',{email,contactName:name,venueName:biz,userId:fbUid||'',type,status:'pending',source:'main-app-signup'});
     }
     const accs=_getAccounts();
-    const isPro=type==='venue'||type==='promoter';
+    const isPro=type==='venue'||type==='promoter'||type==='dj';
     const acc={name,email,password:_hashPw(pass),role:isPro?'pro':'user',pendingApproval:isPro,joinedAt:new Date().toISOString(),source:type};
     accs[email]=acc; _saveAccounts(accs);
     curRole=isPro?'pro':'user';
     finishLogin(name,'Tonight',acc);
     if(type==='member'){
       toast('Welcome, '+name.split(' ')[0]+'! Explore what\'s on tonight.','ok');
+    } else if(type==='dj'){
+      toast('Application sent! We\'ll review your DJ / artist profile within 24 hours.','ok');
     } else {
       toast('Application sent! We\'ll review your '+(type==='venue'?'venue':'promoter')+' profile within 24 hours — set up your listing while you wait.','ok');
     }
