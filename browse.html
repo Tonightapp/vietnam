@@ -6856,6 +6856,7 @@ function _initApp(){
             grad:_gGrad[ev.genre]||'grad-purple',
             desc:ev.description||ev.desc||'',
             featured:!!ev.featured,
+            featuredOrder:ev.featuredOrder??999,
             soldOut:!!ev.soldOut,
             hidden:!!ev.hidden,
             attendees:parseInt(ev.capacity)||ev.attendees||0,
@@ -6869,7 +6870,7 @@ function _initApp(){
         // Portal is the single source of truth — hidden events excluded from public site
         const visible=mapped.filter(e=>!e.hidden);
         EVENTS=visible.sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0);
-        BANNER_IDS=visible.filter(e=>e.featured&&e.img).map(e=>e.id);
+        BANNER_IDS=visible.filter(e=>e.featured&&e.img).sort((a,b)=>a.featuredOrder-b.featuredOrder).map(e=>e.id);
         renderAll();
       }, err=>{ console.warn('[Tonight Firebase events]',err.message); });
     }catch(err){ console.warn('[Tonight Firebase events]',err.message); }
