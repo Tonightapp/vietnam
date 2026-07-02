@@ -3640,7 +3640,7 @@ function renderSpotlight(){
   if(!s) return;
   // Try featured IDs first, then any event with featured:true, then first events with images
   let featured=BANNER_IDS.map(id=>EVENTS.find(e=>String(e.id)===String(id))).filter(Boolean);
-  if(!featured.length) featured=EVENTS.filter(e=>e.featured&&e.img);
+  if(!featured.length) featured=EVENTS.filter(e=>e.featured);
   if(!featured.length) featured=EVENTS.filter(e=>e.img).slice(0,3);
   if(!featured.length){s.innerHTML='';return;}
   // Build single carousel container
@@ -3649,8 +3649,9 @@ function renderSpotlight(){
       <div id="spotSlides" style="display:flex;transition:transform .5s cubic-bezier(.4,0,.2,1)">
         ${featured.map(ev=>{
           const lineupHtml=(ev.lineup||[]).map(a=>`<span style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:100px;padding:3px 12px;font-size:11px;font-weight:700;color:#fff;white-space:nowrap">${a}</span>`).join('');
+          const bgStyle=ev.img?`background:url('${ev.img}') center/cover no-repeat`:`background:var(--grad-${ev.grad||'purple'})`;
           return`<div class="spot-slide" onclick="openEvent('${ev.id}')" style="min-width:100%;position:relative;flex-shrink:0">
-            <img src="${ev.img}" alt="${ev.title}" loading="lazy" style="width:100%;display:block;object-fit:cover;max-height:480px;opacity:.92"/>
+            <div style="width:100%;min-height:320px;max-height:480px;${bgStyle};display:flex;align-items:center;justify-content:center">${ev.img?'':`<span style="font-size:90px;opacity:.35">${ev.emoji}</span>`}</div>
             <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.88) 0%,rgba(0,0,0,.1) 55%,transparent 100%)"></div>
             <div style="position:absolute;top:14px;left:14px;display:flex;gap:8px;align-items:center">
               <span style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);color:#fff;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border-radius:100px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)">Featured</span>
@@ -3679,7 +3680,7 @@ function renderSpotlight(){
 }
 function _spotGo(i){
   let featured=BANNER_IDS.map(id=>EVENTS.find(e=>String(e.id)===String(id))).filter(Boolean);
-  if(!featured.length) featured=EVENTS.filter(e=>e.featured&&e.img);
+  if(!featured.length) featured=EVENTS.filter(e=>e.featured);
   if(!featured.length) featured=EVENTS.filter(e=>e.img).slice(0,3);
   _spotIdx=i;
   const slides=document.getElementById('spotSlides');
@@ -6870,7 +6871,7 @@ function _initApp(){
         // Portal is the single source of truth — hidden events excluded from public site
         const visible=mapped.filter(e=>!e.hidden);
         EVENTS=visible.sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0);
-        BANNER_IDS=visible.filter(e=>e.featured&&e.img).sort((a,b)=>a.featuredOrder-b.featuredOrder).map(e=>e.id);
+        BANNER_IDS=visible.filter(e=>e.featured).sort((a,b)=>a.featuredOrder-b.featuredOrder).map(e=>e.id);
         renderAll();
       }, err=>{ console.warn('[Tonight Firebase events]',err.message); });
     }catch(err){ console.warn('[Tonight Firebase events]',err.message); }

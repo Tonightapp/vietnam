@@ -5276,15 +5276,19 @@ window.toggleFeatured = async function(id, featured) {
   if (!ev) return;
   const data = { featured };
   if (featured) {
-    const maxOrder = allEvents.filter(e => e.featured).reduce((m,e) => Math.max(m, e.featuredOrder||0), 0);
-    data.featuredOrder = maxOrder + 1;
+    // New starred event goes to position 0 (top of banner); shift existing ones down
+    const batch = writeBatch(db);
+    allEvents.filter(e => e.featured && e.id !== id).forEach((e, i) => {
+      batch.update(doc(db,'events',e.id), { featuredOrder: i + 1 });
+    });
+    data.featuredOrder = 0;
+    batch.update(doc(db,'events',id), data);
+    await batch.commit();
   } else {
     data.featuredOrder = null;
-  }
-  try {
     await updateDoc(doc(db,'events',id), data);
-    toast(featured ? `"${ev.title}" added to banner` : `"${ev.title}" removed from banner`);
-  } catch(e) { toast('Error: '+e.message); }
+  }
+  toast(featured ? `"${ev.title}" added to banner (top position)` : `"${ev.title}" removed from banner`);
 };
 
 window.moveBannerUp = async function(id) {
