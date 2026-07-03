@@ -134,8 +134,6 @@ img{max-width:100%;height:auto;-webkit-user-drag:none;user-select:none;-webkit-u
 .btn-ghost:hover{border-color:var(--border2);color:#fff;}
 .btn-buy{display:inline-flex;}
 .cal-event-price{display:inline-block;}
-.evt-card-price{display:block;}
-.evt-wide-price{display:block;}
 .tag{display:inline-block;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:400;text-transform:uppercase;letter-spacing:.5px;}
 .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
 .section-head h2{font-size:16px;font-weight:700;letter-spacing:-.2px;color:#fff;}
@@ -259,34 +257,44 @@ img{max-width:100%;height:auto;-webkit-user-drag:none;user-select:none;-webkit-u
 .home-section+.home-section{border-top:none;}
 
 /* Portrait event card */
-.evt-card{flex-shrink:0;width:200px;cursor:pointer;transition:.2s;}
+.evt-card{flex-shrink:0;width:240px;cursor:pointer;transition:.2s;}
 .evt-card-past,.evt-wide-past{opacity:.55;filter:grayscale(.4);}
 .evt-card:hover .evt-card-img{transform:scale(1.04);}
-.evt-card-img-wrap{width:200px;height:270px;border-radius:12px;overflow:hidden;position:relative;margin-bottom:10px;background:var(--card);}
-.evt-card-img{width:100%;height:100%;background-size:cover!important;background-position:center center!important;background-repeat:no-repeat!important;display:flex;align-items:center;justify-content:center;font-size:56px;transition:.5s;transform-origin:center;}
+.evt-card-img-wrap{width:240px;height:290px;border-radius:14px;overflow:hidden;position:relative;margin-bottom:12px;background:var(--card);}
+.evt-card-img{width:100%;height:100%;background-size:cover!important;background-position:center center!important;background-repeat:no-repeat!important;display:flex;align-items:center;justify-content:center;font-size:64px;transition:.5s;transform-origin:center;}
 .evt-card-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.72) 0%,transparent 50%);}
 .evt-card-badges{position:absolute;top:10px;left:10px;display:flex;gap:4px;}
-.evt-card-fav{position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;font-size:13px;color:rgba(255,255,255,.6);transition:.2s;}
+.evt-card-fav{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;font-size:14px;color:rgba(255,255,255,.6);transition:.2s;}
 .evt-card-fav:hover,.evt-card-fav.favd{color:#ff3b5c;}
-.evt-card-price{position:absolute;bottom:10px;right:10px;}
 .evt-card-tags{position:absolute;bottom:10px;left:10px;display:flex;gap:4px;}
-.evt-card-title{font-size:13px;font-weight:600;line-height:1.35;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text);}
-.evt-card-sub{font-size:11px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:300;}
-.evt-card-genre{font-size:10px;color:var(--text3);margin-top:2px;font-weight:400;}
+.evt-card-title{font-size:16px;font-weight:700;line-height:1.3;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text);}
+.evt-card-meta{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.evt-card-meta .date{color:#f5c842;}
+.evt-card-meta .sep{color:rgba(255,255,255,.25);}
+.evt-card-meta .price{color:var(--text);}
+.evt-card-sub{font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500;margin-bottom:8px;}
+.evt-card-genre{display:flex;flex-wrap:wrap;gap:6px;}
 
 /* Wide event card */
-.evt-wide{flex-shrink:0;width:320px;cursor:pointer;}
+.evt-wide{flex-shrink:0;width:280px;cursor:pointer;}
 .evt-wide:hover .evt-wide-img{transform:scale(1.04);}
-.evt-wide-img-wrap{width:320px;height:200px;border-radius:12px;overflow:hidden;position:relative;margin-bottom:10px;background:var(--card);}
-.evt-wide-img{width:100%;height:100%;background-size:cover!important;background-position:center center!important;background-repeat:no-repeat!important;display:flex;align-items:center;justify-content:center;font-size:52px;transition:.5s;}
+.evt-wide-img-wrap{width:280px;height:290px;border-radius:14px;overflow:hidden;position:relative;margin-bottom:12px;background:var(--card);}
+.evt-wide-img{width:100%;height:100%;background-size:cover!important;background-position:center center!important;background-repeat:no-repeat!important;display:flex;align-items:center;justify-content:center;font-size:60px;transition:.5s;}
 .evt-wide-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.7) 0%,transparent 50%);}
 .evt-wide-badges{position:absolute;top:10px;left:10px;display:flex;gap:4px;}
-.evt-wide-fav{position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;font-size:13px;color:rgba(255,255,255,.6);transition:.2s;}
+.evt-wide-fav{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;font-size:14px;color:rgba(255,255,255,.6);transition:.2s;}
 .evt-wide-fav:hover,.evt-wide-fav.favd{color:#ff3b5c;}
-.evt-wide-price{position:absolute;bottom:10px;right:10px;}
 .evt-wide-tags{position:absolute;bottom:10px;left:10px;display:flex;gap:4px;}
-.evt-wide-title{font-size:13px;font-weight:600;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text);}
-.evt-wide-sub{font-size:11px;color:var(--text3);font-weight:300;}
+.evt-wide-title{font-size:16px;font-weight:700;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text);}
+.evt-wide-meta{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.evt-wide-meta .date{color:#f5c842;}
+.evt-wide-meta .sep{color:rgba(255,255,255,.25);}
+.evt-wide-meta .price{color:var(--text);}
+.evt-wide-sub{font-size:13px;color:var(--text);font-weight:500;margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.evt-wide-genre{display:flex;flex-wrap:wrap;gap:6px;}
+
+/* Shared genre pill — bordered chip, not the small colored .tag style */
+.evt-genre-pill{display:inline-block;padding:5px 12px;border-radius:6px;border:1px solid rgba(255,255,255,.18);font-size:11px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--text);background:rgba(255,255,255,.03);white-space:nowrap;}
 
 /* ── GENRE TAGS ── */
 .tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:9px;font-weight:500;text-transform:uppercase;letter-spacing:.5px;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);}
@@ -1823,19 +1831,24 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
   .promo-live-badge{background:transparent;border-color:rgba(255,255,255,.14);color:rgba(255,255,255,.38);}
   .promo-live-dot{background:rgba(255,255,255,.3);animation:none;}
 
-  /* ── EVENT CARDS: tighter, no card bg ── */
-  .evt-card{width:160px;}
+  /* ── EVENT CARDS: bigger, brighter, no card bg ── */
+  .evt-card{width:200px;}
   .evt-card-img-wrap{
-    width:160px;height:220px;
-    border-radius:8px;
+    width:200px;height:250px;
+    border-radius:10px;
     background:#111;
   }
-  .evt-card-title{font-size:12px;font-weight:700;}
-  .evt-card-sub{font-size:10px;color:rgba(255,255,255,.4);}
+  .evt-card-title{font-size:14px;font-weight:700;}
+  .evt-card-meta{font-size:12px;}
+  .evt-card-sub{font-size:12px;color:var(--text);}
+  .evt-genre-pill{font-size:10px;padding:4px 10px;}
 
   /* Wide cards */
-  .evt-wide{width:260px;}
-  .evt-wide-img-wrap{width:260px;height:165px;border-radius:8px;background:#111;}
+  .evt-wide{width:220px;}
+  .evt-wide-img-wrap{width:220px;height:230px;border-radius:10px;background:#111;}
+  .evt-wide-title{font-size:14px;font-weight:700;}
+  .evt-wide-meta{font-size:12px;}
+  .evt-wide-sub{font-size:12px;color:var(--text);}
 
   /* ── TOP10 GRID → 2-col list ── */
   .top10-grid{grid-template-columns:1fr 1fr;gap:12px;padding:0 16px;}
@@ -3387,19 +3400,19 @@ function portCard(ev){
   const f=favs.some(x=>String(x)===String(ev.id));
   const past=isPast(ev);
   const hasPrice=!past&&ev.price!==undefined&&ev.price!==null;
-  const priceHtml=hasPrice?`<div class="evt-card-price" style="color:${ev.price>0?'#f5c842':'#22c55e'}">${ev.price>0?Number(ev.price).toLocaleString()+'₫':'Free'}</div>`:'';
+  const priceText=hasPrice?(ev.price>0?Number(ev.price).toLocaleString()+'₫':'Free'):'';
   return`<div class="evt-card${past?' evt-card-past':''}" onclick="openEvent('${ev.id}')">
     ${ev.img?`<img src="${ev.img}" style="position:absolute;width:0;height:0;opacity:0;pointer-events:none" loading="lazy" onerror="${_imgErr}"/>`:''}
     <div class="evt-card-img-wrap">
       <div class="evt-card-img" style="${imgStyle(ev)}">${ev.img?'':ev.emoji}</div>
       <div class="evt-card-overlay"></div>
       ${past?'<div class="evt-card-badges"><span class="badge-past">Past</span></div>':ev.soldOut?'<div class="evt-card-badges"><span class="badge-sold">Sold Out</span></div>':ev.isNew?'<div class="evt-card-badges"><span class="badge-new">New</span></div>':''}
-      ${priceHtml}
       <div class="evt-card-fav ${f?'favd':''}" onclick="event.stopPropagation();toggleFav('${ev.id}')">♥</div>
     </div>
     <div class="evt-card-title">${ev.title}</div>
-    <div class="evt-card-sub">${fmt(ev.date)} · ${ev.venue}</div>
-    <div class="evt-card-genre">${ev.genre} ${ev.area?'· '+ev.area:''}</div>
+    <div class="evt-card-meta"><span class="date">${fmt(ev.date)}</span>${priceText?`<span class="sep">|</span><span class="price">${priceText}</span>`:''}</div>
+    <div class="evt-card-sub">${ev.venue}</div>
+    <div class="evt-card-genre">${ev.genre?`<span class="evt-genre-pill">${ev.genre}</span>`:''}${ev.area?`<span class="evt-genre-pill">${ev.area}</span>`:''}</div>
   </div>`;
 }
 
@@ -3407,18 +3420,19 @@ function wideCard(ev){
   const f=favs.some(x=>String(x)===String(ev.id));
   const past=isPast(ev);
   const hasPrice=!past&&ev.price!==undefined&&ev.price!==null;
-  const priceHtml=hasPrice?`<div class="evt-wide-price" style="color:${ev.price>0?'#f5c842':'#22c55e'}">${ev.price>0?Number(ev.price).toLocaleString()+'₫':'Free'}</div>`:'';
+  const priceText=hasPrice?(ev.price>0?Number(ev.price).toLocaleString()+'₫':'Free'):'';
   return`<div class="evt-wide${past?' evt-wide-past':''}" onclick="openEvent('${ev.id}')">
     ${ev.img?`<img src="${ev.img}" style="position:absolute;width:0;height:0;opacity:0;pointer-events:none" loading="lazy" onerror="${_wideErr}"/>`:''}
     <div class="evt-wide-img-wrap">
       <div class="evt-wide-img" style="${imgStyle(ev)}">${ev.img?'':ev.emoji}</div>
       <div class="evt-wide-overlay"></div>
       ${past?'<div class="evt-wide-badges"><span class="badge-past">Past</span></div>':ev.soldOut?'<div class="evt-wide-badges"><span class="badge-sold">Sold Out</span></div>':ev.isNew?'<div class="evt-wide-badges"><span class="badge-new">New</span></div>':''}
-      ${priceHtml}
       <div class="evt-wide-fav ${f?'favd':''}" onclick="event.stopPropagation();toggleFav('${ev.id}')">♥</div>
     </div>
     <div class="evt-wide-title">${ev.title}</div>
-    <div class="evt-wide-sub">${fmt(ev.date)} · ${ev.venue}</div>
+    <div class="evt-wide-meta"><span class="date">${fmt(ev.date)}</span>${priceText?`<span class="sep">|</span><span class="price">${priceText}</span>`:''}</div>
+    <div class="evt-wide-sub">${ev.venue}</div>
+    <div class="evt-wide-genre">${ev.genre?`<span class="evt-genre-pill">${ev.genre}</span>`:''}${ev.area?`<span class="evt-genre-pill">${ev.area}</span>`:''}</div>
   </div>`;
 }
 
