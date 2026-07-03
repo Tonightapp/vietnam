@@ -1,4 +1,4 @@
-const CACHE = 'tonight-v8';
+const CACHE = 'tonight-v9';
 const STATIC_ASSETS = [
   '/manifest.json',
   '/icons/icon-192.png',
@@ -56,10 +56,13 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // Network-first for HTML pages — always serve fresh content
+  // Network-first for HTML pages and same-origin JS — always serve fresh code.
+  // (JS used to be cache-first below, which could pin a user to a stale/broken
+  // build indefinitely since firebase.json's no-cache header never gets a
+  // chance to apply once the service worker has a cached response.)
   if (
     url.hostname === self.location.hostname &&
-    (url.pathname === '/' || url.pathname.endsWith('.html'))
+    (url.pathname === '/' || url.pathname.endsWith('.html') || url.pathname.endsWith('.js'))
   ) {
     e.respondWith(
       fetch(e.request).then(res => {
