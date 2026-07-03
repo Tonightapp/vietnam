@@ -106,9 +106,27 @@ cd ..
 firebase deploy --only functions
 ```
 
-This deploys:
-- `onEventApproved` — fires when admin approves → emails all users
-- `sendReminders` — runs daily at 10AM Vietnam time → reminder emails
+This deploys 19 Cloud Functions total:
+
+User-facing (Firestore triggers):
+- `onEventApproved` — event approved → email blast to community_signups
+- `sendReminders` — daily 10AM VN time → email tomorrow's events
+- `onGuestlistCreate` — new guestlist entry → QR ticket email to guest
+- `onDealCreate` — deal claimed → QR voucher email
+- `onVenueApproved` — venue approved → creates Firebase Auth + password setup email
+- `onCommunitySignup` — new community signup → welcome email
+- `generatePromoterPin` — new event created → assigns a cryptographic door-staff PIN
+- `cleanOldGuestlist` — scheduled cleanup of stale guestlist entries
+
+Admin notifications (all send to the admin inbox):
+- `notifyAdminNewMember`, `notifyAdminNewUser`, `notifyAdminVenueApplied`,
+  `notifyAdminGuestlist`, `notifyAdminDealClaimed`, `notifyAdminEventSubmitted`,
+  `notifyAdminInquiry`, `notifyAdminProSignup`
+
+HTTP endpoints:
+- `promoterVerify` — door staff: validate PIN, fetch guestlist
+- `promoterScan` — door staff: validate PIN + ticket ref, check guest in
+- `unsubscribeUser` — one-click unsubscribe from reminder/community emails
 
 ---
 
@@ -118,24 +136,25 @@ This deploys:
 firebase deploy --only hosting
 ```
 
-Your portals are now live at:
-- `https://tonight-vietnam.web.app/` → landing page
-- `https://tonight-vietnam.web.app/join.html` → venue signup (send this to venues)
-- `https://tonight-vietnam.web.app/index.html` → staff portal
-- `https://tonight-vietnam.web.app/venue.html` → venue dashboard
+There is no separate marketing landing page at the root — `/**` rewrites straight to `browse.html`, the consumer app. Your portals are now live at:
+- `https://tonight-vietnam.web.app/` → the app (browse.html)
+- `https://tonight-vietnam.web.app/portal/join.html` → venue signup (send this to venues)
+- `https://tonight-vietnam.web.app/portal/index.html` → staff portal
+- `https://tonight-vietnam.web.app/portal/scan.html` → door-staff QR check-in
+- `https://tonight-vietnam.web.app/portal/venue.html` → redirects into the venue-owner dashboard inside the staff portal (role-gated, not a separate page)
 
 ---
 
 ## Daily workflow
 
 **Inviting venues:**
-→ Send them: `https://tonight-vietnam.web.app/join.html`
+→ Send them: `https://tonight-vietnam.web.app/portal/join.html`
 
-**Staff portal:** `https://tonight-vietnam.web.app/index.html`
+**Staff portal:** `https://tonight-vietnam.web.app/portal/index.html`
 → Venues tab: approve/reject venue applications
 → Events tab: approve/reject events (approving triggers automatic emails)
 
-**Venue portal:** `https://tonight-vietnam.web.app/venue.html`
+**Venue portal:** `https://tonight-vietnam.web.app/portal/venue.html`
 → Venues log in, submit events, see pending/approved/rejected status
 
 **Emails sent automatically:**
