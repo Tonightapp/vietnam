@@ -76,12 +76,17 @@ service cloud.firestore {
 
       // Authenticated venue owners (portal) OR unauthenticated app submissions.
       // Status MUST be 'pending' — admin approves before going live.
+      // Staff (isStaff() — same check used for update/delete below and for every
+      // other collection) can create directly as 'approved' from the admin portal.
       allow create: if (request.resource.data.status == 'pending'
                     && request.resource.data.keys().hasAll(['title','venueName','date','city','status'])
+                    && request.resource.data.keys().hasOnly(['title','venueName','city','date','time',
+                         'genre','price','guestlistCap','img','imgDetail','description','artists',
+                         'publishedBy','updatedAt','status','createdAt','source'])
                     && request.resource.data.title.size() <= 200
                     && request.resource.data.venueName.size() <= 200
                     && (isVenueOwner() || request.auth == null))
-                    || (isAuthenticated() && request.auth.token.email == 'app.tonight1@gmail.com');
+                    || isStaff();
 
       // Venue owners can update only their own events.
       // They may reset a rejected event back to 'pending' for re-review, but never self-approve.
@@ -111,6 +116,9 @@ service cloud.firestore {
     // Open write: anyone joining a guestlist (no auth required)
     match /guestlist/{id} {
       allow create: if request.resource.data.keys().hasAll(['ref','buyerEmail','eventTitle'])
+                    && request.resource.data.keys().hasOnly(['ref','buyerName','buyerEmail','buyerPhone',
+                         'eventTitle','date','time','venue','city','ticketType','qty','issuedAt',
+                         'deviceType','os','status','createdAt'])
                     && request.resource.data.buyerEmail is string
                     && request.resource.data.buyerEmail.size() <= 254
                     && request.resource.data.ref is string

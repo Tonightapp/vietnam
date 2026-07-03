@@ -196,30 +196,34 @@ exports.sendReminders = onSchedule(
 
     for (const eventDoc of eventsSnap.docs) {
       const ev = eventDoc.data();
+      try {
+        let users = cityUserMap.get(ev.city || '') || [];
+        if (users.length === 0) {
+          if (!allUsersCache) allUsersCache = await getAllUsers();
+          users = allUsersCache;
+        }
 
-      let users = cityUserMap.get(ev.city || '') || [];
-      if (users.length === 0) {
-        if (!allUsersCache) allUsersCache = await getAllUsers();
-        users = allUsersCache;
+        let sent = 0;
+        const batchSize = 50;
+        for (let i = 0; i < users.length; i += batchSize) {
+          const batch = users.slice(i, i + batchSize);
+          await Promise.allSettled(batch.map(user =>
+            transporter.sendMail({
+              from:    fromLabel,
+              to:      user.email,
+              subject: `⏰ Tomorrow: ${ev.emoji || '🎉'} ${ev.title} at ${ev.venueName} — Don't miss it`,
+              html:    buildReminderEmail(ev, user),
+            }).then(() => sent++)
+              .catch(err => console.error(`[reminder error] ${user.email}: ${err.message}`))
+          ));
+        }
+
+        console.log(`[sendReminders] "${ev.title}": sent ${sent} reminders`);
+        await eventDoc.ref.update({ reminderSent: true, reminderSentAt: Timestamp.now() });
+      } catch (err) {
+        // Don't let one bad event abort reminders for every other event tonight.
+        console.error(`[sendReminders] failed for event "${ev.title}" (${eventDoc.id}): ${err.message}`);
       }
-
-      let sent = 0;
-      const batchSize = 50;
-      for (let i = 0; i < users.length; i += batchSize) {
-        const batch = users.slice(i, i + batchSize);
-        await Promise.allSettled(batch.map(user =>
-          transporter.sendMail({
-            from:    fromLabel,
-            to:      user.email,
-            subject: `⏰ Tomorrow: ${ev.emoji || '🎉'} ${ev.title} at ${ev.venueName} — Don't miss it`,
-            html:    buildReminderEmail(ev, user),
-          }).then(() => sent++)
-            .catch(err => console.error(`[reminder error] ${user.email}: ${err.message}`))
-        ));
-      }
-
-      console.log(`[sendReminders] "${ev.title}": sent ${sent} reminders`);
-      await eventDoc.ref.update({ reminderSent: true, reminderSentAt: Timestamp.now() });
     }
   }
 );
@@ -1227,17 +1231,31 @@ function buildWelcomeEmail(signup, firstName) {
 </html>`;
 }
 
-// ── Rate limiter: max 10 requests per IP per 15-minute window ─────────────────
-const _rlMap = new Map(); // ip → { count, windowStart }
-function isRateLimited(ip, max = 10, windowMs = 15 * 60 * 1000) {
+// ── Rate limiter: max N requests per key per window, backed by Firestore so it
+// survives cold starts and is shared across concurrent instances (an in-memory
+// Map is per-instance and resets on every cold start — not a real limit). ─────
+async function isRateLimited(key, max = 10, windowMs = 15 * 60 * 1000) {
+  const ref = db.collection('_rateLimits').doc(key);
   const now = Date.now();
-  let entry = _rlMap.get(ip);
-  if (!entry || now - entry.windowStart > windowMs) {
-    _rlMap.set(ip, { count: 1, windowStart: now });
-    return false;
-  }
-  entry.count += 1;
-  return entry.count > max;
+  return db.runTransaction(async (tx) => {
+    const snap = await tx.get(ref);
+    const data = snap.exists ? snap.data() : null;
+    if (!data || now - data.windowStart > windowMs) {
+      tx.set(ref, { count: 1, windowStart: now });
+      return false;
+    }
+    const count = data.count + 1;
+    tx.set(ref, { count, windowStart: data.windowStart });
+    return count > max;
+  });
+}
+
+// Constant-time string comparison so PIN checking doesn't leak timing info.
+function timingSafeEqualStr(a, b) {
+  const bufA = Buffer.from(String(a));
+  const bufB = Buffer.from(String(b));
+  if (bufA.length !== bufB.length) return false;
+  return crypto.timingSafeEqual(bufA, bufB);
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -1249,7 +1267,7 @@ exports.promoterVerify = onRequest(
   async (req, res) => {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
     const ip = req.ip || req.headers['x-forwarded-for'] || 'unknown';
-    if (isRateLimited(`verify:${ip}`)) return res.status(429).json({ error: 'Too many attempts — try again later' });
+    if (await isRateLimited(`verify:${ip}`)) return res.status(429).json({ error: 'Too many attempts — try again later' });
     const { eventId, pin } = req.body || {};
     if (!eventId || !pin) return res.status(400).json({ error: 'Missing eventId or pin' });
 
@@ -1257,8 +1275,13 @@ exports.promoterVerify = onRequest(
     if (!eventDoc.exists) return res.status(404).json({ error: 'Event not found' });
     const ev = eventDoc.data();
 
-    const expected = String(ev.promoterPin || eventId.slice(-4)).toUpperCase();
-    if (String(pin).toUpperCase() !== expected) {
+    // No guessable fallback: if a real PIN hasn't been assigned yet
+    // (generatePromoterPin runs async right after event creation), refuse
+    // rather than falling back to something derivable from the public event ID.
+    if (!ev.promoterPin) {
+      return res.status(403).json({ error: 'PIN not ready yet for this event — try again in a moment' });
+    }
+    if (!timingSafeEqualStr(String(pin).toUpperCase(), String(ev.promoterPin).toUpperCase())) {
       return res.status(403).json({ error: 'Wrong PIN' });
     }
 
@@ -1294,37 +1317,58 @@ exports.promoterScan = onRequest(
   async (req, res) => {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
     const ip = req.ip || req.headers['x-forwarded-for'] || 'unknown';
-    if (isRateLimited(`scan:${ip}`)) return res.status(429).json({ error: 'Too many attempts — try again later' });
+    if (await isRateLimited(`scan:${ip}`)) return res.status(429).json({ error: 'Too many attempts — try again later' });
     const { ref, eventId, pin } = req.body || {};
     if (!ref || !eventId || !pin) return res.status(400).json({ error: 'Missing fields' });
 
     const eventDoc = await db.collection('events').doc(eventId).get();
     if (!eventDoc.exists) return res.status(404).json({ error: 'Event not found' });
     const ev = eventDoc.data();
-    const expected = String(ev.promoterPin || eventId.slice(-4)).toUpperCase();
-    if (String(pin).toUpperCase() !== expected) return res.status(403).json({ error: 'Wrong PIN' });
-
-    const snap = await db.collection('guestlist').where('ref', '==', ref).limit(1).get();
-    if (snap.empty) return res.status(404).json({ error: 'Ticket not found', ref });
-
-    const doc = snap.docs[0];
-    const guest = doc.data();
-
-    if (guest.checkedIn) {
-      return res.json({
-        status: 'already_in', name: guest.buyerName||'—',
-        ticketType: guest.ticketType||'Guestlist', qty: guest.qty||1,
-        checkedInAt: guest.checkedInAt ? guest.checkedInAt.toDate().toISOString() : null,
-      });
+    if (!ev.promoterPin) {
+      return res.status(403).json({ error: 'PIN not ready yet for this event — try again in a moment' });
+    }
+    if (!timingSafeEqualStr(String(pin).toUpperCase(), String(ev.promoterPin).toUpperCase())) {
+      return res.status(403).json({ error: 'Wrong PIN' });
     }
 
-    await doc.ref.update({ checkedIn: true, checkedInAt: Timestamp.now(), checkedInBy: `promoter:${eventId}` });
+    // Read-check-write inside a transaction so two near-simultaneous scans of
+    // the same ticket can't both observe checkedIn:false and both succeed.
+    try {
+      const result = await db.runTransaction(async (tx) => {
+        const snap = await tx.get(db.collection('guestlist').where('ref', '==', ref).limit(1));
+        if (snap.empty) {
+          const err = new Error('Ticket not found');
+          err.code = 'not_found';
+          throw err;
+        }
+        const doc = snap.docs[0];
+        const guest = doc.data();
+        if (guest.checkedIn) {
+          return { alreadyIn: true, guest };
+        }
+        tx.update(doc.ref, { checkedIn: true, checkedInAt: Timestamp.now(), checkedInBy: `promoter:${eventId}` });
+        return { alreadyIn: false, guest };
+      });
 
-    res.json({
-      status: 'success', name: guest.buyerName||'—',
-      email: guest.buyerEmail||'', ticketType: guest.ticketType||'Guestlist',
-      qty: guest.qty||1, eventTitle: guest.eventTitle||'',
-    });
+      const { alreadyIn, guest } = result;
+      if (alreadyIn) {
+        return res.json({
+          status: 'already_in', name: guest.buyerName||'—',
+          ticketType: guest.ticketType||'Guestlist', qty: guest.qty||1,
+          checkedInAt: guest.checkedInAt ? guest.checkedInAt.toDate().toISOString() : null,
+        });
+      }
+
+      res.json({
+        status: 'success', name: guest.buyerName||'—',
+        email: guest.buyerEmail||'', ticketType: guest.ticketType||'Guestlist',
+        qty: guest.qty||1, eventTitle: guest.eventTitle||'',
+      });
+    } catch (err) {
+      if (err.code === 'not_found') return res.status(404).json({ error: 'Ticket not found', ref });
+      console.error('[promoterScan] transaction failed:', err);
+      return res.status(500).json({ error: 'Check-in failed — try again' });
+    }
   }
 );
 
