@@ -435,6 +435,11 @@ async function manualCheckIn(ref) {
     if (res.ok && data.status !== 'err') {
       if (g) { g.checkedIn = true; g.checkedInAt = new Date().toISOString(); }
       renderList();
+    } else if (data.status === 'already_in') {
+      alert(`${data.name || g?.name || ref} is already checked in`);
+      renderList();
+    } else {
+      alert(data.error || 'Check-in failed — try again');
     }
   } catch(e) { alert('Connection error'); }
 }

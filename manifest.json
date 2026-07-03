@@ -19,9 +19,6 @@
     { "src": "icons/icon-512.png",  "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ],
   "screenshots": [
-    { "src": "screenshots/home.png",    "sizes": "1290x2796", "type": "image/png", "form_factor": "narrow" },
-    { "src": "screenshots/events.png",  "sizes": "1290x2796", "type": "image/png", "form_factor": "narrow" },
-    { "src": "screenshots/desktop.png", "sizes": "1920x1080", "type": "image/png", "form_factor": "wide" },
     { "src": "icons/feature-graphic.png", "sizes": "1024x500", "type": "image/png", "form_factor": "wide" }
   ],
   "shortcuts": [

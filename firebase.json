@@ -8,10 +8,12 @@
       "firestore.rules", "firestore.indexes.json",
       "functions/**", "package.json", "package-lock.json",
       "**/*.md", "**/*.TM.blf", "**/*.TMContainer*",
-      "ntuser*", "NTUSER*"
+      "ntuser*", "NTUSER*",
+      "portal/landing.html"
     ],
     "rewrites": [
       { "source": "/unsubscribe", "destination": "/unsubscribe.html" },
+      { "source": "/confirm-guest", "destination": "/confirm-guest.html" },
       { "source": "/**", "destination": "/browse.html" }
     ],
     "headers": [

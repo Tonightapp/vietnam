@@ -4,5 +4,6 @@ Disallow: /portal/
 Disallow: /portal/index.html
 Disallow: /portal/venue.html
 Disallow: /portal/join.html
+Disallow: /portal/scan.html
 
 Sitemap: https://www.tonightvietnam.com/sitemap.xml
