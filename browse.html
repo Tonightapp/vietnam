@@ -684,7 +684,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
 .sib-store-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:8px;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.6);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;background:transparent;transition:.15s;white-space:nowrap;}
 .sib-store-badge:hover{border-color:rgba(245,200,66,.35);color:rgba(255,255,255,.9);}
 .sib-store-badge:active{transform:scale(.96);}
-.sib-close{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.05);border:none;color:rgba(255,255,255,.3);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-family:inherit;transition:.15s;padding:0;position:absolute;right:14px;}
+.sib-close{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.05);border:none;color:rgba(255,255,255,.3);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-family:inherit;transition:.15s;padding:0;position:absolute;right:8px;}
 .sib-close:hover{background:rgba(255,255,255,.1);color:rgba(255,255,255,.7);}
 @media(max-width:640px){
   #signInBar{max-height:56px;padding:0 12px;}
@@ -3113,7 +3113,7 @@ body{background:#000;}
     <h3>🔔 Notifications</h3>
     <div style="display:flex;gap:12px;align-items:center">
       <button class="notif-mark-read" onclick="markAllRead()">Mark all read</button>
-      <button onclick="closeNotifPanel()" style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:20px;line-height:1;padding:0">×</button>
+      <button onclick="closeNotifPanel()" style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:20px;line-height:1;width:40px;height:40px;display:flex;align-items:center;justify-content:center;flex-shrink:0" aria-label="Close">×</button>
     </div>
   </div>
   <div id="notifList"></div>
@@ -3553,6 +3553,16 @@ function openArtistProfile(name){
   openOverlay('artistProfileOverlay');
 }
 
+// Escapes a string for safe embedding inside a single-quoted JS string that
+// itself sits inside a double-quoted HTML onclick="..." attribute — handles
+// apostrophes (breaks the JS string) and double quotes (breaks the HTML
+// attribute) in venue/artist/event names and other user- or pro-submitted text.
+function escQ(str){
+  return String(str==null?'':str)
+    .replace(/\\/g,'\\\\')
+    .replace(/'/g,"\\'")
+    .replace(/"/g,'&quot;');
+}
 function _artistBubble(a,name,genre,img,grad,emoji){
   const followed=JSON.parse(localStorage.getItem('tn_followed')||'[]');
   const isF=followed.includes(name);
@@ -3560,9 +3570,9 @@ function _artistBubble(a,name,genre,img,grad,emoji){
   const hasBio=a&&a.bio;
   const followBtn=ig
     ?`<button class="artist-bubble-follow" onclick="event.stopPropagation();window.open('${ig}','_blank')" style="border:1px solid rgba(255,255,255,.25);background:transparent;color:var(--text)">Follow on IG</button>`
-    :`<button class="artist-bubble-follow" onclick="event.stopPropagation();toggleFollow('${name}',this)" style="border:1px solid ${isF?'transparent':'rgba(255,255,255,.25)'};background:${isF?'var(--green)':'transparent'};color:${isF?'#000':'var(--text)'}">${isF?'Following':'Follow'}</button>`;
-  const photoClick=hasBio?`openArtistProfile('${name.replace(/'/g,"\\'")}')`:ig?`window.open('${ig}','_blank')`:'';
-  return`<div class="artist-bubble" ${hasBio?`onclick="openArtistProfile('${name.replace(/'/g,"\\'")}')"`  :''} style="${hasBio?'cursor:pointer':''}">
+    :`<button class="artist-bubble-follow" onclick="event.stopPropagation();toggleFollow('${escQ(name)}',this)" style="border:1px solid ${isF?'transparent':'rgba(255,255,255,.25)'};background:${isF?'var(--green)':'transparent'};color:${isF?'#000':'var(--text)'}">${isF?'Following':'Follow'}</button>`;
+  const photoClick=hasBio?`openArtistProfile('${escQ(name)}')`:ig?`window.open('${ig}','_blank')`:'';
+  return`<div class="artist-bubble" ${hasBio?`onclick="openArtistProfile('${escQ(name)}')"`  :''} style="${hasBio?'cursor:pointer':''}">
     <div class="artist-bubble-photo" ${photoClick?`onclick="event.stopPropagation();${photoClick}" style="cursor:pointer"`  :''}>
       ${img
         ?`<img src="${img}" alt="${name}" loading="lazy" onerror="var c=this.closest('.artist-bubble');if(c)c.remove();"/>`
@@ -3583,14 +3593,14 @@ function _venuePill(v){
   const imgHtml=v.img
     ?`<img src="${v.img}" alt="${v.name}" loading="lazy" style="object-fit:cover;width:100%;height:100%;border-radius:inherit" onerror="this.style.display='none';var x=this.nextElementSibling;if(x)x.style.display='flex';"/>`
     :'';
-  return`<div class="venue-pill">
+  return`<div class="venue-pill" onclick="openVenue('${escQ(String(v.id))}')" style="cursor:pointer">
     <div class="venue-pill-logo" style="position:relative;overflow:hidden">
       ${imgHtml}
       <div class="venue-pill-ico" style="${v.img?'display:none':'display:flex'};position:absolute;inset:0;align-items:center;justify-content:center;font-size:28px;background:var(--card2,#1a1a2e)">${ico}</div>
     </div>
     <div class="venue-pill-name">${v.name}</div>
     <div class="venue-pill-city">${v.city}</div>
-    <button class="venue-pill-follow" onclick="toggleFollowVenue(this.dataset.vname,this)" data-vname="${v.name.replace(/"/g,'&quot;')}" style="border:1px solid ${isF?'transparent':'rgba(255,255,255,.25)'};background:${isF?'var(--green)':'transparent'};color:${isF?'#000':'var(--text)'}">${isF?'Following':'Follow'}</button>
+    <button class="venue-pill-follow" onclick="event.stopPropagation();toggleFollowVenue(this.dataset.vname,this)" data-vname="${v.name.replace(/"/g,'&quot;')}" style="border:1px solid ${isF?'transparent':'rgba(255,255,255,.25)'};background:${isF?'var(--green)':'transparent'};color:${isF?'#000':'var(--text)'}">${isF?'Following':'Follow'}</button>
   </div>`;
 }
 
@@ -3783,7 +3793,7 @@ function renderArtistsPage(){
   document.getElementById('artistsGrid').innerHTML=list.map(a=>{
     const isF=followed.includes(a.name);
     const evCount=EVENTS.filter(e=>e.artist===a.name).length;
-    return`<div class="artist-pg-card" ${a.bio?`onclick="openArtistProfile('${a.name.replace(/'/g,"\\'")}')"`  :''} style="${a.bio?'cursor:pointer':''}">
+    return`<div class="artist-pg-card" ${a.bio?`onclick="openArtistProfile('${escQ(a.name)}')"`  :''} style="${a.bio?'cursor:pointer':''}">
       <div class="artist-pg-avatar">
         ${a.img
           ?`<img src="${a.img}" alt="${a.name}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" loading="lazy" onerror="this.outerHTML='<div class=\\"artist-pg-avatar-inner evt-card-img ${a.grad||'grad-teal'}\\">${a.emoji||'🎵'}</div>'"/>`
@@ -3795,7 +3805,7 @@ function renderArtistsPage(){
       <div class="artist-pg-events">${evCount?`🎟 ${evCount} upcoming event${evCount>1?'s':''}`:''}</div>
       ${a.instagram
         ?`<button class="artist-pg-follow" onclick="event.stopPropagation();window.open('${a.instagram}','_blank')" style="border:1px solid rgba(255,255,255,.25);background:transparent;color:var(--text)">Follow on IG</button>`
-        :`<button class="artist-pg-follow" onclick="event.stopPropagation();toggleFollowPage('${a.name}')" style="border:1px solid ${isF?'transparent':'rgba(255,255,255,.25)'};background:${isF?'var(--green)':'transparent'};color:${isF?'#000':'var(--text)'}">${isF?'Following ✓':'Follow'}</button>`
+        :`<button class="artist-pg-follow" onclick="event.stopPropagation();toggleFollowPage('${escQ(a.name)}')" style="border:1px solid ${isF?'transparent':'rgba(255,255,255,.25)'};background:${isF?'var(--green)':'transparent'};color:${isF?'#000':'var(--text)'}">${isF?'Following ✓':'Follow'}</button>`
       }
     </div>`;
   }).join('');
@@ -4295,7 +4305,7 @@ function openEvent(id){
     </div>
     <div class="share-row">
       <span style="font-size:11px;color:var(--text3);align-self:center">Share:</span>
-      <button class="share-btn wa" onclick="window.open('https://wa.me/?text='+encodeURIComponent('Check out ${ev.title} on Tonight!'),'_blank')">💬 WhatsApp</button>
+      <button class="share-btn wa" onclick="window.open('https://wa.me/?text='+encodeURIComponent('Check out ${escQ(ev.title)} on Tonight!'),'_blank')">💬 WhatsApp</button>
       <button class="share-btn" id="copyShareBtn" onclick="copyShareLink('${shareCopy}')">🔗 Copy link</button>
     </div>
     ${_evtReviewsHtml(ev.id)}`;
@@ -5587,7 +5597,7 @@ async function _loadMyProEvents() {
     el.innerHTML = _myProEvents.map(ev=>{
       const sc = ev.status==='approved'?'#22c55e':ev.status==='rejected'?'#ef4444':'#f5c842';
       const sl = ev.status==='approved'?'✓ Live':ev.status==='rejected'?'✕ Rejected':'⏳ Pending Review';
-      const safeTitle = (ev.title||'').replace(/'/g,"\\'");
+      const safeTitle = escQ(ev.title||'');
       return `<div class="prorow">
         <div class="prorow-img" style="background:rgba(245,200,66,0.1);font-size:22px;display:flex;align-items:center;justify-content:center">${ev.emoji||'🎉'}</div>
         <div class="prorow-info">
@@ -5821,12 +5831,22 @@ function openNotifPanel(){
   renderNotifList();
   document.getElementById('notifPanel').classList.add('open');
   document.getElementById('notifBackdrop').style.display='block';
+  const _sy=window.scrollY;
   document.body.style.overflow='hidden';
+  document.body.style.position='fixed';
+  document.body.style.top='-'+_sy+'px';
+  document.body.style.width='100%';
+  document.getElementById('notifPanel')._scrollY=_sy;
 }
 function closeNotifPanel(){
   document.getElementById('notifPanel').classList.remove('open');
   document.getElementById('notifBackdrop').style.display='none';
+  const sy=document.getElementById('notifPanel')._scrollY||0;
   document.body.style.overflow='';
+  document.body.style.position='';
+  document.body.style.top='';
+  document.body.style.width='';
+  window.scrollTo(0,sy);
 }
 function timeAgo(ts){
   const s=Math.floor((Date.now()-ts)/1000);
@@ -6666,13 +6686,25 @@ function resetImHereInner(){
 
 // ── SEARCH OVERLAY ──
 function openSearch(){
-  document.getElementById('searchOverlay').classList.add('open');
+  const ol=document.getElementById('searchOverlay');
+  ol.classList.add('open');
+  const _sy=window.scrollY;
   document.body.style.overflow='hidden';
+  document.body.style.position='fixed';
+  document.body.style.top='-'+_sy+'px';
+  document.body.style.width='100%';
+  ol._scrollY=_sy;
   setTimeout(()=>{const inp=document.getElementById('searchInput');if(inp)inp.focus();},80);
 }
 function closeSearch(){
-  document.getElementById('searchOverlay').classList.remove('open');
+  const ol=document.getElementById('searchOverlay');
+  ol.classList.remove('open');
+  const sy=ol._scrollY||0;
   document.body.style.overflow='';
+  document.body.style.position='';
+  document.body.style.top='';
+  document.body.style.width='';
+  window.scrollTo(0,sy);
   const inp=document.getElementById('searchInput');
   if(inp) inp.value='';
   document.getElementById('searchResults').innerHTML='<div class="search-empty"><div class="se-ico">🔍</div><p>Start typing to find events</p></div>';
@@ -6776,8 +6808,13 @@ function _runSearch(q){
   const bar = document.getElementById('signInBar');
   const dismissed = sessionStorage.getItem('sib_dismissed');
 
+  // Don't nag people to "download the app" when they're already inside it —
+  // covers PWA home-screen installs today, and Capacitor/TWA-style native
+  // wrappers later (a bare custom WebView won't trigger this on its own and
+  // will need its own native → web signal wired in when that wrapper exists).
+  const isStandaloneApp = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
   function sibShow(){
-    if(loggedIn || dismissed) return;
+    if(loggedIn || dismissed || isStandaloneApp) return;
     bar.classList.remove('hidden');
   }
   function sibHide(){
