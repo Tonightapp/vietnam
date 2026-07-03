@@ -735,8 +735,81 @@ function escHtml(str) {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
+// Sends the QR boarding-pass email for a guestlist doc and marks it emailSent.
+// Shared by onGuestlistCreate (self-service bookings) and confirmGuest (after
+// an admin-added guest confirms their spot).
+async function sendGuestBoardingPass(tk, docRef) {
+  const transporter = makeTransporter(EMAIL_USER.value(), EMAIL_PASS.value());
+  const fromLabel   = EMAIL_FROM.value() || `Tonight Vietnam <${EMAIL_USER.value()}>`;
+  const ref         = tk.ref || 'TN-XXXX-XXXX';
+  const firstName   = (tk.buyerName || 'Guest').split(' ')[0];
+
+  const qrUrl      = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent('TONIGHT:' + ref)}&bgcolor=ffffff&color=000000&margin=8&format=png`;
+  const dateShort  = tk.date ? new Date(tk.date).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'}) : '—';
+  const venue      = tk.venue || tk.venueName || '';
+  const city       = tk.city  || 'Hanoi';
+
+  const html = buildBoardingPassEmail({
+    firstName,
+    name:       tk.buyerName  || 'Guest',
+    eventTitle: tk.eventTitle || 'Tonight Event',
+    venue, city, dateShort,
+    time:       tk.time       || '9:00 PM',
+    ticketType: tk.ticketType || 'Guestlist',
+    qty:        tk.qty        || 1,
+    ref, qrUrl,
+  });
+
+  await transporter.sendMail({
+    from:    fromLabel,
+    to:      tk.buyerEmail,
+    subject: `🎫 Your Ticket — ${tk.eventTitle || 'Tonight Vietnam'} · ${dateShort}`,
+    html,
+  });
+  await docRef.update({ emailSent: true, emailSentAt: Timestamp.now() });
+}
+
+// Sends the "confirm your spot" email for a guest an admin added directly,
+// linking to the public confirm-guest page (which hits the confirmGuest
+// HTTP endpoint below).
+async function sendGuestConfirmRequest(tk, token) {
+  const transporter = makeTransporter(EMAIL_USER.value(), EMAIL_PASS.value());
+  const fromLabel   = EMAIL_FROM.value() || `Tonight Vietnam <${EMAIL_USER.value()}>`;
+  const dateShort   = tk.date ? new Date(tk.date).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'}) : '';
+  const confirmUrl  = `https://www.tonightvietnam.com/confirm-guest?ref=${encodeURIComponent(tk.ref)}&token=${encodeURIComponent(token)}`;
+  const html = `<!DOCTYPE html><html><body style="margin:0;padding:0;background:#07080f;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#07080f;padding:32px 12px"><tr><td align="center">
+<table width="480" cellpadding="0" cellspacing="0" style="max-width:480px;width:100%;background:#0e0f1a;border:1px solid rgba(245,200,66,.2);border-radius:16px;overflow:hidden">
+<tr><td style="padding:28px 28px 8px;text-align:center">
+  <div style="font-size:14px;font-weight:900;letter-spacing:3px;color:#f5c842">🌙 TONIGHT VIETNAM</div>
+</td></tr>
+<tr><td style="padding:16px 28px 24px;text-align:center">
+  <div style="font-size:19px;font-weight:800;color:#fff;margin-bottom:10px">You're on the guestlist!</div>
+  <div style="font-size:14px;color:rgba(255,255,255,.7);line-height:1.6;margin-bottom:22px">
+    ${escHtml(tk.buyerName || 'Hey')} — you've been added to the guestlist for
+    <strong style="color:#fff">${escHtml(tk.eventTitle || 'an upcoming event')}</strong>${dateShort ? ` on <strong style="color:#fff">${escHtml(dateShort)}</strong>` : ''}.
+    Confirm your spot below to get your QR ticket.
+  </div>
+  <a href="${confirmUrl}" style="display:inline-block;background:#f5c842;color:#000;font-size:14px;font-weight:800;padding:14px 32px;border-radius:12px;text-decoration:none">Confirm My Spot →</a>
+</td></tr>
+</table>
+</td></tr></table>
+</body></html>`;
+
+  await transporter.sendMail({
+    from:    fromLabel,
+    to:      tk.buyerEmail,
+    subject: `🎉 You're on the guestlist for ${tk.eventTitle || 'Tonight Vietnam'} — confirm your spot`,
+    html,
+  });
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
 // FUNCTION 3: onGuestlistCreate
-// Fires when a guestlist doc is created → sends QR ticket email to guest
+// Fires when a guestlist doc is created. Self-service bookings (from the app)
+// get their QR ticket immediately. Guests an admin added directly (addedBy:
+// 'admin', confirmed:false) get a "confirm your spot" email instead — the QR
+// ticket is sent once they click through via the confirmGuest endpoint.
 // ══════════════════════════════════════════════════════════════════════════════
 exports.onGuestlistCreate = onDocumentCreated(
   {
@@ -747,41 +820,24 @@ exports.onGuestlistCreate = onDocumentCreated(
     const tk = event.data.data();
     const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!tk.buyerEmail || !emailRe.test(tk.buyerEmail)) return;
-    if (tk.emailSent) return;
+    if (tk.emailSent || tk.confirmSentAt) return;
 
-    const transporter = makeTransporter(EMAIL_USER.value(), EMAIL_PASS.value());
-    const fromLabel   = EMAIL_FROM.value() || `Tonight Vietnam <${EMAIL_USER.value()}>`;
-    const ref         = tk.ref || 'TN-XXXX-XXXX';
-    const firstName   = (tk.buyerName || 'Guest').split(' ')[0];
+    const ref = tk.ref || 'TN-XXXX-XXXX';
 
-    const dateFormatted = tk.date
-      ? new Date(tk.date).toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' })
-      : '';
-
-    const qrUrl      = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent('TONIGHT:' + ref)}&bgcolor=ffffff&color=000000&margin=8&format=png`;
-    const dateShort  = tk.date ? new Date(tk.date).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'}) : '—';
-    const venue      = tk.venue || tk.venueName || '';
-    const city       = tk.city  || 'Hanoi';
-
-    const html = buildBoardingPassEmail({
-      firstName,
-      name:       tk.buyerName  || 'Guest',
-      eventTitle: tk.eventTitle || 'Tonight Event',
-      venue, city, dateShort,
-      time:       tk.time       || '9:00 PM',
-      ticketType: tk.ticketType || 'Guestlist',
-      qty:        tk.qty        || 1,
-      ref, qrUrl,
-    });
+    if (tk.addedBy === 'admin' && !tk.confirmed) {
+      const token = crypto.randomBytes(16).toString('hex');
+      try {
+        await event.data.ref.update({ confirmToken: token, confirmSentAt: Timestamp.now() });
+        await sendGuestConfirmRequest(tk, token);
+        console.log(`[onGuestlistCreate] Confirm request sent to ${tk.buyerEmail} ref=${ref}`);
+      } catch (err) {
+        console.error(`[onGuestlistCreate] Confirm-request email failed for ${tk.buyerEmail}:`, err.message);
+      }
+      return;
+    }
 
     try {
-      await transporter.sendMail({
-        from:    fromLabel,
-        to:      tk.buyerEmail,
-        subject: `🎫 Your Ticket — ${tk.eventTitle || 'Tonight Vietnam'} · ${dateShort}`,
-        html,
-      });
-      await event.data.ref.update({ emailSent: true, emailSentAt: Timestamp.now() });
+      await sendGuestBoardingPass(tk, event.data.ref);
       console.log(`[onGuestlistCreate] Boarding pass sent to ${tk.buyerEmail} ref=${ref}`);
     } catch (err) {
       console.error(`[onGuestlistCreate] Email failed for ${tk.buyerEmail}:`, err.message);
@@ -1428,6 +1484,46 @@ exports.unsubscribeUser = onRequest(
       return res.status(200).json({ ok: true });
     } catch (err) {
       console.error(`[unsubscribeUser] Error: ${err.message}`);
+      return res.status(500).json({ error: 'Internal error' });
+    }
+  }
+);
+
+// ══════════════════════════════════════════════════════════════════════════════
+// HTTP: confirmGuest
+// GET /confirmGuest?ref=...&token=...
+// Confirms a guestlist entry that an admin added directly (addedBy:'admin'),
+// then sends the guest their QR ticket. Rate-limited like the promoter
+// endpoints since it's an unauthenticated public link.
+// ══════════════════════════════════════════════════════════════════════════════
+exports.confirmGuest = onRequest(
+  { cors: ALLOWED_ORIGINS, region: 'asia-southeast1' },
+  async (req, res) => {
+    if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+    const ip = req.ip || req.headers['x-forwarded-for'] || 'unknown';
+    if (await isRateLimited(`confirm:${ip}`)) return res.status(429).json({ error: 'Too many attempts — try again later' });
+
+    const ref   = (req.query.ref   || '').trim();
+    const token = (req.query.token || '').trim();
+    if (!ref || !token) return res.status(400).json({ error: 'Missing ref or token' });
+
+    try {
+      const snap = await db.collection('guestlist').where('ref', '==', ref).limit(1).get();
+      if (snap.empty) return res.status(404).json({ error: 'Guestlist entry not found' });
+
+      const docRef = snap.docs[0].ref;
+      const tk = snap.docs[0].data();
+
+      if (tk.confirmed) return res.status(200).json({ ok: true, alreadyConfirmed: true });
+      if (!tk.confirmToken || !timingSafeEqualStr(token, tk.confirmToken)) {
+        return res.status(403).json({ error: 'Invalid or expired confirmation link' });
+      }
+
+      await docRef.update({ confirmed: true, confirmedAt: Timestamp.now() });
+      await sendGuestBoardingPass({ ...tk, ref }, docRef);
+      return res.status(200).json({ ok: true });
+    } catch (err) {
+      console.error(`[confirmGuest] Error: ${err.message}`);
       return res.status(500).json({ error: 'Internal error' });
     }
   }

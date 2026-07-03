@@ -118,7 +118,7 @@ service cloud.firestore {
       allow create: if request.resource.data.keys().hasAll(['ref','buyerEmail','eventTitle'])
                     && request.resource.data.keys().hasOnly(['ref','buyerName','buyerEmail','buyerPhone',
                          'eventTitle','date','time','venue','city','ticketType','qty','issuedAt',
-                         'deviceType','os','status','createdAt'])
+                         'deviceType','os','status','createdAt','addedBy','confirmed'])
                     && request.resource.data.buyerEmail is string
                     && request.resource.data.buyerEmail.size() <= 254
                     && request.resource.data.ref is string
