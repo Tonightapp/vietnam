@@ -1267,6 +1267,11 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
               </div>
             </div>
             <div>
+              <label class="fm-label">Promoter <span style="color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0">(links to the Promoters tab)</span></label>
+              <input id="ae-promoter" type="text" placeholder="e.g. Solea.Rhythm" class="fm-input"/>
+              <div class="fm-hint" style="margin-top:4px">New name? A bare-bones Promoter profile is created automatically — add their photo, logo and bio later from the Promoters tab.</div>
+            </div>
+            <div>
               <label class="fm-label">Ticket URL (optional)</label>
               <input id="ae-ticketurl" type="url" placeholder="https://..." class="fm-input"/>
             </div>
@@ -2256,7 +2261,7 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
      FIREBASE — paste your config below
 ═════════════════════════════════════════════════════════ -->
 <script type="module">
-import { initializeApp }                           from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { initializeApp, deleteApp }                from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getAuth, signInWithEmailAndPassword,
          onAuthStateChanged, signOut,
          createUserWithEmailAndPassword,
@@ -2299,6 +2304,21 @@ if (configMissing) {
 const app  = initializeApp(FIREBASE_CONFIG);
 const auth = getAuth(app);
 const db   = getFirestore(app);
+
+// Creates a new Firebase Auth account without signing the admin out of their
+// own session. createUserWithEmailAndPassword auto-signs-in as the new user
+// on whatever `auth` instance it's called on — so this runs it on a throwaway
+// secondary app instance instead of the admin's `auth`.
+async function createAccountWithoutSignIn(email, password) {
+  const secondaryApp = initializeApp(FIREBASE_CONFIG, 'account-creator-' + Date.now());
+  const secondaryAuth = getAuth(secondaryApp);
+  try {
+    const cred = await createUserWithEmailAndPassword(secondaryAuth, email, password);
+    return cred.user.uid;
+  } finally {
+    await deleteApp(secondaryApp);
+  }
+}
 let _storage = null;
 async function _getStorage() {
   if (_storage) return _storage;
@@ -2580,7 +2600,7 @@ function renderVenueEvents() {
       <td style="font-size:12px">${price}</td>
       <td style="white-space:nowrap">
         <button class="ib ib-edit" onclick="openVenueEditEvent('${ev.id}')">Edit</button>
-        <button class="ib ib-del" onclick="deleteVenueEvent('${ev.id}','${esc(ev.title||'')}')">🗑</button>
+        <button class="ib ib-del" onclick="deleteVenueEvent('${ev.id}','${escQ(ev.title||'')}')">🗑</button>
       </td>
     </tr>`;
   }).join('');
@@ -3243,11 +3263,14 @@ function venueRow(r) {
 }
 
 // ── APPROVE / REJECT ──────────────────────────────────────
+const _venueApprovalsInFlight = new Set();
 window.approveVenue = async function(reqId, userId, name) {
+  if (_venueApprovalsInFlight.has(reqId)) return;
   if (!confirm(`Approve ${name}?\n\nThey will be able to publish events immediately.`)) return;
   if (!userId) {
     if (!confirm(`Warning: no user ID linked to this application.\nThe account role cannot be updated automatically.\nContinue anyway?`)) return;
   }
+  _venueApprovalsInFlight.add(reqId);
   try {
     const req = allRequests.find(r => r.id === reqId) || {};
     const batch = writeBatch(db);
@@ -3280,6 +3303,7 @@ window.approveVenue = async function(reqId, userId, name) {
     });
     toast(`✅ ${venueName} approved and live on the main page`);
   } catch(e) { toast(`Error: ${e.message}`); }
+  finally { _venueApprovalsInFlight.delete(reqId); }
 };
 
 window.rejectVenue = async function(reqId, name) {
@@ -3844,6 +3868,7 @@ window.openEditEvent = function(eventId) {
   document.getElementById('ae-special').value   = ev.specialActs||'';
   document.getElementById('ae-area').value      = ev.area||'';
   document.getElementById('ae-organizer').value = ev.organizer||'';
+  document.getElementById('ae-promoter').value  = ev.promoter||'';
   document.getElementById('ae-ticketurl').value = ev.ticketUrl||'';
   document.getElementById('ae-featured').checked = !!ev.featured;
   document.getElementById('ae-soldout').checked   = !!ev.soldOut;
@@ -3892,6 +3917,7 @@ window.submitAddEvent = async function(e) {
     specialActs: document.getElementById('ae-special').value.trim(),
     area:        document.getElementById('ae-area').value.trim(),
     organizer:   document.getElementById('ae-organizer').value.trim(),
+    promoter:    document.getElementById('ae-promoter').value.trim(),
     ticketUrl:   document.getElementById('ae-ticketurl').value.trim(),
     featured:     document.getElementById('ae-featured').checked,
     soldOut:      document.getElementById('ae-soldout').checked,
@@ -3909,12 +3935,32 @@ window.submitAddEvent = async function(e) {
       });
       toast('✅ Event published — live on Tonight now');
     }
+    if (data.promoter) await ensurePromoterExists(data.promoter);
     window.closeAddEvent();
   } catch(err) {
     toast(`Error: ${err.message}`);
     btn.disabled=false; btn.textContent = editingEventId?'Save Changes →':'Publish Event →';
   }
 };
+
+// If an event references a promoter name that doesn't exist yet in the
+// Promoters tab, create a bare-bones profile automatically (name only) so
+// it shows up ready for photo/logo/bio to be filled in later.
+async function ensurePromoterExists(name) {
+  const nameLower = name.trim().toLowerCase();
+  if (!nameLower) return;
+  const exists = allPromoters.some(p => (p.name||'').trim().toLowerCase() === nameLower);
+  if (exists) return;
+  try {
+    await addDoc(collection(db,'promoters'), {
+      name: name.trim(), type:'', city:'', instagram:'', genres:'', img:'', bio:'',
+      source: 'auto-from-event', createdAt: serverTimestamp(),
+    });
+    toast(`🎧 New promoter "${name.trim()}" added — fill in their details in the Promoters tab`);
+  } catch(e) {
+    console.warn('[ensurePromoterExists]', e.message);
+  }
+}
 
 // ── ARTISTS ───────────────────────────────────────────────
 
@@ -4118,14 +4164,15 @@ function renderAttentionWidget() {
   let rows = '';
   pendingEvts.forEach(e => {
     const t = esc(e.title || '—');
+    const tArg = escQ(e.title || '—');
     rows += `<div class="attn-row">
       <div class="attn-info">
         <div class="attn-name">${t}</div>
         <div class="attn-sub">Event · ${shortDate(e.date)} · ${esc(e.city||'')}</div>
       </div>
       <div class="attn-acts">
-        <button class="ib ib-reject"  title="Reject"  onclick="rejectEvent('${e.id}','${t}')">✕</button>
-        <button class="ib ib-approve" title="Approve" onclick="approveEvent('${e.id}','${t}')">✓ Approve</button>
+        <button class="ib ib-reject"  title="Reject"  onclick="rejectEvent('${e.id}','${tArg}')">✕</button>
+        <button class="ib ib-approve" title="Approve" onclick="approveEvent('${e.id}','${tArg}')">✓ Approve</button>
         <button class="ib" style="color:var(--gold);border-color:rgba(245,200,66,.25)" title="Preview on app" onclick="previewEvent('${e.id}')">👁 Preview</button>
       </div>
     </div>`;
@@ -4133,14 +4180,15 @@ function renderAttentionWidget() {
   pendingVnqs.forEach(r => {
     const vn = esc(r.venueName || r.venue_name || '—');
     const nm = esc(r.fullName  || r.full_name  || '—');
+    const nmArg = escQ(r.fullName || r.full_name || '—');
     rows += `<div class="attn-row">
       <div class="attn-info">
         <div class="attn-name">${vn}</div>
         <div class="attn-sub">Venue Application · ${nm} · ${esc(r.city||'')}</div>
       </div>
       <div class="attn-acts">
-        <button class="ib ib-reject"  title="Reject"  onclick="rejectVenue('${r.id}','${nm}')">✕</button>
-        <button class="ib ib-approve" title="Approve" onclick="approveVenue('${r.id}','${escQ(r.userId||r.user_id||'')}','${nm}')">✓ Approve</button>
+        <button class="ib ib-reject"  title="Reject"  onclick="rejectVenue('${r.id}','${nmArg}')">✕</button>
+        <button class="ib ib-approve" title="Approve" onclick="approveVenue('${r.id}','${escQ(r.userId||r.user_id||'')}','${nmArg}')">✓ Approve</button>
       </div>
     </div>`;
   });
@@ -4998,11 +5046,11 @@ function renderPortalsPanel() {
               style="background:#f5c842;color:#000;border:none;border-radius:7px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap">
               ✏️ Edit
             </button>
-            <button onclick="sendPortalReset('${esc(u.email)}','${esc(u.fullName||u.email)}')"
+            <button onclick="sendPortalReset('${escQ(u.email)}','${escQ(u.fullName||u.email)}')"
               style="background:none;border:1px solid var(--border2);border-radius:7px;padding:6px 12px;color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap">
               🔑 Reset
             </button>
-            <button onclick="deletePortalAccount('${u.id}','${esc(u.fullName||u.email)}')"
+            <button onclick="deletePortalAccount('${u.id}','${escQ(u.fullName||u.email)}')"
               style="background:none;border:1px solid rgba(239,68,68,.3);border-radius:7px;padding:6px 12px;color:var(--red);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap">
               🗑 Delete
             </button>
@@ -5193,8 +5241,7 @@ window.submitCreatePortal = async function(){
     const tempPass='Tonight@'+Math.random().toString(36).slice(2,8);
     let uid;
     try{
-      const cred=await createUserWithEmailAndPassword(auth,email,tempPass);
-      uid=cred.user.uid;
+      uid=await createAccountWithoutSignIn(email,tempPass);
     }catch(e){
       if(e.code==='auth/email-already-in-use'){
         await sendPasswordResetEmail(auth,email);
