@@ -202,6 +202,21 @@ service cloud.firestore {
       allow create, update, delete: if isStaff();
     }
 
+    // ── visitor_pings/{visitorId_date} ───────────────────────────────────────
+    // Open write: one doc per unique visitor per day, written by browse.html's
+    // _pingVisit(), powers the notifyAdminNewVisitor email alert. Create-only —
+    // the deterministic doc ID means a same-day repeat write is naturally
+    // rejected (doc already exists) rather than needing an update rule.
+    match /visitor_pings/{id} {
+      allow create: if request.resource.data.keys().hasAll(['visitorId','date'])
+                    && request.resource.data.keys().hasOnly(['visitorId','date','referrer','page','ua','ts'])
+                    && request.resource.data.visitorId is string
+                    && request.resource.data.visitorId.size() <= 100
+                    && request.resource.data.date is string
+                    && request.resource.data.date.size() == 10;
+      allow read, update, delete: if isStaff();
+    }
+
     // ── Deny everything else ───────────────────────────────────────────────────
     match /{document=**} {
       allow read, write: if false;

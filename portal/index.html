@@ -1243,6 +1243,10 @@ input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
                 <input id="ae-img-url" type="text" placeholder="…or paste image URL" oninput="aeFlyerUrl(this.value)" style="flex:1;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;color:#fff;font-size:13px;font-family:inherit"/>
               </div>
               <input type="hidden" id="ae-img"/>
+              <button type="button" id="ae-ai-fill" onclick="aeAiFill()" disabled style="margin-top:8px;width:100%;padding:9px;border-radius:8px;background:rgba(245,200,66,.1);border:1px solid rgba(245,200,66,.3);color:#f5c842;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">
+                ✨ Fill fields from flyer
+              </button>
+              <div id="ae-ai-status" style="font-size:11px;color:var(--text3);margin-top:4px;min-height:14px"></div>
             </div>
             <div>
               <label class="fm-label">Description</label>
@@ -3747,6 +3751,10 @@ function _aeFlyerShow(src) {
   const prev = document.getElementById('ae-flyer-preview');
   const ph   = document.getElementById('ae-flyer-placeholder');
   const clr  = document.getElementById('ae-flyer-clear');
+  const aiBtn = document.getElementById('ae-ai-fill');
+  // AI fill needs the actual image bytes, not an arbitrary pasted URL our
+  // server would have to fetch — only enable it for uploaded (base64) flyers.
+  if (aiBtn) aiBtn.disabled = !(src && src.startsWith('data:image/'));
   if (src) {
     prev.src = src; prev.style.display = 'block';
     if (ph)  ph.style.display  = 'none';
@@ -3796,6 +3804,55 @@ window.aeFlyerClear = function() {
   document.getElementById('ae-img-url').value = '';
   document.getElementById('ae-img-file').value = '';
   _aeFlyerShow('');
+};
+
+const AE_FN_BASE = 'https://asia-southeast1-tonight-vietnam.cloudfunctions.net';
+
+// AI-fills the Add Event form from the uploaded flyer image (see extractEventFromFlyer
+// Cloud Function). Only fills fields the AI actually returned — never clobbers a field
+// with a blank, and the admin still reviews everything before hitting Publish.
+window.aeAiFill = async function() {
+  const b64 = document.getElementById('ae-img').value;
+  if (!b64 || !b64.startsWith('data:image/')) return;
+  const btn = document.getElementById('ae-ai-fill');
+  const status = document.getElementById('ae-ai-status');
+  btn.disabled = true;
+  btn.textContent = '✨ Reading flyer…';
+  status.textContent = '';
+  try {
+    if (!auth.currentUser) throw new Error('Not signed in');
+    const idToken = await auth.currentUser.getIdToken();
+    const res = await fetch(`${AE_FN_BASE}/extractEventFromFlyer`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${idToken}` },
+      body: JSON.stringify({ image: b64 }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
+    const ev = data.event || {};
+    const setIfPresent = (id, val) => { if (val) document.getElementById(id).value = val; };
+    setIfPresent('ae-title', ev.title);
+    setIfPresent('ae-venue', ev.venueName);
+    setIfPresent('ae-date', ev.date);
+    setIfPresent('ae-time', ev.time);
+    if (Number.isFinite(ev.price) && ev.price >= 0) document.getElementById('ae-price').value = ev.price;
+    if (ev.genre) {
+      const genreSelect = document.getElementById('ae-genre');
+      const match = [...genreSelect.options].find(o => o.value.toLowerCase() === String(ev.genre).toLowerCase());
+      genreSelect.value = match ? match.value : 'Other';
+    }
+    setIfPresent('ae-desc', ev.description);
+    if (Array.isArray(ev.lineup) && ev.lineup.length) document.getElementById('ae-lineup').value = ev.lineup.join('\n');
+    setIfPresent('ae-organizer', ev.organizer);
+    status.textContent = '✅ Filled — review before publishing';
+    toast('✨ Fields filled from flyer — double-check before publishing');
+  } catch (err) {
+    status.textContent = `❌ ${err.message}`;
+    toast(`AI fill failed: ${err.message}`);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✨ Fill fields from flyer';
+  }
 };
 
 // ── BULK SELECTION ────────────────────────────────────────

@@ -25,8 +25,10 @@ const { onSchedule }                 = require('firebase-functions/v2/scheduler'
 const { onRequest }                  = require('firebase-functions/v2/https');
 const { initializeApp }              = require('firebase-admin/app');
 const { getFirestore, Timestamp }    = require('firebase-admin/firestore');
+const { getAuth }                    = require('firebase-admin/auth');
 const nodemailer                     = require('nodemailer');
 const crypto                         = require('crypto');
+const Anthropic                      = require('@anthropic-ai/sdk');
 // QR codes are generated via api.qrserver.com — hosted URLs work in all email clients
 // (base64 data URIs are stripped by Gmail and most email providers)
 
@@ -49,6 +51,10 @@ const ALLOWED_ORIGINS = [
 const EMAIL_USER = { value: () => process.env.EMAIL_USER };
 const EMAIL_PASS = { value: () => process.env.EMAIL_PASS };
 const EMAIL_FROM = { value: () => process.env.EMAIL_FROM };
+
+// ── Anthropic API key — set via Firebase Secret Manager:
+//    firebase functions:secrets:set ANTHROPIC_API_KEY
+const ANTHROPIC_API_KEY = { value: () => process.env.ANTHROPIC_API_KEY };
 
 // ── Helper: build transporter ──────────────────────────────────────────────────
 function makeTransporter(user, pass) {
@@ -558,6 +564,37 @@ exports.notifyAdminProSignup = onDocumentCreated(
       });
       console.log(`[notifyAdminProSignup] Admin notified: ${p.email}`);
     } catch (err) { console.error(`[notifyAdminProSignup] ${err.message}`); }
+  }
+);
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FUNCTION 15: notifyAdminNewVisitor
+// Fires on the first visitor_pings doc for a given visitor+day (written by
+// browse.html's _pingVisit()) → emails admin. One email per unique visitor per
+// day, not per page view — the client dedupes via localStorage before writing,
+// and the deterministic doc ID (visitorId_date) means this can only fire once
+// even if the client races itself.
+// ══════════════════════════════════════════════════════════════════════════════
+exports.notifyAdminNewVisitor = onDocumentCreated(
+  { document: 'visitor_pings/{id}', region: 'asia-southeast1' },
+  async (event) => {
+    const v = event.data.data();
+    const transporter = makeTransporter(EMAIL_USER.value(), EMAIL_PASS.value());
+    const fromLabel   = EMAIL_FROM.value() || `Tonight Vietnam <${EMAIL_USER.value()}>`;
+    const at = new Date().toLocaleString('en-GB', { timeZone: 'Asia/Ho_Chi_Minh' });
+    try {
+      await transporter.sendMail({
+        from: fromLabel, to: ADMIN_EMAIL,
+        subject: `👀 New visitor on Tonight Vietnam`,
+        html: adminAlertHtml('👀', 'rgba(56,189,248,.3)', 'New Visitor', [
+          ['Referrer', v.referrer || 'Direct / unknown'],
+          ['Page',     v.page     || '—'],
+          ['Device',   v.ua       || '—'],
+          ['At',       at + ' (VN time)'],
+        ]),
+      });
+      console.log(`[notifyAdminNewVisitor] Admin notified for visitor ${v.visitorId}`);
+    } catch (err) { console.error(`[notifyAdminNewVisitor] ${err.message}`); }
   }
 );
 
@@ -1306,6 +1343,111 @@ async function isRateLimited(key, max = 10, windowMs = 15 * 60 * 1000) {
   });
 }
 
+// ── Auth guard for staff-only HTTP endpoints ────────────────────────────────
+// Verifies the Firebase ID token in the Authorization header and checks the
+// same admin-email-or-role='admin' rule as isStaff() in firestore.rules.
+// Returns the decoded token on success, or null (caller responds 401/403).
+async function requireStaff(req) {
+  const authHeader = req.headers.authorization || '';
+  const match = authHeader.match(/^Bearer (.+)$/);
+  if (!match) return null;
+  let decoded;
+  try {
+    decoded = await getAuth().verifyIdToken(match[1]);
+  } catch (_) {
+    return null;
+  }
+  if (decoded.email === ADMIN_EMAIL) return decoded;
+  const userDoc = await db.collection('users').doc(decoded.uid).get();
+  if (userDoc.exists && userDoc.data().role === 'admin') return decoded;
+  return null;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// HTTP: extractEventFromFlyer
+// POST { image: "data:image/...;base64,..." } → staff-only. Sends the flyer to
+// Claude vision and returns structured event fields so the admin portal's Add
+// Event form can be pre-filled. Never writes to Firestore itself — the admin
+// still reviews the fields and clicks Publish.
+// ══════════════════════════════════════════════════════════════════════════════
+const FLYER_GENRES = ['House','Techno','DJ Night','Live Music','Electronic','Hip-Hop',
+  'Afrobeats','R&B','Jazz','EDM','Latin','Themed Party','Happy Hour','Other'];
+
+exports.extractEventFromFlyer = onRequest(
+  { cors: ALLOWED_ORIGINS, region: 'asia-southeast1', secrets: ['ANTHROPIC_API_KEY'] },
+  async (req, res) => {
+    if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+    const staff = await requireStaff(req);
+    if (!staff) return res.status(401).json({ error: 'Staff sign-in required' });
+
+    if (await isRateLimited(`flyer-ai:${staff.uid}`, 20, 60 * 60 * 1000)) {
+      return res.status(429).json({ error: 'Too many AI extractions this hour — try again later' });
+    }
+
+    const { image } = req.body || {};
+    const match = typeof image === 'string' && image.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
+    if (!match) return res.status(400).json({ error: 'Missing or invalid image (expected a data:image/... base64 URI)' });
+    const [, mediaType, base64Data] = match;
+    if (base64Data.length > 6_000_000) return res.status(413).json({ error: 'Image too large' });
+
+    try {
+      const anthropic = new Anthropic({ apiKey: ANTHROPIC_API_KEY.value() });
+      const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
+
+      const response = await anthropic.messages.parse({
+        model: 'claude-opus-5',
+        max_tokens: 1024,
+        thinking: { type: 'disabled' },
+        output_config: {
+          effort: 'low',
+          format: {
+            type: 'json_schema',
+            schema: {
+              type: 'object',
+              properties: {
+                title:       { type: 'string' },
+                venueName:   { type: 'string' },
+                date:        { type: 'string', description: 'YYYY-MM-DD' },
+                time:        { type: 'string', description: 'Doors-open time, e.g. "9:00 PM"' },
+                price:       { type: 'integer', description: 'Door/standard ticket price in VND (not early-bird); 0 if free or unstated' },
+                genre:       { type: 'string', enum: FLYER_GENRES },
+                description: { type: 'string' },
+                lineup:      { type: 'array', items: { type: 'string' } },
+                organizer:   { type: 'string' },
+              },
+              required: ['title', 'venueName', 'date', 'genre', 'description'],
+              additionalProperties: false,
+            },
+          },
+        },
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64Data } },
+            { type: 'text', text: `Extract this nightlife event flyer's details as JSON. Today's date is ${today} `
+              + `(Asia/Ho_Chi_Minh) — if the flyer gives a date with no year, use the next upcoming occurrence of `
+              + `that month/day. Leave a field as an empty string/array if it isn't on the flyer. Use the door/`
+              + `standard ticket price, not early-bird, for "price".` },
+          ],
+        }],
+      });
+
+      if (response.stop_reason === 'refusal') {
+        return res.status(422).json({ error: 'Could not read this flyer — try a different image' });
+      }
+      if (!response.parsed_output) {
+        return res.status(502).json({ error: 'AI did not return structured data — try again' });
+      }
+      console.log(`[extractEventFromFlyer] ${staff.email} extracted "${response.parsed_output.title}"`);
+      return res.json({ event: response.parsed_output });
+    } catch (err) {
+      console.error(`[extractEventFromFlyer] ${err.message}`);
+      return res.status(500).json({ error: 'Extraction failed — try again' });
+    }
+  }
+);
+
 // Constant-time string comparison so PIN checking doesn't leak timing info.
 function timingSafeEqualStr(a, b) {
   const bufA = Buffer.from(String(a));
@@ -1577,6 +1719,55 @@ exports.cleanOldGuestlist = onSchedule(
       console.log(`[cleanOldGuestlist] Deleted ${deleted} old guestlist entries.`);
     } catch (err) {
       console.error('[cleanOldGuestlist] Error:', err.message);
+    }
+  }
+);
+
+// ══════════════════════════════════════════════════════════════════════════════
+// cleanOldVisitorPings
+// Runs daily at 4:30 AM Vietnam time. Deletes visitor_pings older than 30 days
+// so the collection (one doc per unique visitor per day) doesn't grow forever.
+// ══════════════════════════════════════════════════════════════════════════════
+exports.cleanOldVisitorPings = onSchedule(
+  {
+    schedule: '30 21 * * *',   // 21:30 UTC = 04:30 AM Vietnam (UTC+7)
+    timeZone: 'UTC',
+    region:   'asia-southeast1',
+  },
+  async () => {
+    const now = new Date();
+    now.setHours(now.getHours() + 7); // shift to UTC+7
+    now.setDate(now.getDate() - 30);
+    const cutoff = now.toISOString().split('T')[0];
+
+    console.log(`[cleanOldVisitorPings] Deleting visitor_pings with date <= ${cutoff}`);
+
+    try {
+      const snap = await db.collection('visitor_pings')
+        .where('date', '<=', cutoff)
+        .limit(500)
+        .get();
+
+      if (snap.empty) {
+        console.log('[cleanOldVisitorPings] Nothing to delete.');
+        return;
+      }
+
+      let deleted = 0;
+      const chunks = [];
+      for (let i = 0; i < snap.docs.length; i += 500) {
+        chunks.push(snap.docs.slice(i, i + 500));
+      }
+      for (const chunk of chunks) {
+        const batch = db.batch();
+        chunk.forEach(d => batch.delete(d.ref));
+        await batch.commit();
+        deleted += chunk.length;
+      }
+
+      console.log(`[cleanOldVisitorPings] Deleted ${deleted} old visitor pings.`);
+    } catch (err) {
+      console.error('[cleanOldVisitorPings] Error:', err.message);
     }
   }
 );
