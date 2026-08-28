@@ -1,0 +1,225 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helper functions ───────────────────────────────────────────────────────
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isAuthenticated() && request.auth.uid == uid;
+    }
+
+    function getUserRole() {
+      let userDoc = /databases/$(database)/documents/users/$(request.auth.uid);
+      return exists(userDoc) ? get(userDoc).data.role : null;
+    }
+
+    function isAdminEmail() {
+      return isAuthenticated() && request.auth.token.email == 'app.tonight1@gmail.com';
+    }
+
+    function isStaff() {
+      return isAdminEmail()
+          || (isAuthenticated() && getUserRole() == 'admin');
+    }
+
+    function isVenueOwner() {
+      return isAuthenticated() && getUserRole() == 'venue_owner';
+    }
+
+    // ── users/{uid} ────────────────────────────────────────────────────────────
+    match /users/{uid} {
+
+      allow read: if isOwner(uid) || isStaff();
+
+      // Only 'user' and 'guest' roles can be self-assigned.
+      // 'venue_owner' and 'admin' are assigned exclusively by Cloud Functions / staff.
+      allow create: if isOwner(uid)
+                    && request.resource.data.role in ['user', 'guest']
+                    && request.resource.data.keys().hasAll(['email', 'fullName', 'role', 'createdAt']);
+
+      // Owners can update their own profile fields but cannot change their role.
+      allow update: if (isOwner(uid)
+                        && request.resource.data.role == resource.data.role
+                        && request.resource.data.diff(resource.data).affectedKeys()
+                             .hasOnly(['fullName', 'phone', 'city', 'updatedAt']))
+                    || isStaff();
+
+      allow delete: if isStaff();
+    }
+
+    // ── venue_requests/{id} ────────────────────────────────────────────────────
+    match /venue_requests/{requestId} {
+
+      // Require authentication to prevent anonymous spam of the admin queue.
+      allow create: if isAuthenticated()
+                    && request.resource.data.keys().hasAll(['email', 'venueName', 'status', 'createdAt'])
+                    && request.resource.data.status == 'pending'
+                    && request.resource.data.venueName is string
+                    && request.resource.data.venueName.size() <= 200;
+
+      allow read: if isStaff()
+                  || (isAuthenticated() && (resource.data.userId == request.auth.uid
+                                            || resource.data.uid == request.auth.uid));
+
+      allow update, delete: if isStaff();
+    }
+
+    // ── events/{id} ────────────────────────────────────────────────────────────
+    match /events/{eventId} {
+
+      allow read: if true;
+
+      // Authenticated venue owners (portal) OR unauthenticated app submissions.
+      // Status MUST be 'pending' — admin approves before going live.
+      // Staff (isStaff() — same check used for update/delete below and for every
+      // other collection) can create directly as 'approved' from the admin portal.
+      allow create: if (request.resource.data.status == 'pending'
+                    && request.resource.data.keys().hasAll(['title','venueName','date','city','status'])
+                    && request.resource.data.keys().hasOnly(['title','venueName','city','date','time',
+                         'genre','price','guestlistCap','img','imgDetail','description','artists',
+                         'publishedBy','updatedAt','status','createdAt','source'])
+                    && request.resource.data.title.size() <= 200
+                    && request.resource.data.venueName.size() <= 200
+                    && (isVenueOwner() || request.auth == null))
+                    || isStaff();
+
+      // Venue owners can update only their own events.
+      // They may reset a rejected event back to 'pending' for re-review, but never self-approve.
+      allow update: if (isVenueOwner()
+                        && resource.data.publishedBy == request.auth.uid
+                        && request.resource.data.publishedBy == request.auth.uid
+                        && request.resource.data.status != 'approved'
+                        && request.resource.data.status in ['pending', resource.data.status])
+                    || isStaff();
+
+      allow delete: if (isVenueOwner() && resource.data.publishedBy == request.auth.uid)
+                    || isStaff();
+    }
+
+    // ── community_signups/{id} ─────────────────────────────────────────────────
+    // Open write: anyone can join the community email list (no auth required)
+    match /community_signups/{id} {
+      allow create: if request.resource.data.keys().hasAll(['fullName','email'])
+                    && request.resource.data.email is string
+                    && request.resource.data.email.size() <= 254
+                    && request.resource.data.fullName is string
+                    && request.resource.data.fullName.size() <= 100;
+      allow read, update, delete: if isStaff();
+    }
+
+    // ── guestlist/{id} ────────────────────────────────────────────────────────
+    // Open write: anyone joining a guestlist (no auth required)
+    match /guestlist/{id} {
+      allow create: if request.resource.data.keys().hasAll(['ref','buyerEmail','eventTitle'])
+                    && request.resource.data.keys().hasOnly(['ref','buyerName','buyerEmail','buyerPhone',
+                         'eventTitle','date','time','venue','city','ticketType','qty','issuedAt',
+                         'deviceType','os','status','createdAt','addedBy','confirmed'])
+                    && request.resource.data.buyerEmail is string
+                    && request.resource.data.buyerEmail.size() <= 254
+                    && request.resource.data.ref is string
+                    && request.resource.data.ref.size() <= 50
+                    && request.resource.data.eventTitle is string
+                    && request.resource.data.eventTitle.size() <= 200;
+      // Staff can read all; venue owners can read all (portal JS filters to own events)
+      allow read: if isStaff() || isVenueOwner();
+      // Venue owners can only flip checkedIn — no other fields
+      allow update: if isStaff()
+                    || (isVenueOwner()
+                        && request.resource.data.diff(resource.data).affectedKeys()
+                             .hasOnly(['checkedIn','checkedInAt','checkedInBy']));
+      allow delete: if isStaff();
+    }
+
+    // ── deals/{id} ────────────────────────────────────────────────────────────
+    // Open write: anyone claiming a deal
+    match /deals/{id} {
+      allow create: if request.resource.data.keys().hasAll(['code','dealTitle'])
+                    && request.resource.data.code is string
+                    && request.resource.data.code.size() <= 50
+                    && request.resource.data.dealTitle is string
+                    && request.resource.data.dealTitle.size() <= 200;
+      allow read, update, delete: if isStaff();
+    }
+
+    // ── deal_offers/{id} ─────────────────────────────────────────────────────
+    // Admin-only: defines the deals/offers shown to users in the app
+    match /deal_offers/{id} {
+      allow read: if true;
+      allow create, update, delete: if isStaff();
+    }
+
+    // ── pro_signups/{id} ──────────────────────────────────────────────────────
+    // Open write: business owners signing up
+    match /pro_signups/{id} {
+      allow create: if request.resource.data.keys().hasAll(['name','email'])
+                    && request.resource.data.email is string
+                    && request.resource.data.email.size() <= 254
+                    && request.resource.data.name is string
+                    && request.resource.data.name.size() <= 200;
+      allow read, update, delete: if isStaff();
+    }
+
+    // ── inquiries/{id} ─────────────────────────────────────────────────────────
+    match /inquiries/{inquiryId} {
+
+      allow create: if request.resource.data.keys().hasAll([
+                         'name', 'email', 'message', 'type', 'createdAt'
+                       ])
+                    && request.resource.data.type in ['venue', 'general']
+                    && request.resource.data.message.size() <= 2000
+                    && request.resource.data.name.size() <= 200
+                    && request.resource.data.email.size() <= 254;
+
+      allow read, update, delete: if isStaff();
+    }
+
+    // ── venues/{id} ───────────────────────────────────────────────────────────
+    match /venues/{venueId} {
+      allow read: if true;
+      allow create, update, delete: if isStaff();
+    }
+
+    // ── artists/{id} ──────────────────────────────────────────────────────────
+    match /artists/{artistId} {
+      allow read: if true;
+      allow create, update, delete: if isStaff();
+    }
+
+    // ── magazine/{id} ─────────────────────────────────────────────────────────
+    match /magazine/{articleId} {
+      allow read: if true;
+      allow create, update, delete: if isStaff();
+    }
+
+    // ── promoters/{id} ────────────────────────────────────────────────────────
+    match /promoters/{promoterId} {
+      allow read: if true;
+      allow create, update, delete: if isStaff();
+    }
+
+    // ── visitor_pings/{visitorId_date} ───────────────────────────────────────
+    // Open write: one doc per unique visitor per day, written by browse.html's
+    // _pingVisit(), powers the notifyAdminNewVisitor email alert. Create-only —
+    // the deterministic doc ID means a same-day repeat write is naturally
+    // rejected (doc already exists) rather than needing an update rule.
+    match /visitor_pings/{id} {
+      allow create: if request.resource.data.keys().hasAll(['visitorId','date'])
+                    && request.resource.data.keys().hasOnly(['visitorId','date','referrer','page','ua','ts'])
+                    && request.resource.data.visitorId is string
+                    && request.resource.data.visitorId.size() <= 100
+                    && request.resource.data.date is string
+                    && request.resource.data.date.size() == 10;
+      allow read, update, delete: if isStaff();
+    }
+
+    // ── Deny everything else ───────────────────────────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

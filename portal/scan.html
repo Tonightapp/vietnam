@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="theme-color" content="#000"/>
+<title>Tonight — Door Scanner</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+html,body{height:100%;background:#000;color:#fff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;overflow:hidden}
+.view{display:none;height:100%;flex-direction:column}
+.view.active{display:flex}
+
+/* ── LOGIN ── */
+#loginView{align-items:center;justify-content:center;padding:32px 24px;gap:0;background:#000}
+.logo{font-size:26px;font-weight:900;letter-spacing:4px;color:#f5c842;margin-bottom:4px}
+.logo-sub{font-size:11px;letter-spacing:3px;color:rgba(255,255,255,.35);margin-bottom:40px}
+.login-card{width:100%;max-width:360px;background:#111;border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:28px 24px;display:flex;flex-direction:column;gap:16px}
+.login-card h2{font-size:18px;font-weight:700;color:#fff;margin-bottom:4px}
+.login-card p{font-size:13px;color:rgba(255,255,255,.4);margin-top:-8px}
+.fi{width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:13px 14px;color:#fff;font-size:15px;font-family:inherit;outline:none}
+.fi:focus{border-color:#f5c842}
+.fi-pin{font-size:28px;letter-spacing:8px;text-align:center;font-weight:700}
+.btn-gold{width:100%;padding:15px;background:#f5c842;color:#000;font-size:15px;font-weight:800;border:none;border-radius:12px;cursor:pointer;margin-top:4px}
+.btn-gold:active{opacity:.85}
+.err{font-size:13px;color:#ef4444;text-align:center;min-height:18px}
+
+/* ── SCANNER ── */
+#scanView{background:#000;position:relative}
+.scan-topbar{position:absolute;top:0;left:0;right:0;z-index:10;padding:env(safe-area-inset-top,16px) 16px 12px;background:linear-gradient(to bottom,rgba(0,0,0,.85),transparent);display:flex;align-items:center;gap:10px}
+.scan-event-name{flex:1;font-size:14px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.scan-badge{background:rgba(34,197,94,.2);border:1px solid rgba(34,197,94,.4);color:#22c55e;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap}
+#video{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+#canvas{display:none}
+.scan-frame{position:absolute;top:50%;left:50%;transform:translate(-50%,-55%);width:240px;height:240px;pointer-events:none}
+.scan-frame::before,.scan-frame::after{content:'';position:absolute;width:50px;height:50px;border-color:#f5c842;border-style:solid}
+.scan-frame::before{top:0;left:0;border-width:3px 0 0 3px;border-radius:4px 0 0 0}
+.scan-frame::after{bottom:0;right:0;border-width:0 3px 3px 0;border-radius:0 0 4px 0}
+.scan-frame-tr{position:absolute;top:0;right:0;width:50px;height:50px;border-color:#f5c842;border-style:solid;border-width:3px 3px 0 0;border-radius:0 4px 0 0}
+.scan-frame-bl{position:absolute;bottom:0;left:0;width:50px;height:50px;border-color:#f5c842;border-style:solid;border-width:0 0 3px 3px;border-radius:0 0 0 4px}
+.scan-hint{position:absolute;top:50%;left:50%;transform:translate(-50%,75px);font-size:13px;color:rgba(255,255,255,.5);white-space:nowrap}
+.scan-line{position:absolute;top:50%;left:50%;transform:translate(-50%,-55%);width:240px;height:2px;background:linear-gradient(to right,transparent,#f5c842,transparent);animation:scanline 2s ease-in-out infinite}
+@keyframes scanline{0%,100%{margin-top:-118px;opacity:.7}50%{margin-top:118px;opacity:1}}
+
+/* ── RESULT CARD ── */
+#resultCard{position:absolute;bottom:80px;left:16px;right:16px;border-radius:16px;padding:20px;transform:translateY(120%);transition:transform .35s cubic-bezier(.34,1.56,.64,1);z-index:20}
+#resultCard.show{transform:translateY(0)}
+#resultCard.ok{background:#052e16;border:1px solid rgba(34,197,94,.5)}
+#resultCard.warn{background:#1c1107;border:1px solid rgba(245,158,11,.5)}
+#resultCard.err{background:#1c0505;border:1px solid rgba(239,68,68,.4)}
+.rc-icon{font-size:32px;margin-bottom:8px}
+.rc-status{font-size:16px;font-weight:800;margin-bottom:6px}
+.rc-ok .rc-status{color:#22c55e}
+.rc-warn .rc-status{color:#f59e0b}
+.rc-err .rc-status{color:#ef4444}
+.rc-name{font-size:20px;font-weight:700;color:#fff;margin-bottom:4px}
+.rc-detail{font-size:13px;color:rgba(255,255,255,.55)}
+
+/* ── BOTTOM TABS ── */
+.bottom-tabs{position:absolute;bottom:0;left:0;right:0;z-index:15;display:flex;background:rgba(0,0,0,.9);border-top:1px solid rgba(255,255,255,.08);padding-bottom:env(safe-area-inset-bottom,0)}
+.tab-btn{flex:1;padding:14px 0;display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:none;color:rgba(255,255,255,.4);font-size:10px;font-weight:600;letter-spacing:.5px;cursor:pointer;transition:.15s}
+.tab-btn.active{color:#f5c842}
+.tab-btn svg{width:22px;height:22px;fill:currentColor}
+
+/* ── LIST VIEW ── */
+#listView{background:#0a0a0a}
+.list-topbar{padding:env(safe-area-inset-top,16px) 16px 12px;background:#111;border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0}
+.list-event{font-size:15px;font-weight:700;margin-bottom:10px}
+.stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.stat-box{background:#1a1a1a;border-radius:10px;padding:10px;text-align:center}
+.stat-num{font-size:22px;font-weight:800}
+.stat-lbl{font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.8px;margin-top:2px}
+.stat-box.in .stat-num{color:#22c55e}
+.stat-box.out .stat-num{color:rgba(255,255,255,.4)}
+.search-wrap{position:relative}
+.search-wrap input{width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px 14px 10px 36px;color:#fff;font-size:14px;font-family:inherit;outline:none}
+.search-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:15px;height:15px;fill:rgba(255,255,255,.3);pointer-events:none}
+.guest-list{flex:1;overflow-y:auto;padding:0 16px 80px;-webkit-overflow-scrolling:touch}
+.guest-row{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.06);cursor:pointer}
+.guest-row:active{opacity:.7}
+.guest-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0}
+.guest-avatar.in{background:rgba(34,197,94,.15);color:#22c55e}
+.guest-avatar.out{background:#1a1a1a;color:rgba(255,255,255,.4)}
+.guest-info{flex:1;min-width:0}
+.guest-name{font-size:14px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.guest-meta{font-size:12px;color:rgba(255,255,255,.4);margin-top:2px}
+.guest-status{text-align:right;flex-shrink:0}
+.badge-in{background:rgba(34,197,94,.15);color:#22c55e;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px}
+.badge-out{background:#1a1a1a;color:rgba(255,255,255,.35);font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px}
+.guest-time{font-size:10px;color:rgba(34,197,94,.6);margin-top:3px}
+.empty-list{text-align:center;padding:60px 0;color:rgba(255,255,255,.3);font-size:14px}
+.list-bottom-tabs{flex-shrink:0;display:flex;background:#111;border-top:1px solid rgba(255,255,255,.08);padding-bottom:env(safe-area-inset-bottom,0)}
+.list-bottom-tabs .tab-btn{padding:14px 0}
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN VIEW ══ -->
+<div id="loginView" class="view active">
+  <div class="logo">TONIGHT</div>
+  <div class="logo-sub">VIETNAM · DOOR SCANNER</div>
+  <div class="login-card">
+    <h2>🎫 Check-In Portal</h2>
+    <p>Enter your event ID and promoter PIN</p>
+    <div>
+      <label style="font-size:11px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Event ID</label>
+      <input id="eventIdInput" class="fi" placeholder="Paste event ID…" autocomplete="off" autocorrect="off" spellcheck="false"/>
+    </div>
+    <div>
+      <label style="font-size:11px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">PIN</label>
+      <input id="pinInput" class="fi fi-pin" type="tel" maxlength="6" placeholder="····" autocomplete="off"/>
+    </div>
+    <div id="loginErr" class="err"></div>
+    <button class="btn-gold" onclick="doLogin()">Enter →</button>
+  </div>
+</div>
+
+<!-- ══ SCANNER VIEW ══ -->
+<div id="scanView" class="view">
+  <div class="scan-topbar">
+    <div class="scan-event-name" id="scanEventName">—</div>
+    <div class="scan-badge" id="scanBadge">0 / 0 in</div>
+  </div>
+
+  <video id="video" autoplay playsinline muted></video>
+  <canvas id="canvas"></canvas>
+
+  <div class="scan-frame">
+    <div class="scan-frame-tr"></div>
+    <div class="scan-frame-bl"></div>
+  </div>
+  <div class="scan-line"></div>
+  <div class="scan-hint">Aim at guest's QR code</div>
+
+  <div id="resultCard">
+    <div class="rc-icon" id="rcIcon"></div>
+    <div class="rc-status" id="rcStatus"></div>
+    <div class="rc-name" id="rcName"></div>
+    <div class="rc-detail" id="rcDetail"></div>
+  </div>
+
+  <div class="bottom-tabs">
+    <button class="tab-btn active" onclick="showScanner()">
+      <svg viewBox="0 0 24 24"><path d="M9.5 6.5v3h-3v-3h3M11 5H5v6h6V5zm-1.5 9.5v3h-3v-3h3M11 13H5v6h6v-6zm6.5-6.5v3h-3v-3h3M19 5h-6v6h6V5zm-6 8h1.5v1.5H13V13zm1.5 1.5H16V16h-1.5v-1.5zM16 13h1.5v1.5H16V13zm-3 3h1.5v1.5H13V16zm1.5 1.5H16V19h-1.5v-1.5zM16 16h1.5v1.5H16V16zm1.5-1.5H19V16h-1.5v-1.5zm0 3H19V19h-1.5v-1.5z"/></svg>
+      SCAN
+    </button>
+    <button class="tab-btn" onclick="showList()">
+      <svg viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
+      LIST
+    </button>
+    <button class="tab-btn" onclick="doLogout()" style="flex:0 0 64px">
+      <svg viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+      EXIT
+    </button>
+  </div>
+</div>
+
+<!-- ══ LIST VIEW ══ -->
+<div id="listView" class="view">
+  <div class="list-topbar">
+    <div class="list-event" id="listEventName">—</div>
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-num" id="statTotal">0</div><div class="stat-lbl">Total</div></div>
+      <div class="stat-box in"><div class="stat-num" id="statIn">0</div><div class="stat-lbl">✓ In</div></div>
+      <div class="stat-box out"><div class="stat-num" id="statOut">0</div><div class="stat-lbl">Waiting</div></div>
+    </div>
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      <input id="searchInput" placeholder="Search guests…" oninput="renderList()" autocomplete="off"/>
+    </div>
+  </div>
+  <div class="guest-list" id="guestList"></div>
+  <div class="list-bottom-tabs bottom-tabs">
+    <button class="tab-btn" onclick="showScanner()">
+      <svg viewBox="0 0 24 24"><path d="M9.5 6.5v3h-3v-3h3M11 5H5v6h6V5zm-1.5 9.5v3h-3v-3h3M11 13H5v6h6v-6zm6.5-6.5v3h-3v-3h3M19 5h-6v6h6V5zm-6 8h1.5v1.5H13V13zm1.5 1.5H16V16h-1.5v-1.5zM16 13h1.5v1.5H16V13zm-3 3h1.5v1.5H13V16zm1.5 1.5H16V19h-1.5v-1.5zM16 16h1.5v1.5H16V16zm1.5-1.5H19V16h-1.5v-1.5zm0 3H19V19h-1.5v-1.5z"/></svg>
+      SCAN
+    </button>
+    <button class="tab-btn active" onclick="showList()">
+      <svg viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
+      LIST
+    </button>
+    <button class="tab-btn" onclick="doLogout()" style="flex:0 0 64px">
+      <svg viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+      EXIT
+    </button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+<script>
+const API = 'https://asia-southeast1-tonight-vietnam.cloudfunctions.net';
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let _session = null;   // { eventId, pin, event, guests }
+let _scanning = false;
+let _cooldown = false;
+let _stream   = null;
+let _rafId    = null;
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+(function init() {
+  const params = new URLSearchParams(location.search);
+  const eid = params.get('event') || params.get('e') || '';
+  if (eid) document.getElementById('eventIdInput').value = eid;
+  document.getElementById('pinInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
+  });
+})();
+
+// ── Login ─────────────────────────────────────────────────────────────────────
+async function doLogin() {
+  const eventId = document.getElementById('eventIdInput').value.trim();
+  const pin     = document.getElementById('pinInput').value.trim();
+  const btn     = document.querySelector('#loginView .btn-gold');
+  const err     = document.getElementById('loginErr');
+  if (!eventId) { err.textContent = 'Please enter the Event ID'; return; }
+  if (!pin)     { err.textContent = 'Please enter your PIN'; return; }
+  err.textContent = '';
+  btn.textContent = 'Verifying…'; btn.disabled = true;
+  try {
+    const res = await fetch(`${API}/promoterVerify`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ eventId, pin }),
+    });
+    const data = await res.json();
+    if (!res.ok) { err.textContent = data.error || 'Invalid PIN or Event ID'; btn.textContent = 'Enter →'; btn.disabled = false; return; }
+    _session = { eventId, pin, event: data.event, guests: data.guests };
+    updateStats();
+    showScanner();
+  } catch(e) {
+    err.textContent = 'Connection error — check internet';
+    btn.textContent = 'Enter →'; btn.disabled = false;
+  }
+}
+
+function doLogout() {
+  stopCamera();
+  _session = null;
+  show('loginView');
+  document.getElementById('pinInput').value = '';
+  document.getElementById('loginErr').textContent = '';
+  document.querySelector('#loginView .btn-gold').textContent = 'Enter →';
+  document.querySelector('#loginView .btn-gold').disabled = false;
+}
+
+// ── Views ─────────────────────────────────────────────────────────────────────
+function show(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function showScanner() {
+  show('scanView');
+  setTabActive('scanView');
+  startCamera();
+  if (_session) {
+    document.getElementById('scanEventName').textContent = _session.event.title;
+    updateBadge();
+  }
+}
+
+function showList() {
+  stopCamera();
+  show('listView');
+  setTabActive('listView');
+  if (_session) {
+    document.getElementById('listEventName').textContent = _session.event.title;
+    updateStats();
+    renderList();
+  }
+}
+
+function setTabActive(viewId) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  const icon = viewId === 'scanView' ? 0 : 1;
+  document.querySelectorAll(`#${viewId} .tab-btn`)[icon]?.classList.add('active');
+  document.querySelectorAll(`#${viewId} .list-bottom-tabs .tab-btn`)[icon]?.classList.add('active');
+}
+
+// ── Camera ────────────────────────────────────────────────────────────────────
+async function startCamera() {
+  if (_scanning) return;
+  _scanning = true;
+  hideResult();
+  try {
+    _stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+    });
+    const video = document.getElementById('video');
+    video.srcObject = _stream;
+    await video.play();
+    requestAnimationFrame(tick);
+  } catch(e) {
+    alert('Camera access required. Please allow camera permission and reload.');
+    _scanning = false;
+  }
+}
+
+function stopCamera() {
+  _scanning = false;
+  if (_rafId) { cancelAnimationFrame(_rafId); _rafId = null; }
+  if (_stream) { _stream.getTracks().forEach(t => t.stop()); _stream = null; }
+  const video = document.getElementById('video');
+  video.srcObject = null;
+}
+
+function tick() {
+  if (!_scanning) return;
+  _rafId = requestAnimationFrame(tick);
+  if (_cooldown) return;
+  const video  = document.getElementById('video');
+  const canvas = document.getElementById('canvas');
+  if (video.readyState !== video.HAVE_ENOUGH_DATA) return;
+  canvas.width  = video.videoWidth;
+  canvas.height = video.videoHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  const img  = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const code = jsQR(img.data, img.width, img.height, { inversionAttempts: 'dontInvert' });
+  if (code && code.data) handleQR(code.data);
+}
+
+// ── QR Handler ────────────────────────────────────────────────────────────────
+async function handleQR(raw) {
+  _cooldown = true;
+  const ref = raw.replace(/^TONIGHT:/i, '').trim();
+  if (!ref) { _cooldown = false; return; }
+  beep(true);
+  vibrate([50]);
+  try {
+    const res = await fetch(`${API}/promoterScan`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ref, eventId: _session.eventId, pin: _session.pin }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      showResult('err', '❌', 'Ticket Not Found', `Ref: ${ref}`, 'ref not found in system');
+      beep(false); vibrate([100,50,100]);
+    } else if (data.status === 'already_in') {
+      const time = data.checkedInAt ? fmt(data.checkedInAt) : 'earlier';
+      showResult('warn', '⚠️', 'Already Checked In', data.name, `Checked in at ${time} · ${data.ticketType} × ${data.qty}`);
+      beep(false); vibrate([200]);
+    } else {
+      showResult('ok', '✅', 'Welcome In!', data.name, `${data.ticketType} × ${data.qty}`);
+      beep(true); vibrate([50,30,50]);
+      // Update local guests list
+      const g = _session.guests.find(x => x.ref === ref);
+      if (g) { g.checkedIn = true; g.checkedInAt = new Date().toISOString(); }
+      else _session.guests.push({ ref, name: data.name, ticketType: data.ticketType, qty: data.qty, checkedIn: true, checkedInAt: new Date().toISOString() });
+      updateBadge();
+    }
+  } catch(e) {
+    showResult('err', '⚠️', 'Connection Error', 'Could not verify ticket', 'Check internet connection');
+  }
+  setTimeout(() => { hideResult(); _cooldown = false; }, 3500);
+}
+
+// ── Result Card ───────────────────────────────────────────────────────────────
+function showResult(type, icon, status, name, detail) {
+  const card = document.getElementById('resultCard');
+  card.className = type;
+  card.classList.add('show');
+  document.getElementById('rcIcon').textContent   = icon;
+  document.getElementById('rcStatus').textContent = status;
+  document.getElementById('rcStatus').className   = `rc-status rc-${type}`;
+  document.getElementById('rcName').textContent   = name;
+  document.getElementById('rcDetail').textContent = detail;
+}
+function hideResult() {
+  document.getElementById('resultCard').classList.remove('show');
+}
+
+// ── Stats ─────────────────────────────────────────────────────────────────────
+function updateStats() {
+  if (!_session) return;
+  const guests = _session.guests;
+  const total  = guests.reduce((s,g) => s + (g.qty||1), 0);
+  const inCount = guests.filter(g => g.checkedIn).reduce((s,g) => s + (g.qty||1), 0);
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statIn').textContent    = inCount;
+  document.getElementById('statOut').textContent   = total - inCount;
+}
+function updateBadge() {
+  if (!_session) return;
+  const inCount = _session.guests.filter(g => g.checkedIn).length;
+  document.getElementById('scanBadge').textContent = `${inCount} / ${_session.guests.length} in`;
+}
+
+// ── Guest List ────────────────────────────────────────────────────────────────
+function renderList() {
+  if (!_session) return;
+  updateStats();
+  const q = (document.getElementById('searchInput').value || '').toLowerCase();
+  let guests = _session.guests;
+  if (q) guests = guests.filter(g => (g.name||'').toLowerCase().includes(q) || (g.email||'').toLowerCase().includes(q) || (g.ref||'').toLowerCase().includes(q));
+  guests = [...guests].sort((a,b) => a.checkedIn === b.checkedIn ? 0 : a.checkedIn ? 1 : -1);
+  const el = document.getElementById('guestList');
+  if (!guests.length) { el.innerHTML = `<div class="empty-list">${q ? 'No guests match' : 'No guests yet'}</div>`; return; }
+  el.innerHTML = guests.map(g => {
+    const initials = (g.name||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const time = g.checkedIn && g.checkedInAt ? `<div class="guest-time">✓ ${fmt(g.checkedInAt)}</div>` : '';
+    return `<div class="guest-row" onclick="manualCheckIn('${g.ref||''}')">
+      <div class="guest-avatar ${g.checkedIn?'in':'out'}">${initials}</div>
+      <div class="guest-info">
+        <div class="guest-name">${esc(g.name||'—')}</div>
+        <div class="guest-meta">${esc(g.ticketType||'Guestlist')} × ${g.qty||1}${g.email?' · '+esc(g.email):''}</div>
+      </div>
+      <div class="guest-status">
+        <div class="${g.checkedIn?'badge-in':'badge-out'}">${g.checkedIn?'IN':'—'}</div>
+        ${time}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function manualCheckIn(ref) {
+  if (!ref || !_session) return;
+  const g = _session.guests.find(x => x.ref === ref);
+  if (g?.checkedIn) {
+    alert(`${g.name} is already checked in at ${fmt(g.checkedInAt)}`);
+    return;
+  }
+  if (!confirm(`Check in ${g?.name || ref}?`)) return;
+  try {
+    const res = await fetch(`${API}/promoterScan`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ref, eventId: _session.eventId, pin: _session.pin }),
+    });
+    const data = await res.json();
+    if (res.ok && data.status !== 'err') {
+      if (g) { g.checkedIn = true; g.checkedInAt = new Date().toISOString(); }
+      renderList();
+    } else if (data.status === 'already_in') {
+      alert(`${data.name || g?.name || ref} is already checked in`);
+      renderList();
+    } else {
+      alert(data.error || 'Check-in failed — try again');
+    }
+  } catch(e) { alert('Connection error'); }
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function fmt(iso) {
+  if (!iso) return '';
+  return new Date(iso).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+}
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function vibrate(pat) {
+  try { navigator.vibrate && navigator.vibrate(pat); } catch(_) {}
+}
+function beep(ok) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.value = ok ? 1046 : 330;
+    osc.type = ok ? 'sine' : 'square';
+    gain.gain.setValueAtTime(0.25, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + (ok ? 0.15 : 0.3));
+    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.35);
+  } catch(_) {}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tonight Vietnam — Admin Portal</title>
+<style>
+  :root {
+    --bg:      #0a0b14;
+    --bg2:     #0f1020;
+    --bg3:     #141525;
+    --card:    #131422;
+    --card2:   #1a1b2e;
+    --border:  rgba(255,255,255,0.08);
+    --gold:    #f5c842;
+    --green:   #00d084;
+    --red:     #ff3b5c;
+    --purple:  #a855f7;
+    --blue:    #3b82f6;
+    --orange:  #f97316;
+    --text:    #ffffff;
+    --text2:   #d8dce8;
+    --text3:   #9098b8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
+
+  /* ── LOGIN ── */
+  #login-screen {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: radial-gradient(ellipse at 50% 0%, rgba(245,200,66,0.06) 0%, transparent 70%), var(--bg);
+  }
+  .login-card {
+    width: 100%;
+    max-width: 420px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+  }
+  .login-logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 32px 32px;
+    gap: 10px;
+  }
+  .logo-icon {
+    width: 60px; height: 60px;
+    border-radius: 16px;
+    background: rgba(245,200,66,0.12);
+    border: 1.5px solid rgba(245,200,66,0.3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+    margin-bottom: 4px;
+  }
+  .logo-brand { font-size: 22px; font-weight: 800; color: var(--gold); letter-spacing: -0.3px; }
+  .logo-sub { font-size: 10px; font-weight: 700; color: var(--text3); letter-spacing: 3px; text-transform: uppercase; }
+  .login-divider { height: 1px; background: var(--border); }
+  .login-fields { padding: 28px; }
+  .field-label { font-size: 12px; font-weight: 700; color: var(--text2); margin-bottom: 8px; letter-spacing: 0.2px; display: block; }
+  .field-label.mt { margin-top: 18px; }
+  .input-wrap {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 12px; padding: 13px 14px;
+  }
+  .input-wrap:focus-within { border-color: rgba(245,200,66,0.4); }
+  .input-wrap input {
+    flex: 1; background: none; border: none; outline: none;
+    font-size: 15px; color: var(--text);
+  }
+  .input-wrap input::placeholder { color: var(--text3); }
+  .input-icon { font-size: 15px; opacity: 0.5; flex-shrink: 0; }
+  .error-box {
+    display: none; align-items: center; gap: 8px;
+    background: rgba(255,59,92,0.1); border: 1px solid rgba(255,59,92,0.25);
+    border-radius: 10px; padding: 12px; margin-top: 14px;
+    font-size: 13px; color: var(--red); line-height: 1.4;
+  }
+  .error-box.show { display: flex; }
+  .login-btn {
+    width: 100%; margin-top: 22px; padding: 15px;
+    background: var(--gold); border: none; border-radius: 13px;
+    font-size: 15px; font-weight: 800; color: #000;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: opacity 0.15s;
+  }
+  .login-btn:hover { opacity: 0.9; }
+  .login-btn:active { opacity: 0.8; }
+  .login-footer {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 16px; border-top: 1px solid var(--border);
+    background: var(--bg2); font-size: 11px; color: var(--text3);
+  }
+  .page-footer { margin-top: 24px; font-size: 11px; color: var(--text3); text-align: center; }
+  .hint-box {
+    width: 100%; max-width: 420px; margin-top: 16px;
+    background: rgba(245,200,66,0.06); border: 1px solid rgba(245,200,66,0.2);
+    border-radius: 12px; padding: 12px 16px;
+    font-size: 12px; color: var(--text3); line-height: 1.6;
+  }
+  .hint-box strong { color: var(--gold); }
+
+  /* ── DASHBOARD ── */
+  #dashboard { display: none; height: 100vh; flex-direction: column; }
+  #dashboard.show { display: flex; }
+
+  .db-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 20px;
+    background: var(--bg2); border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .db-header-left { display: flex; align-items: center; gap: 10px; }
+  .db-logo-icon {
+    width: 34px; height: 34px; border-radius: 10px;
+    background: rgba(245,200,66,0.12); border: 1px solid rgba(245,200,66,0.25);
+    display: flex; align-items: center; justify-content: center; font-size: 15px;
+  }
+  .db-brand { font-size: 15px; font-weight: 800; color: var(--gold); }
+  .db-sub { font-size: 10px; color: var(--text3); margin-top: 1px; }
+  .db-actions { display: flex; gap: 8px; }
+  .db-btn {
+    width: 34px; height: 34px; border-radius: 9px;
+    background: var(--card); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 15px; transition: opacity 0.15s;
+  }
+  .db-btn:hover { opacity: 0.7; }
+  .db-btn.danger { border-color: rgba(255,59,92,0.3); background: rgba(255,59,92,0.08); }
+
+  .tab-bar {
+    display: flex; background: var(--bg2);
+    border-bottom: 1px solid var(--border); flex-shrink: 0;
+  }
+  .tab-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    padding: 10px 4px; gap: 3px; cursor: pointer; position: relative;
+    transition: background 0.15s; border: none; background: none; color: var(--text3);
+  }
+  .tab-item:hover { background: var(--bg3); }
+  .tab-item.active { background: var(--bg3); color: var(--gold); }
+  .tab-icon { font-size: 15px; }
+  .tab-label { font-size: 10px; font-weight: 600; letter-spacing: 0.2px; }
+  .tab-item.active .tab-label { color: var(--gold); font-weight: 700; }
+  .tab-underline {
+    display: none; position: absolute; bottom: -1px; left: 15%; right: 15%;
+    height: 2px; background: var(--gold); border-radius: 2px;
+  }
+  .tab-item.active .tab-underline { display: block; }
+  .tab-badge {
+    position: absolute; top: 6px; right: calc(50% - 14px);
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--orange); border: 1.5px solid var(--bg2);
+  }
+
+  .tab-content { flex: 1; overflow-y: auto; }
+  .tab-panel { display: none; padding: 0; }
+  .tab-panel.active { display: block; }
+
+  /* ── METRICS ── */
+  .metric-grid { display: flex; flex-wrap: wrap; gap: 10px; padding: 14px; }
+  .metric-card {
+    flex: 1; min-width: calc(50% - 5px); max-width: calc(50% - 5px);
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 16px;
+  }
+  .metric-card.urgent { border-color: rgba(249,115,22,0.35); }
+  .metric-icon-wrap {
+    width: 36px; height: 36px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px; margin-bottom: 10px; position: relative;
+  }
+  .urgent-dot {
+    position: absolute; top: 2px; right: 2px;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--orange); border: 1.5px solid var(--card);
+  }
+  .metric-value { font-size: 30px; font-weight: 800; line-height: 1.1; letter-spacing: -0.5px; }
+  .metric-label { font-size: 12px; font-weight: 700; color: var(--text2); margin-top: 4px; }
+  .metric-sub { font-size: 10px; color: var(--text3); margin-top: 2px; }
+
+  /* ── SECTION LABEL ── */
+  .section-label {
+    display: flex; align-items: center; gap: 8px;
+    padding: 12px 16px 10px;
+  }
+  .section-icon {
+    width: 24px; height: 24px; border-radius: 7px;
+    background: rgba(245,200,66,0.12);
+    display: flex; align-items: center; justify-content: center; font-size: 12px;
+  }
+  .section-title { font-size: 13px; font-weight: 700; color: var(--text2); flex: 1; }
+  .section-count {
+    background: var(--card2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 2px 8px;
+    font-size: 11px; font-weight: 700; color: var(--text3);
+  }
+
+  /* ── LIST CARD ── */
+  .list-card {
+    margin: 0 16px 12px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; overflow: hidden;
+  }
+  .list-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 13px 14px; border-bottom: 1px solid var(--border);
+  }
+  .list-row:last-child { border-bottom: none; }
+  .bar-icon-wrap {
+    width: 40px; height: 40px; border-radius: 12px;
+    background: rgba(245,200,66,0.1); border: 1px solid rgba(245,200,66,0.2);
+    display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;
+  }
+  .bar-name { font-size: 14px; font-weight: 700; }
+  .bar-city { font-size: 12px; color: var(--text3); margin-top: 2px; }
+  .list-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+  .live-badge {
+    background: rgba(0,208,132,0.15); border: 1px solid rgba(0,208,132,0.35);
+    border-radius: 5px; padding: 2px 7px;
+    font-size: 9px; font-weight: 800; color: var(--green); letter-spacing: 0.5px;
+  }
+  .time-label { font-size: 11px; color: var(--text3); }
+
+  /* member avatar */
+  .avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 800; flex-shrink: 0;
+  }
+  .avatar.user { background: rgba(144,152,184,0.12); color: var(--text3); }
+  .avatar.venue_owner { background: rgba(245,200,66,0.15); color: var(--gold); }
+  .avatar.admin { background: rgba(255,255,255,0.1); color: #fff; }
+  .avatar.pro { background: rgba(168,85,247,0.15); color: var(--purple); }
+  .member-name { font-size: 13px; font-weight: 700; }
+  .member-email { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+  .role-badge {
+    border-radius: 6px; padding: 2px 7px;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.3px;
+  }
+  .role-user { background: rgba(144,152,184,0.12); color: var(--text3); }
+  .role-venue_owner { background: rgba(245,200,66,0.15); color: var(--gold); }
+  .role-admin { background: rgba(255,255,255,0.1); color: #fff; }
+  .role-pro { background: rgba(168,85,247,0.15); color: var(--purple); }
+
+  /* ── MEMBERS TAB ── */
+  .search-bar {
+    display: flex; align-items: center; gap: 8px;
+    margin: 14px 16px 6px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 10px 14px;
+  }
+  .search-bar input {
+    flex: 1; background: none; border: none; outline: none;
+    font-size: 14px; color: var(--text);
+  }
+  .search-bar input::placeholder { color: var(--text3); }
+  .result-count { font-size: 12px; color: var(--text3); font-weight: 600; padding: 4px 16px 8px; }
+  .member-list { padding: 0 16px 40px; }
+  .member-list-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 13px 0; border-bottom: 1px solid var(--border);
+  }
+  .member-list-row:last-child { border-bottom: none; }
+  .ml-avatar {
+    width: 42px; height: 42px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px; font-weight: 800; flex-shrink: 0;
+  }
+  .ml-name { font-size: 14px; font-weight: 700; }
+  .ml-email { font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .ml-right { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex-shrink: 0; }
+  .ml-date { font-size: 10px; color: var(--text3); }
+
+  /* ── VENUES TAB ── */
+  .filter-row { display: flex; gap: 8px; padding: 12px 16px; flex-wrap: wrap; }
+  .filter-btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 8px 14px; border-radius: 20px;
+    background: var(--card); border: 1px solid var(--border);
+    font-size: 13px; font-weight: 600; color: var(--text3);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .filter-btn.active-pending { background: rgba(249,115,22,0.12); border-color: var(--orange); color: var(--orange); }
+  .filter-btn.active-approved { background: rgba(0,208,132,0.12); border-color: var(--green); color: var(--green); }
+  .filter-btn.active-rejected { background: rgba(255,59,92,0.12); border-color: var(--red); color: var(--red); }
+  .filter-count {
+    border-radius: 8px; padding: 1px 7px;
+    font-size: 10px; font-weight: 800; background: var(--card2); color: var(--text3);
+  }
+  .filter-btn.active-pending .filter-count { background: var(--orange); color: #000; }
+  .filter-btn.active-approved .filter-count { background: var(--green); color: #000; }
+  .filter-btn.active-rejected .filter-count { background: var(--red); color: #fff; }
+  .venue-cards { padding: 0 16px 40px; display: flex; flex-direction: column; gap: 14px; }
+  .venue-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; overflow: hidden;
+  }
+  .vc-head {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px; border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+  }
+  .vc-init {
+    width: 42px; height: 42px; border-radius: 50%;
+    background: rgba(245,200,66,0.15); border: 1.5px solid rgba(245,200,66,0.3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px; font-weight: 800; color: var(--gold); flex-shrink: 0;
+  }
+  .vc-name { font-size: 14px; font-weight: 700; }
+  .vc-email { font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .vc-time { font-size: 11px; color: var(--text3); margin-left: auto; flex-shrink: 0; }
+  .vc-body { padding: 14px; display: flex; flex-direction: column; gap: 7px; }
+  .vc-detail { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--text2); }
+  .vc-detail .icon { font-size: 13px; opacity: 0.6; flex-shrink: 0; }
+  .vc-desc {
+    font-size: 13px; color: var(--text3); line-height: 1.5;
+    margin-top: 4px; padding-top: 8px; border-top: 1px solid var(--border);
+  }
+  .vc-actions { display: flex; border-top: 1px solid var(--border); }
+  .vc-reject {
+    flex: 1; padding: 14px; display: flex; align-items: center; justify-content: center; gap: 6px;
+    border: none; border-right: 1px solid var(--border); background: none;
+    font-size: 14px; font-weight: 700; color: var(--red); cursor: pointer; transition: opacity 0.15s;
+  }
+  .vc-reject:hover { background: rgba(255,59,92,0.05); }
+  .vc-approve {
+    flex: 2; padding: 14px; display: flex; align-items: center; justify-content: center; gap: 6px;
+    border: none; background: var(--green);
+    font-size: 14px; font-weight: 800; color: #000; cursor: pointer; transition: opacity 0.15s;
+  }
+  .vc-approve:hover { opacity: 0.88; }
+  .vc-status {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 12px; border-top: 1px solid var(--border);
+    font-size: 13px; font-weight: 700;
+  }
+  .vc-status.approved { background: rgba(0,208,132,0.05); color: var(--green); }
+  .vc-status.rejected { background: rgba(255,59,92,0.05); color: var(--red); }
+
+  /* ── EVENTS TAB ── */
+  .events-list { padding: 12px 16px 40px; }
+  .event-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 13px 0; border-bottom: 1px solid var(--border);
+  }
+  .event-row:last-child { border-bottom: none; }
+  .ev-emoji {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: var(--card); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+  }
+  .ev-title { font-size: 14px; font-weight: 700; }
+  .ev-venue { font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .ev-date { font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .ev-right { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex-shrink: 0; }
+  .ev-badge {
+    border-radius: 5px; padding: 2px 6px;
+    font-size: 9px; font-weight: 800; letter-spacing: 0.5px;
+  }
+  .ev-badge.new { background: rgba(0,208,132,0.15); color: var(--green); }
+  .ev-badge.feat { background: rgba(245,200,66,0.15); color: var(--gold); }
+  .ev-time { font-size: 10px; color: var(--text3); }
+
+  /* ── EMPTY ── */
+  .empty-msg { display: flex; flex-direction: column; align-items: center; padding: 48px 24px; gap: 10px; }
+  .empty-msg .emoji { font-size: 36px; }
+  .empty-msg .text { font-size: 14px; color: var(--text3); font-weight: 600; }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px 20px;
+    font-size: 13px; font-weight: 600; color: var(--text);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap;
+  }
+  .toast.show { opacity: 1; }
+
+  @media (min-width: 640px) {
+    .metric-card { min-width: 180px; max-width: 240px; }
+    .login-card { box-shadow: 0 32px 80px rgba(0,0,0,0.7); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════ LOGIN ══════════════ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-icon">🛡️</div>
+      <div class="logo-brand">Tonight Vietnam</div>
+      <div class="logo-sub">Staff Portal</div>
+    </div>
+    <div class="login-divider"></div>
+    <div class="login-fields">
+      <label class="field-label">Email address</label>
+      <div class="input-wrap">
+        <span class="input-icon">✉️</span>
+        <input id="login-email" type="email" placeholder="staff@tonightvietnam.com" autocomplete="email" />
+      </div>
+      <label class="field-label mt">Password</label>
+      <div class="input-wrap">
+        <span class="input-icon">🔒</span>
+        <input id="login-pw" type="password" placeholder="••••••••" autocomplete="current-password" />
+      </div>
+      <div class="error-box" id="login-error">⚠️ &nbsp;<span id="error-msg"></span></div>
+      <button class="login-btn" onclick="tryLogin()">
+        Sign In to Portal &nbsp;→
+      </button>
+    </div>
+    <div class="login-footer">🔒 &nbsp;Authorised staff only · Tonight Vietnam</div>
+  </div>
+  <div class="hint-box">
+    <strong>Demo credentials:</strong> use any email + password to preview the portal UI.<br/>
+    In production, only <strong>app.tonigh1@gmail.com</strong> (admin) has access.
+  </div>
+  <div class="page-footer">© 2026 Tonight Vietnam. All rights reserved.</div>
+</div>
+
+<!-- ══════════════ DASHBOARD ══════════════ -->
+<div id="dashboard">
+
+  <!-- Header -->
+  <div class="db-header">
+    <div class="db-header-left">
+      <div class="db-logo-icon">🛡️</div>
+      <div>
+        <div class="db-brand">Tonight Vietnam</div>
+        <div class="db-sub" id="db-time">Admin Portal · loading...</div>
+      </div>
+    </div>
+    <div class="db-actions">
+      <div class="db-btn" onclick="showToast('Data refreshed ✓')" title="Refresh">🔄</div>
+      <div class="db-btn danger" onclick="signOut()" title="Sign Out">🚪</div>
+    </div>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <button class="tab-item active" onclick="switchTab('overview', this)">
+      <span class="tab-icon">⊞</span>
+      <span class="tab-label">Overview</span>
+      <div class="tab-underline"></div>
+    </button>
+    <button class="tab-item" onclick="switchTab('members', this)">
+      <span class="tab-icon">👥</span>
+      <span class="tab-label">Members</span>
+      <div class="tab-underline"></div>
+    </button>
+    <button class="tab-item" onclick="switchTab('venues', this)" id="venues-tab-btn">
+      <span class="tab-icon">🏪</span>
+      <span class="tab-label">Venues</span>
+      <div class="tab-underline"></div>
+      <div class="tab-badge" id="venue-badge"></div>
+    </button>
+    <button class="tab-item" onclick="switchTab('events', this)">
+      <span class="tab-icon">🎫</span>
+      <span class="tab-label">Events</span>
+      <div class="tab-underline"></div>
+    </button>
+  </div>
+
+  <!-- Content -->
+  <div class="tab-content">
+
+    <!-- ── OVERVIEW ── -->
+    <div class="tab-panel active" id="panel-overview">
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-icon-wrap" style="background:rgba(168,85,247,0.12)">👥</div>
+          <div class="metric-value" style="color:var(--purple)" id="stat-members">248</div>
+          <div class="metric-label">Total Members</div>
+          <div class="metric-sub">all time</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon-wrap" style="background:rgba(0,208,132,0.12)">📈</div>
+          <div class="metric-value" style="color:var(--green)" id="stat-week">12</div>
+          <div class="metric-label">New This Week</div>
+          <div class="metric-sub">last 7 days</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon-wrap" style="background:rgba(59,130,246,0.12)">🎫</div>
+          <div class="metric-value" style="color:var(--blue)" id="stat-events">5</div>
+          <div class="metric-label">Live Events</div>
+          <div class="metric-sub">published</div>
+        </div>
+        <div class="metric-card urgent" id="stat-card-pending">
+          <div class="metric-icon-wrap" style="background:rgba(249,115,22,0.12)">
+            ⏳<div class="urgent-dot"></div>
+          </div>
+          <div class="metric-value" style="color:var(--orange)" id="stat-pending">3</div>
+          <div class="metric-label">Pending Reviews</div>
+          <div class="metric-sub">venue requests</div>
+        </div>
+      </div>
+
+      <div class="section-label">
+        <div class="section-icon">🏢</div>
+        <div class="section-title">Newly Joined Bars</div>
+        <div class="section-count" id="bars-count">2</div>
+      </div>
+      <div class="list-card" id="bars-list"></div>
+
+      <div class="section-label">
+        <div class="section-icon">🙋</div>
+        <div class="section-title">New Community Sign-Ups</div>
+        <div class="section-count" id="signups-count">10</div>
+      </div>
+      <div class="list-card" id="signups-list"></div>
+      <div style="height:32px"></div>
+    </div>
+
+    <!-- ── MEMBERS ── -->
+    <div class="tab-panel" id="panel-members">
+      <div class="search-bar">
+        <span>🔍</span>
+        <input type="text" placeholder="Search by name, email or role…" oninput="filterMembers(this.value)" />
+      </div>
+      <div class="result-count" id="member-count">10 members</div>
+      <div class="member-list" id="member-list"></div>
+    </div>
+
+    <!-- ── VENUES ── -->
+    <div class="tab-panel" id="panel-venues">
+      <div class="filter-row" id="venue-filters"></div>
+      <div class="venue-cards" id="venue-cards"></div>
+    </div>
+
+    <!-- ── EVENTS ── -->
+    <div class="tab-panel" id="panel-events">
+      <div class="events-list" id="events-list"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DEMO DATA ──────────────────────────────────────────────────────────────
+
+const MEMBERS = [
+  { id:1, name:'Nguyen Van Anh', email:'vananh@gmail.com',     role:'admin',        joined:'2h ago' },
+  { id:2, name:'Tran Thi Bao',   email:'bao.tran@gmail.com',   role:'venue_owner',  joined:'5h ago' },
+  { id:3, name:'Le Minh Duc',    email:'duc.le@gmail.com',     role:'venue_owner',  joined:'1d ago' },
+  { id:4, name:'Pham Quynh Anh', email:'qa.pham@gmail.com',    role:'user',         joined:'1d ago' },
+  { id:5, name:'Hoang Nam',      email:'nam.hoang@gmail.com',  role:'user',         joined:'2d ago' },
+  { id:6, name:'Vo Thi Lan',     email:'lan.vo@gmail.com',     role:'user',         joined:'3d ago' },
+  { id:7, name:'Bui Thanh Tung', email:'tung.bui@gmail.com',   role:'user',         joined:'4d ago' },
+  { id:8, name:'Do Hong Nhung',  email:'nhung.do@gmail.com',   role:'pro',          joined:'5d ago' },
+  { id:9, name:'Ngo Bich Ngoc',  email:'ngoc.ngo@gmail.com',   role:'user',         joined:'6d ago' },
+  { id:10,name:'Dang Minh Tri',  email:'tri.dang@gmail.com',   role:'user',         joined:'7d ago' },
+];
+
+const NEW_BARS = [
+  { id:1, name:'Broma Not A Bar',    city:'Ho Chi Minh City', time:'2h ago' },
+  { id:2, name:'Hanoi Rock City',    city:'Hanoi',            time:'1d ago' },
+];
+
+const VENUE_REQUESTS = [
+  { id:1, name:'Nguyen Duc Anh', email:'ducanh@skygarden.vn', venue:'Sky Garden Lounge', city:'Ho Chi Minh City', website:'instagram.com/skygarden.hcmc', desc:'Rooftop bar on the 23rd floor with panoramic city views. We host weekly DJ nights, cocktail events, and corporate functions. Capacity 200.', status:'pending',  time:'1h ago',   reviewed:'' },
+  { id:2, name:'Tran My Linh',   email:'mylinh@stonehouse.vn', venue:'The Stone House',  city:'Hanoi',            website:'thestonehouse.vn',               desc:'Underground live music venue in the Old Quarter. Specialising in indie, jazz and folk. 80 seated capacity, open mic every Thursday.', status:'pending',  time:'3h ago',   reviewed:'' },
+  { id:3, name:'Pham Van Khanh', email:'khanh@mogahcm.com',   venue:'Moga Rooftop',      city:'Ho Chi Minh City', website:'mogahcm.com',                    desc:'Premium rooftop destination with resident DJs every weekend. We run exclusive member events and collaborate with international artists.', status:'pending',  time:'5h ago',   reviewed:'' },
+  { id:4, name:'Le Thi Thu',     email:'thu@bromavietnam.com', venue:'Broma Not A Bar',  city:'Ho Chi Minh City', website:'instagram.com/broma_hcmc',       desc:'One of Saigon\'s most iconic underground venues. Techno and house music focused. Capacity 350.', status:'approved', time:'2d ago',   reviewed:'1d ago' },
+  { id:5, name:'Vu Ngoc Son',    email:'son@hanoirockcity.vn', venue:'Hanoi Rock City',  city:'Hanoi',            website:'hanoirockcity.com',              desc:'Legendary live music venue, home of Vietnam\'s indie scene since 2009.', status:'approved', time:'4d ago',   reviewed:'3d ago' },
+  { id:6, name:'Dang Anh Tuan',  email:'tuan@savageclubb.com', venue:'Savage Club',      city:'Hanoi',            website:'savage.vn',                      desc:'Hip-hop and trap focused club.', status:'rejected', time:'6d ago',   reviewed:'5d ago' },
+];
+
+const EVENTS = [
+  { id:1, emoji:'🎛️', title:'Neon Pulse: Techno Night',  venue:'Broma Not A Bar',   city:'Ho Chi Minh City', date:'Apr 5, 2026',  isNew:false, featured:true,  added:'2d ago' },
+  { id:2, emoji:'🎷', title:'Jazz & Wine Evening',        venue:'The Reverie Saigon',city:'Ho Chi Minh City', date:'Apr 10, 2026', isNew:true,  featured:false, added:'3d ago' },
+  { id:3, emoji:'🎤', title:'Hip-Hop Takeover',           venue:'Savage Club',       city:'Hanoi',            date:'Apr 8, 2026',  isNew:false, featured:false, added:'4d ago' },
+  { id:4, emoji:'⚡', title:'Saigon EDM Massive',         venue:'GEM Center',        city:'Ho Chi Minh City', date:'Apr 20, 2026', isNew:false, featured:true,  added:'5d ago' },
+  { id:5, emoji:'🔊', title:'Underground Beats Hanoi',    venue:'Hanoi Rock City',   city:'Hanoi',            date:'Apr 25, 2026', isNew:true,  featured:false, added:'6d ago' },
+];
+
+// ── STATE ──────────────────────────────────────────────────────────────────
+
+let venueFilter = 'pending';
+let allMembers = [...MEMBERS];
+
+// ── LOGIN ──────────────────────────────────────────────────────────────────
+
+function tryLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pw    = document.getElementById('login-pw').value;
+  const err   = document.getElementById('login-error');
+  const msg   = document.getElementById('error-msg');
+
+  if (!email || !pw) {
+    msg.textContent = 'Please enter your email and password.';
+    err.classList.add('show'); return;
+  }
+  err.classList.remove('show');
+  // In production this checks Supabase admin role.
+  // For demo: any credentials work.
+  showDashboard();
+}
+
+document.getElementById('login-pw').addEventListener('keydown', e => {
+  if (e.key === 'Enter') tryLogin();
+});
+
+function showDashboard() {
+  document.getElementById('login-screen').style.display = 'none';
+  const db = document.getElementById('dashboard');
+  db.classList.add('show');
+  updateClock();
+  setInterval(updateClock, 30000);
+  renderAll();
+}
+
+function signOut() {
+  document.getElementById('dashboard').classList.remove('show');
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('login-email').value = '';
+  document.getElementById('login-pw').value = '';
+}
+
+function updateClock() {
+  const now = new Date();
+  const t = now.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
+  document.getElementById('db-time').textContent = `Admin Portal · ${t}`;
+}
+
+// ── TABS ───────────────────────────────────────────────────────────────────
+
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+}
+
+// ── RENDER ─────────────────────────────────────────────────────────────────
+
+function renderAll() {
+  renderBars();
+  renderSignups();
+  renderMembers();
+  renderVenueFilters();
+  renderVenueCards();
+  renderEvents();
+  updateBadge();
+}
+
+function updateBadge() {
+  const pending = VENUE_REQUESTS.filter(r => r.status === 'pending').length;
+  const badge = document.getElementById('venue-badge');
+  badge.style.display = pending > 0 ? 'block' : 'none';
+  document.getElementById('stat-pending').textContent = pending;
+  document.getElementById('stat-card-pending').className = 'metric-card' + (pending > 0 ? ' urgent' : '');
+}
+
+function roleClass(role) { return 'role-' + role; }
+
+function renderBars() {
+  const el = document.getElementById('bars-list');
+  document.getElementById('bars-count').textContent = NEW_BARS.length;
+  el.innerHTML = NEW_BARS.map(b => `
+    <div class="list-row">
+      <div class="bar-icon-wrap">🏢</div>
+      <div style="flex:1">
+        <div class="bar-name">${b.name}</div>
+        <div class="bar-city">${b.city}</div>
+      </div>
+      <div class="list-right">
+        <div class="live-badge">LIVE</div>
+        <div class="time-label">${b.time}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderSignups() {
+  const el = document.getElementById('signups-list');
+  document.getElementById('signups-count').textContent = MEMBERS.length;
+  el.innerHTML = MEMBERS.slice(0,8).map(m => `
+    <div class="list-row">
+      <div class="avatar ${m.role}">${m.name[0]}</div>
+      <div style="flex:1">
+        <div class="member-name">${m.name}</div>
+        <div class="member-email">${m.email}</div>
+      </div>
+      <div class="list-right">
+        <span class="role-badge ${roleClass(m.role)}">${m.role}</span>
+        <div class="time-label">${m.joined}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterMembers(q) {
+  const ql = q.toLowerCase();
+  const filtered = ql
+    ? MEMBERS.filter(m => m.name.toLowerCase().includes(ql) || m.email.toLowerCase().includes(ql) || m.role.toLowerCase().includes(ql))
+    : MEMBERS;
+  document.getElementById('member-count').textContent = `${filtered.length} member${filtered.length !== 1 ? 's' : ''}`;
+  document.getElementById('member-list').innerHTML = filtered.map(m => `
+    <div class="member-list-row">
+      <div class="ml-avatar ${m.role}">${m.name[0]}</div>
+      <div style="flex:1">
+        <div class="ml-name">${m.name}</div>
+        <div class="ml-email">${m.email}</div>
+      </div>
+      <div class="ml-right">
+        <span class="role-badge ${roleClass(m.role)}">${m.role}</span>
+        <div class="ml-date">${m.joined}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderMembers() { filterMembers(''); }
+
+function renderVenueFilters() {
+  const counts = { pending: 0, approved: 0, rejected: 0 };
+  VENUE_REQUESTS.forEach(r => counts[r.status]++);
+  const filters = [
+    { key:'pending',  label:'Pending' },
+    { key:'approved', label:'Approved' },
+    { key:'rejected', label:'Rejected' },
+  ];
+  document.getElementById('venue-filters').innerHTML = filters.map(f => `
+    <button class="filter-btn ${venueFilter === f.key ? 'active-'+f.key : ''}"
+            onclick="setVenueFilter('${f.key}')">
+      ${f.label}
+      ${counts[f.key] > 0 ? `<span class="filter-count">${counts[f.key]}</span>` : ''}
+    </button>
+  `).join('');
+}
+
+function setVenueFilter(f) {
+  venueFilter = f;
+  renderVenueFilters();
+  renderVenueCards();
+}
+
+function renderVenueCards() {
+  const filtered = VENUE_REQUESTS.filter(r => r.status === venueFilter);
+  const el = document.getElementById('venue-cards');
+  if (filtered.length === 0) {
+    el.innerHTML = `<div class="empty-msg"><div class="emoji">${venueFilter==='pending'?'📭':venueFilter==='approved'?'✅':'🚫'}</div><div class="text">No ${venueFilter} requests</div></div>`;
+    return;
+  }
+  el.innerHTML = filtered.map(r => `
+    <div class="venue-card">
+      <div class="vc-head">
+        <div class="vc-init">${r.name[0]}</div>
+        <div style="flex:1">
+          <div class="vc-name">${r.name}</div>
+          <div class="vc-email">${r.email}</div>
+        </div>
+        <div class="vc-time">${r.time}</div>
+      </div>
+      <div class="vc-body">
+        <div class="vc-detail"><span class="icon">🏪</span><strong>${r.venue}</strong></div>
+        <div class="vc-detail"><span class="icon">📍</span>${r.city}</div>
+        ${r.website ? `<div class="vc-detail"><span class="icon">🌐</span><span style="color:var(--blue)">${r.website}</span></div>` : ''}
+        ${r.desc ? `<div class="vc-desc">${r.desc}</div>` : ''}
+      </div>
+      ${r.status === 'pending' ? `
+        <div class="vc-actions">
+          <button class="vc-reject" onclick="rejectVenue(${r.id})">✕ &nbsp;Reject</button>
+          <button class="vc-approve" onclick="approveVenue(${r.id})">✓ &nbsp;Approve &amp; Go Live</button>
+        </div>
+      ` : `
+        <div class="vc-status ${r.status}">
+          ${r.status === 'approved' ? '✓ Approved' : '✕ Rejected'} · ${r.reviewed}
+        </div>
+      `}
+    </div>
+  `).join('');
+}
+
+function approveVenue(id) {
+  const r = VENUE_REQUESTS.find(v => v.id === id);
+  if (!r) return;
+  if (!confirm(`Approve ${r.name}'s request for "${r.venue}"?\n\nThey will be able to publish events on Tonight immediately.`)) return;
+  r.status = 'approved';
+  r.reviewed = 'just now';
+  NEW_BARS.push({ id: Date.now(), name: r.venue, city: r.city, time: 'just now' });
+  document.getElementById('bars-count').textContent = NEW_BARS.length;
+  document.getElementById('stat-members').textContent = parseInt(document.getElementById('stat-members').textContent) + 1;
+  renderBars();
+  renderVenueFilters();
+  renderVenueCards();
+  updateBadge();
+  showToast(`✅ ${r.venue} is now live on Tonight`);
+}
+
+function rejectVenue(id) {
+  const r = VENUE_REQUESTS.find(v => v.id === id);
+  if (!r) return;
+  if (!confirm(`Reject the application from ${r.name}?`)) return;
+  r.status = 'rejected';
+  r.reviewed = 'just now';
+  renderVenueFilters();
+  renderVenueCards();
+  updateBadge();
+  showToast(`🚫 Request from ${r.name} rejected`);
+}
+
+function renderEvents() {
+  document.getElementById('events-list').innerHTML = EVENTS.map((e, i) => `
+    <div class="event-row" style="${i === 0 ? 'border-top:none' : ''}">
+      <div class="ev-emoji">${e.emoji}</div>
+      <div style="flex:1">
+        <div class="ev-title">${e.title}</div>
+        <div class="ev-venue">${e.venue} · ${e.city}</div>
+        <div class="ev-date">${e.date}</div>
+      </div>
+      <div class="ev-right">
+        ${e.isNew ? '<span class="ev-badge new">NEW</span>' : ''}
+        ${e.featured ? '<span class="ev-badge feat">FEAT</span>' : ''}
+        <span class="ev-time">${e.added}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── TOAST ──────────────────────────────────────────────────────────────────
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
